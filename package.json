@@ -1,0 +1,8 @@
+{
+    "name": "stopgo",
+    "version": "0.0.1",
+    "description": "This is a nodeGame game",
+    "author": "brenste <myemail>",
+    "license": "MIT/X11",
+    "homepage": "http://nodegame.org"
+}
