@@ -54,16 +54,20 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.on.data('ROLE_RED', function(msg) {
                 var buttonStop, buttonGo, offer, div;
 
+				node.game.role = 'red';
+
                 // Make the RED div display visible.
                 div = W.getElementById('red').style.display = '';
+                
                 buttonStop = W.getElementById('stop');
+                buttonStop.disabled = false;
                 buttonGo = W.getElementById('go');
+                buttonGo.disabled = false;
                 
                 buttonStop.onclick = function() {
                 	node.done('stop');
-                };
-                
-                
+                };               
+
                 buttonGo.onclick = function() {
                 	node.done('go');
                 };
@@ -83,6 +87,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.on.data('ROLE_BLUE', function(msg) {
                 var button, span, offer, div;
 
+				node.game.role = 'blue';
+
                 node.game.visualTimer.clear();
                 node.game.visualTimer.startWaiting({
                     milliseconds: node.game.settings.bidTime,
@@ -94,7 +100,50 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 span = W.getElementById('dots');
                 W.addLoadingDots(span);
             });
-        }
+        },
+        done: function() {
+        	var button;
+        	if (node.game.role === 'red') {
+        		button = W.getElementById('stop');
+        		button.disabled = true;
+        		button = W.getElementById('go');
+        		button.disabled = true;
+	        }
+	    }
+    });
+
+
+	stager.extendStep('leftorright', {
+        donebutton: false,
+        cb: function() {
+        	var buttonLeft, buttonRight;
+			if (node.game.role === 'blue') {
+        		buttonLeft = W.getElementById('left');
+        		buttonLeft.disabled = false;
+        		buttonRight = W.getElementById('right');
+        		buttonRight.disabled = false;
+        		
+        		buttonLeft.onclick = function() {
+                	node.done('left');        			
+        		};
+        		buttonRight.onclick = function() {
+                	node.done('right');
+        		};
+				W.getElementById('blue_leftorright').style.display = '';
+//				span = W.getElementById('dots');
+//				W.addLoadingDots(span);				
+			}
+
+        },
+        done: function() {
+        	var button;
+        	if (node.game.role === 'blue') {
+        		button = W.getElementById('left');
+        		button.disabled = true;
+        		button = W.getElementById('right');
+        		button.disabled = true;
+	        }
+	    }
     });
 
     stager.extendStep('end', {
