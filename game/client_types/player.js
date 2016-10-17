@@ -158,7 +158,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
   	stager.extendStep('results', {
         cb: function() {
+			// W.clearFrame();
         	node.on.data('payoff', function(msg) {
+        		debugger;
         		if (node.game.role === 'blue') {
         			W.writeln('Your payoff is ' + msg.data.blue);
         		}

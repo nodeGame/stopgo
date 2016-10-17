@@ -43,14 +43,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             doStateOfTheWorld();
             node.on.data('done', function(msg) {
             	node.game.redChoice = msg.data.stop ? 'stop' : 'go';
-            	debugger;
             	node.say('redChoice', node.game.bluePlayerId, node.game.redChoice);
             	console.log('RECEIVED DONE: ', msg);
             	node.done();
             });
         },
         stepRule: stepRules.SOLO,
-//        steprule: stepRules.SOLO
+        steprule: stepRules.SOLO
     });
     
     stager.extendStep('leftorright', {
@@ -64,13 +63,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             });
         },
         stepRule: stepRules.SOLO,
-//        steprule: stepRules.SOLO
+        steprule: stepRules.SOLO
     });
 
 
 
     stager.extendStep('end', {
         cb: function() {
+        	console.log('ENDDD');
+        	debugger;
         	computePayoff();
             node.game.memory.save(channel.getGameDir() + 'data/data_' +
                                   node.nodename + '.json');

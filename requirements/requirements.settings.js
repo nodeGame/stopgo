@@ -33,7 +33,7 @@ module.exports = {
      * If set, client must exchange messages with server "quickly enough"
      */
     speedTest: {
-        messages: 10,
+        messages: 1,
         time: 1000
     },
 
