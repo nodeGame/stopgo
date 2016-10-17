@@ -71,7 +71,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 buttonGo.onclick = function() {
                 	node.done('go');
                 };
-                
+                return;
                 // Setup the timer.
                 node.game.visualTimer.init({
                     milliseconds: node.game.settings.bidTime,
@@ -99,6 +99,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 div = W.getElementById('blue').style.display = '';
                 span = W.getElementById('dots');
                 W.addLoadingDots(span);
+                
+                
+				node.on.data('redChoice', function(msg) {
+					node.game.redChoice = msg.data;
+				});
+				
             });
         },
         done: function() {
@@ -118,20 +124,24 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
         	var buttonLeft, buttonRight;
 			if (node.game.role === 'blue') {
-        		buttonLeft = W.getElementById('left');
-        		buttonLeft.disabled = false;
-        		buttonRight = W.getElementById('right');
-        		buttonRight.disabled = false;
-        		
-        		buttonLeft.onclick = function() {
-                	node.done('left');        			
-        		};
-        		buttonRight.onclick = function() {
-                	node.done('right');
-        		};
+				if (node.game.redChoice === 'stop') W.show('redstop');				
+				else W.hide('redstop');
+
+				buttonLeft = W.getElementById('left');
+				buttonLeft.disabled = false;
+				buttonRight = W.getElementById('right');
+				buttonRight.disabled = false;
+			
+				buttonLeft.onclick = function() {
+					node.done('left');        			
+				};
+				buttonRight.onclick = function() {
+					node.done('right');
+				};
 				W.getElementById('blue_leftorright').style.display = '';
 //				span = W.getElementById('dots');
-//				W.addLoadingDots(span);				
+//				W.addLoadingDots(span);		
+			
 			}
 
         },
@@ -144,6 +154,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         		button.disabled = true;
 	        }
 	    }
+    });
+
+  	stager.extendStep('results', {
+        cb: function() {
+        	node.on.data('payoff', function(msg) {
+        		if (node.game.role === 'blue') {
+        			W.writeln('Your payoff is ' + msg.data.blue);
+        		}
+        		else {
+					W.writeln('Your payoff is ' + msg.data.red);
+        		}
+        	});
+        }
     });
 
     stager.extendStep('end', {

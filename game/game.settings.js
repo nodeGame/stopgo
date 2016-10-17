@@ -54,18 +54,24 @@ module.exports = {
     
     // Payoffs of the game.
     payoff: {
-    	A: {
-    		redLeft: 0,
-    		blueLeft: 6,
-    		redRight: 10,
-    		blueRight: 0
+    	stop: {
+    		blue: 3,
+    		red: 3
     	},
+    	go: {
+    		A: {
+    			redleft: 0,
+    			blueleft: 6,
+    			redright: 10,
+    			blueright: 0
+    		},
     		 
-    	B: {
-    		redLeft: 6,
-    		blueLeft: 0,
-    		redRight: 0,
-    		blueRight: 10
+    		B: {
+    			redleft: 6,
+    			blueleft: 0,
+    			redright: 0,
+    			blueright: 10
+    		}
     	}
     },
     
