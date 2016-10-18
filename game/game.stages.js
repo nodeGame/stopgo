@@ -11,26 +11,26 @@
 
 module.exports = function(stager, settings) {
 
-     stager
+    stager
         .next('instructions')
         .repeat('practice', settings.REPEAT_PRACTICE)
         .next('quiz')
         .repeat('game', settings.REPEAT)
         .next('end')
         .gameover();
-        
+    
     stager.extendStage('game', {
-    		steps: [		
-    			'stoporgo',
-    			'leftorright',
-    			'results'
-    			]
+    	steps: [		
+    	    'stoporgo',
+    	    'leftorright',
+    	    'results'
+    	]
     });	
 
     // Modify the stager to skip one stage.
+    stager.skip('instructions');
     stager.skip('quiz');
-	//stager.skip('instructions');
-	stager.skip('practice');
+    stager.skip('practice');
 
     return stager.getState();
 };
