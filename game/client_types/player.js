@@ -56,14 +56,25 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
 
             node.on.data('ROLE_RED', function(msg) {
-                var buttonStop, buttonGo, payoffTableDiv;
+//                var buttonStop, buttonGo, payoffTableDiv;
+                var buttonStop, buttonGo, payoffTableDiv1;
 
                 node.game.role = 'red';             
+				node.game.worldState = msg.data;
 
                 // Visualize Payoff Table
 
-                payoffTableDiv = W.getElementById('payoff');
-                
+//                payoffTableDiv = W.getElementById('payoff');
+//                payoffTableDiv1 = W.getElementById('payoff1');
+//				payoffTableDiv1.disabled = false;
+				if (node.game.worldState === 'A') {
+					W.show('A');
+					W.show('payoff1');									
+				}
+				else {
+					W.show('B');
+					W.show('payoff2');									
+				}
                 // payoffTableDiv.innerHTML = 'If you decide to stay...';
 
                 // ///////////////////////
@@ -72,7 +83,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.getElementById('red').style.display = '';
 
                 // Write state of the world.
-                W.setInnerHTML('state_of_world', msg.data);
+                W.setInnerHTML('state_of_world', node.game.worldState);
 
                 buttonStop = W.getElementById('stop');
                 buttonStop.disabled = false;
