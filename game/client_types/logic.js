@@ -28,6 +28,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         // Initialize the client.
 
+
     });
 
     stager.extendStep('instructions', {
@@ -49,14 +50,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             });
         }
     });
-    
+
     stager.extendStep('leftorright', {
         cb: function() {
             node.on.data('done', function(msg) {
             	node.game.blueChoice = msg.data.left ? 'left' : 'right';
             	console.log('RECEIVED DONE: ', msg);
-                // if the game is always played by two players, this works well 
-		
+                // if the game is always played by two players, this works well
+
             	node.done();
             });
         },
@@ -71,7 +72,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('end', {
-        cb: function() {      
+        cb: function() {
             node.game.memory.save(channel.getGameDir() + 'data/data_' +
                                   node.nodename + '.json');
         }
@@ -92,7 +93,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     };
 
     // Helper functions.
-    
+
     function doStateOfTheWorld() {
 	if (Math.random() > node.game.settings.pi) {
 	    node.game.worldState = 'A';
@@ -101,7 +102,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 	    node.game.worldState = 'B';
 	}
     }
-    
+
     function doMatch() {
         var players, len;
         len = node.game.pl.size();
@@ -111,7 +112,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.say('ROLE_RED', players[0], node.game.worldState);
         node.say('ROLE_BLUE', players[1]);
     }
-    
+
     function computePayoff() {
     	var p, blueP, redP;
     	p = settings.payoff;

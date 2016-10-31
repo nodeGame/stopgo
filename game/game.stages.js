@@ -18,17 +18,17 @@ module.exports = function(stager, settings) {
         .repeat('game', settings.REPEAT)
         .next('end')
         .gameover();
-    
+
     stager.extendStage('game', {
-    	steps: [		
+    	steps: [
     	    'stoporgo',
     	    'leftorright',
     	    'results'
     	]
-    });	
+    });
 
     // Modify the stager to skip one stage.
-    stager.skip('instructions');
+    // stager.skip('instructions');
     stager.skip('quiz');
     stager.skip('practice');
 
