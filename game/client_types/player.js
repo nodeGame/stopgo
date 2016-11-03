@@ -51,8 +51,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     payoffTableB.addRow(["Blue", payoffs.go['B']['blueleft'], payoffs.go['B']['blueright']]);
 
     node.game.payoffTable = {};
-    node.game.payoffTable['A'] = payoffTableA.parse();
-    node.game.payoffTable['B'] = payoffTableB.parse();
+    node.game.payoffTable['A'] = W.addClass(payoffTableA.parse(), 'table table-bordered');
+    node.game.payoffTable['B'] = W.addClass(payoffTableB.parse(), 'table table-bordered');
     // Additional debug information while developing the game.
     // this.debugInfo = node.widgets.append('DebugInfo', header)
   });
@@ -81,25 +81,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.role = 'red';
         node.game.worldState = msg.data;
 
-        // Visualize Payoff Table
-
-        //                payoffTableDiv = W.getElementById('payoff');
-        //                payoffTableDiv1 = W.getElementById('payoff1');
-        //				payoffTableDiv1.disabled = false;
-        if (node.game.worldState === 'A') {
-          W.show('A');
-          W.show('payoff1');
-        }
-        else {
-          W.show('B');
-          W.show('payoff2');
-        }
+        W.getElementById('payoff-table').appendChild(node.game.payoffTable[node.game.worldState]);
         // payoffTableDiv.innerHTML = 'If you decide to stay...';
-
         // ///////////////////////
 
         // Make the RED div display visible.
-        W.getElementById('red').style.display = '';
+        W.show('red');
 
         // Write state of the world.
         W.setInnerHTML('state_of_world', node.game.worldState);
