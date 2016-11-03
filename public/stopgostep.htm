@@ -5,75 +5,75 @@
 <body>
   <div id="container" style="margin: 0 auto; max-width: 640px">
     <h1>STOP GO STEP</h1>
-    <div id="instructions">	
-	Recall: If you choose <strong>"Stop"</strong>, both you and Blue receive $3.00. Idiots. 
-		<div id='A' style="display:none">
-		  <br>
-		  Below is the Payoff Table that describes what will happen if you choose <strong>"Go"</strong>. 
-		  </br>
-			<table id="payoff1" style="display:none" class="payofftable">
-				<tr>
-				    <th>If Blue chooses LEFT...</th>
-				    <th>If Blue chooses RIGHT...</th>
-				</tr>
-				<tr>
-					<td>You get $0.00</td>
-					<td>You get $10.00</td>
-				</tr>
-				<tr>
-					<td>Blue gets $6.00</td>
-					<td>Blue gets $0.00</td>
-				</tr>
-			</table>
-		  <br>
-		  <br>
-		</div>
-		<div id='B' style="display:none">
-			<table id="payoff2" style="display:none" class="payofftable">
-				<tr>
-				    <th>If Blue chooses LEFT...</th>
-				    <th>If Blue chooses RIGHT...</th>
-				</tr>
-				<tr>
-					<td>You get $6.00</td>
-					<td>You get $0.00</td>
-				</tr>
-				<tr>
-					<td>Blue gets $0.00</td>
-					<td>Blue gets $10.00</td>
-				</tr>
-			</table>
-		  <br>
-		  <br>
-		</div>
+    <div id="instructions">
+      Recall: If you choose <strong>"Stop"</strong>, both you and Blue receive $3.00. Idiots.
+      <div id='A' style="display:none">
+        <br>
+        Below is the Payoff Table that describes what will happen if you choose <strong>"Go"</strong>.
+      </br>
+      <table id="payoff1" style="display:none" class="payofftable">
+        <tr>
+          <th>If Blue chooses LEFT...</th>
+          <th>If Blue chooses RIGHT...</th>
+        </tr>
+        <tr>
+          <td>You get $0.00</td>
+          <td>You get $10.00</td>
+        </tr>
+        <tr>
+          <td>Blue gets $6.00</td>
+          <td>Blue gets $0.00</td>
+        </tr>
+      </table>
+      <br>
+      <br>
+    </div>
+    <div id='B' style="display:none">
+      <table id="payoff2" style="display:none" class="payofftable">
+        <tr>
+          <th>If Blue chooses LEFT...</th>
+          <th>If Blue chooses RIGHT...</th>
+        </tr>
+        <tr>
+          <td>You get $6.00</td>
+          <td>You get $0.00</td>
+        </tr>
+        <tr>
+          <td>Blue gets $0.00</td>
+          <td>Blue gets $10.00</td>
+        </tr>
+      </table>
+      <br>
+      <br>
+    </div>
     <div id="red" style="display:none">
-	You are <strong>Red</strong>, and this is the state of the world: <span id="state_of_world"></span>
-        <br/>
-        Make your choice:
-	<button id="stop">Stop</button> &nbsp; <button id="go">Go</button>
-        <br/>
-        <span id="your_choice_red"></span>
-        <br/>
-        <span id="waiting_for_blue" style="display:none">
-          Blue player
-          is now making a decision<span id="dotsRed">.</span>
-        </span>
-      </div>
+      You are <strong>Red</strong>, and this is the state of the world: <span id="state_of_world"></span>
+      <br/>
+      Make your choice:
+      <button id="stop">Stop</button> &nbsp; <button id="go">Go</button>
+      <br/>
+      <span id="your_choice_red"></span>
+      <br/>
+      <span id="waiting_for_blue" style="display:none">
+        Blue player
+        is now making a decision<span id="dotsRed">.</span>
+      </span>
+    </div>
 
     <div id="blue" style="display:none">
-	<span id="you_are_blue">
-          Your are <strong>Blue</strong>. Waiting for Red to make a decision<span id="dotsBlue">.</span>
-        </span>
-	  <div id="blue_leftorright" style="display:none">
-	  <span id="redstop">
-	    Red just chose STOP. He hates you. Whatever you choose now
-	    is irrelevant. But please choose something anyway. Let me emphasize this point.
-	    Twice.
-	  </span><br/>
-          Make your choice:
-	  <button id="left">Left</button> &nbsp; <button id="right">Right</button>
-	</div>
+      <span id="you_are_blue">
+        Your are <strong>Blue</strong>. Waiting for Red to make a decision<span id="dotsBlue">.</span>
+      </span>
+      <div id="blue_leftorright" style="display:none">
+        <span id="redstop">
+          Red just chose STOP. He hates you. Whatever you choose now
+          is irrelevant. But please choose something anyway. Let me emphasize this point.
+          Twice.
+        </span><br/>
+        Make your choice:
+        <button id="left">Left</button> &nbsp; <button id="right">Right</button>
+      </div>
     </div>
 
-    </div>
+  </div>
 </body>

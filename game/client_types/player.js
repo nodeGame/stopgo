@@ -38,12 +38,31 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     this.doneButton = node.widgets.append('DoneButton', header);
 
     node.game.totalPayoff = 0;
+    var payoffs = node.game.settings.payoff;
+
+    var payoffTableA = new W.Table();
+    payoffTableA.addRow(["", "Left", "Right"]);
+    payoffTableA.addRow(["Red", payoffs.go['A']['redleft'], payoffs.go['A']['redright']]);
+    payoffTableA.addRow(["Blue", payoffs.go['A']['blueleft'], payoffs.go['A']['blueright']]);
+
+    var payoffTableB = new W.Table();
+    payoffTableB.addRow(["", "Left", "Right"])
+    payoffTableB.addRow(["Red", payoffs.go['B']['redleft'], payoffs.go['B']['redright']]);
+    payoffTableB.addRow(["Blue", payoffs.go['B']['blueleft'], payoffs.go['B']['blueright']]);
+
+    node.game.payoffTable = {};
+    node.game.payoffTable['A'] = payoffTableA.parse();
+    node.game.payoffTable['B'] = payoffTableB.parse();
     // Additional debug information while developing the game.
     // this.debugInfo = node.widgets.append('DebugInfo', header)
   });
 
   stager.extendStep('instructions', {
-    frame: 'instructions.htm'
+    frame: 'instructions.htm',
+    cb: function() {
+      W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTable['A']);
+      W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTable['B']);
+    }
   });
 
   stager.extendStep('stoporgo', {
