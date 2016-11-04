@@ -64,6 +64,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // Additional debug information while developing the game.
     // this.debugInfo = node.widgets.append('DebugInfo', header)
 
+    node.game.checkIsPracticeStage = function() {
+      var practiceStageNumber = node.game.plot.normalizeGameStage('practice').stage;
+      return node.game.getCurrentGameStage().stage === practiceStageNumber;
+    }
+
   });
 
   stager.extendStep('instructions', {
@@ -74,6 +79,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     }
   });
 
+  // how can i distinguish between stages? so that i can adapt this to say something different
+  // for practice stage
   stager.extendStep('stoporgo', {
     donebutton: false,
     frame: 'stopgostep.htm',
@@ -82,6 +89,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
       node.game.role = null;
     },
     cb: function() {
+
+      if (node.game.checkIsPracticeStage()) {
+        W.setInnerHTML('info', 'This is a practice stage.');
+        W.show('info');
+      }
+
       node.on.data('ROLE_RED', function(msg) {
         // var buttonStop, buttonGo, payoffTableDiv;
         var buttonStop, buttonGo, payoffTableDiv1;
@@ -168,6 +181,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
   stager.extendStep('leftorright', {
     donebutton: false,
     cb: function() {
+      // if (node.game.checkIsPracticeStage()) {
+      //   W.setInnerHTML('info', 'THIS IS A PRACTICE STAGE!!!');
+      //   W.show('info');
+      // }
+
       var buttonLeft, buttonRight;
       if (node.game.role === 'blue') {
         if (node.game.redChoice === 'stop') W.show('redstop');
@@ -203,6 +221,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
   stager.extendStep('results', {
     frame: 'results.htm',
     cb: function() {
+      if (node.game.checkIsPracticeStage()) {
+        W.setInnerHTML('info', 'This is a practice stage.');
+        W.show('info');
+      }
+
       node.on.data('payoff', function(msg) {
         if (node.game.role === 'blue') {
           W.setInnerHTML('payoff', msg.data.blue);
@@ -220,6 +243,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     donebutton: false,
     frame: 'end.htm',
     cb: function() {
+      node.game.visualTimer.setToZero();
+      W.setInnerHTML('total', node.game.totalPayoff);
+    }
+  });
+
+  stager.extendStep('practice-end', {
+    frame: 'practice-end.htm',
+    cb: function() {
+      // W.setInnerHTML('completed', "You have just completed a practice game.");
+      // W.show('completed');
+      // W.setInnerHTML('instructions', "Click \"Done\" to move on the the real game.");
       node.game.visualTimer.setToZero();
       W.setInnerHTML('total', node.game.totalPayoff);
     }

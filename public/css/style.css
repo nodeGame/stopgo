@@ -1,4 +1,8 @@
-.payofftable {
-	border-spacing: 10px;
-    border-collapse: separate;
-};
+body {
+  font-size: 20px;
+}
+
+.half-size {
+  width: 50%;
+  float: left;
+}

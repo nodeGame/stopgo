@@ -14,6 +14,7 @@ module.exports = function(stager, settings) {
     stager
         .next('instructions')
         .repeat('practice', settings.REPEAT_PRACTICE)
+        .next('practice-end')
         .next('quiz')
         .repeat('game', settings.REPEAT)
         .next('end')
@@ -38,7 +39,7 @@ module.exports = function(stager, settings) {
     // Modify the stager to skip one stage.
     // stager.skip('instructions');
     stager.skip('quiz');
-    stager.skip('practice');
+    // stager.skip('practice');
 
     return stager.getState();
 };
