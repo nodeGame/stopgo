@@ -11,9 +11,10 @@
 * ---
 */
 
-"use strict";
+'use strict';
 
 var ngc = require('nodegame-client');
+// var initializeGame = require('./player/initialize-game.js');
 var stepRules = ngc.stepRules;
 var constants = ngc.constants;
 var publishLevels = constants.publishLevels;
@@ -23,38 +24,46 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
   var game;
 
   stager.setOnInit(function() {
+    // seems like an eval is called somewhere -- cannot clean up my code into different files
+    // initializeGame(node);
+    // createPayoffTables(node);
 
     // Initialize the client.
-    var header, frame;
-
     // Setup page: header + frame.
-    header = W.generateHeader();
-    frame = W.generateFrame();
+    var header = W.generateHeader();
+    var frame = W.generateFrame();
 
     // Add widgets.
     this.visualRound = node.widgets.append('VisualRound', header);
     this.visualTimer = node.widgets.append('VisualTimer', header);
-
     this.doneButton = node.widgets.append('DoneButton', header);
 
+    // Add payoff tables
     node.game.totalPayoff = 0;
     var payoffs = node.game.settings.payoff;
 
     var payoffTableA = new W.Table();
-    payoffTableA.addRow(["", "Left", "Right"]);
-    payoffTableA.addRow(["Red", payoffs.go['A']['redleft'], payoffs.go['A']['redright']]);
-    payoffTableA.addRow(["Blue", payoffs.go['A']['blueleft'], payoffs.go['A']['blueright']]);
+    payoffTableA.addRow(['', 'Left', 'Right']);
+    payoffTableA.addRow(['Red', payoffs.go['A']['redleft'], payoffs.go['A']['redright']]);
+    payoffTableA.addRow(['Blue', payoffs.go['A']['blueleft'], payoffs.go['A']['blueright']]);
 
     var payoffTableB = new W.Table();
-    payoffTableB.addRow(["", "Left", "Right"])
-    payoffTableB.addRow(["Red", payoffs.go['B']['redleft'], payoffs.go['B']['redright']]);
-    payoffTableB.addRow(["Blue", payoffs.go['B']['blueleft'], payoffs.go['B']['blueright']]);
+    payoffTableB.addRow(['', 'Left', 'Right'])
+    payoffTableB.addRow(['Red', payoffs.go['B']['redleft'], payoffs.go['B']['redright']]);
+    payoffTableB.addRow(['Blue', payoffs.go['B']['blueleft'], payoffs.go['B']['blueright']]);
+
+    var payoffStopRed = payoffs.stop['red'];
+    var payoffStopBlue = payoffs.stop['blue'];
 
     node.game.payoffTable = {};
     node.game.payoffTable['A'] = W.addClass(payoffTableA.parse(), 'table table-bordered');
     node.game.payoffTable['B'] = W.addClass(payoffTableB.parse(), 'table table-bordered');
+    node.game.payoffStopRed = payoffStopRed;
+    node.game.payoffStopBlue = payoffStopBlue;
+
     // Additional debug information while developing the game.
     // this.debugInfo = node.widgets.append('DebugInfo', header)
+
   });
 
   stager.extendStep('instructions', {
@@ -73,23 +82,20 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
       node.game.role = null;
     },
     cb: function() {
-
       node.on.data('ROLE_RED', function(msg) {
-        //                var buttonStop, buttonGo, payoffTableDiv;
+        // var buttonStop, buttonGo, payoffTableDiv;
         var buttonStop, buttonGo, payoffTableDiv1;
 
         node.game.role = 'red';
         node.game.worldState = msg.data;
 
         W.getElementById('payoff-table').appendChild(node.game.payoffTable[node.game.worldState]);
-        // payoffTableDiv.innerHTML = 'If you decide to stay...';
-        // ///////////////////////
-
-        // Make the RED div display visible.
         W.show('red');
-
         // Write state of the world.
         W.setInnerHTML('state_of_world', node.game.worldState);
+
+        // assumes same Stop payoff
+        W.setInnerHTML('payoff-stop', node.game.payoffStopRed);
 
         buttonStop = W.getElementById('stop');
         buttonStop.disabled = false;
@@ -181,9 +187,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         W.getElementById('blue_leftorright').style.display = '';
         //                              span = W.getElementById('dots');
         //                              W.addLoadingDots(span);
-
       }
-
     },
     done: function() {
       var button;

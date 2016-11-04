@@ -27,6 +27,14 @@ module.exports = function(stager, settings) {
     	]
     });
 
+    stager.extendStage('practice', {
+    	steps: [
+    	    'stoporgo',
+    	    'leftorright',
+    	    'results'
+    	]
+    });
+
     // Modify the stager to skip one stage.
     // stager.skip('instructions');
     stager.skip('quiz');

@@ -28,7 +28,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     // Initialize the client.
 
-
   });
 
   stager.extendStep('instructions', {
