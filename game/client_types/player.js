@@ -245,6 +245,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     cb: function() {
       node.game.visualTimer.setToZero();
       W.setInnerHTML('total', node.game.totalPayoff);
+      node.game.totalPayoff = 0;
     }
   });
 
@@ -256,6 +257,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
       // W.setInnerHTML('instructions', "Click \"Done\" to move on the the real game.");
       node.game.visualTimer.setToZero();
       W.setInnerHTML('total', node.game.totalPayoff);
+      node.game.totalPayoff = 0;
     }
   });
 

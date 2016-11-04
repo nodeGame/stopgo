@@ -113,6 +113,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
   }
 
   function computePayoff() {
+    // remember to recompute totals after practice round
     var p, blueP, redP;
     p = settings.payoff;
     if (node.game.redChoice === 'go') {
