@@ -14,7 +14,6 @@
 'use strict';
 
 var ngc = require('nodegame-client');
-// var initializeGame = require('./player/initialize-game.js');
 var stepRules = ngc.stepRules;
 var constants = ngc.constants;
 var publishLevels = constants.publishLevels;
@@ -24,7 +23,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
   var game;
 
   stager.setOnInit(function() {
-    // seems like an eval is called somewhere -- cannot clean up my code into different files
+    // cannot clean up my code into different files
     // initializeGame(node);
     // createPayoffTables(node);
 
@@ -32,10 +31,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // Setup page: header + frame.
     var header = W.generateHeader();
     var frame = W.generateFrame();
+    W.setHeaderPosition('top');
 
     // Add widgets.
     this.visualRound = node.widgets.append('VisualRound', header);
     this.visualTimer = node.widgets.append('VisualTimer', header);
+    this.runningTotalPayoff = node.widgets.append('MoneyTalks', header);
     this.doneButton = node.widgets.append('DoneButton', header);
 
     // Add payoff tables
