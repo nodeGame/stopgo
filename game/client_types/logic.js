@@ -28,6 +28,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     // Initialize the client.
 
+      channel.connectBot({room: gameRoom});
+
+
   });
 
   stager.extendStep('instructions', {
@@ -72,6 +75,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
   stager.extendStep('end', {
     cb: function() {
+
+      node.on.data('done', function(msg) {
+        var item = node.game.memory.select('player', '=', msg.from).last();
+
+        item.total = node.game;
+      });
+
       node.game.memory.save(channel.getGameDir() + 'data/data_' +
       node.nodename + '.json');
     }
@@ -125,11 +135,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
       redP = p.stop.red;
     }
     node.say('payoff', 'ROOM', { blue: blueP, red: redP });
+    // channel.registry.get(node.game.bluePlayerId).totalBonus =
+    // node.game.memory
+
     node.on.data('done', function(msg) {
-      var item;
-      debugger
-      item = node.game.memory.select('player', '=', msg.from)
-                             .last();
+      var item = node.game.memory.select('player', '=', msg.from).last();
 
       if (msg.from === node.game.bluePlayerId) {
         item.bonus = blueP;

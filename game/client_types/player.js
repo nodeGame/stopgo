@@ -249,7 +249,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
           W.setInnerHTML('payoff', msg.data.red);
           node.game.totalPayoff += msg.data.red;
         }
-        
+
         node.game.visualTimer.init({
           milliseconds: node.game.settings.bidTime,
           timeup: function() {

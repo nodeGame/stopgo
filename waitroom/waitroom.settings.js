@@ -33,18 +33,18 @@ module.exports = {
      *
      * The size of each group dispatched by the waiting room
      */
-    GROUP_SIZE: 2,
+    GROUP_SIZE: 1,
 
     /**
      * ## POOL_SIZE (number) Optional
      *
      * If set, waits until POOL_SIZE clients are connected to dispatch a group
      *
-     * Must be >= POOL_SIZE.
+     * Must be >= GROUP_SIZE.
      *
      * Default: GROUP_SIZE
      */
-    POOL_SIZE: 2,
+    POOL_SIZE: 1,
 
     /**
      * ## N_GAMES (number) Optional

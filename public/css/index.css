@@ -1,8 +1,21 @@
 
 /* Header Horizontal */
 
+body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
 #ng_header {
-  height: 140px;
+  height: 130px;
+  padding: 0;
+  width: 100%;
+  box-shadow: 0 0 10px lightgrey;
+}
+
+.visualround > .panel-body > div > div.stagediv {
+  text-align: left;
 }
 
 div.ng_header_position-horizontal-t > .donebutton {
