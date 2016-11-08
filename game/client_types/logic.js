@@ -74,9 +74,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
 
             node.on.data('done', function(msg) {
-                var item = node.game.memory.select('player', '=', msg.from).last();
-
-                item.total = node.game;
+                var item;
+                item = node.game.memory
+                    .select('player', '=', msg.from)
+                    .last();
             });
 
             node.game.memory.save(channel.getGameDir() + 'data/data_' +

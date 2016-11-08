@@ -19,6 +19,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     game.nodename = 'bot';
 
     stager.setDefaultCallback(function() {
+        var that;
+        that = this;
         console.log('Stage: ' , this.getCurrentGameStage());
         this.node.timer.randomDone();
     });
