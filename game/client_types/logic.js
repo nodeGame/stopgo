@@ -115,7 +115,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         players = node.game.pl.shuffle().id.getAllKeys();
         node.game.bluePlayerId = players[1];
         node.game.redPlayerId = players[0];
-        debugger
         node.say('ROLE_RED', players[0], node.game.worldState);
         node.say('ROLE_BLUE', players[1]);
     }

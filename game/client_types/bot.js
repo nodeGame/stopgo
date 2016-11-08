@@ -24,22 +24,24 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('stoporgo', {
+        init: function() {
+            this.role = 'abba';
+            this.worldState = null;
+        },
         cb: function() {
             var that;
             that = this;
             this.node.on.data('ROLE_RED', function(msg) {
                 var randomDoneValue;
-
-                this.role = 'red';
-                this.worldState = msg.data;
+                that.role = 'red';
+                that.worldState = msg.data;
 
                 randomDoneValue = Math.floor(Math.random() * 2) ? 'stop':'go';
                 that.node.done(randomDoneValue);
             });
             this.node.on.data('ROLE_BLUE', function(msg) {
-                this.role = 'blue';
-                this.node.on.data('redChoice', function(msg) {
-                    debugger
+                that.role = 'blue';
+                that.node.on.data('redChoice', function(msg) {
                     that.redChoice = msg.data;
                     that.node.done();
                 });
@@ -50,11 +52,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('leftorright', {
         cb: function() {
             var randomDoneValue;
-            debugger
             if (this.role === 'blue') {
                 randomDoneValue = Math.floor(Math.random() * 2) ?
                     'right' : 'left';
-                that.node.done(randomDoneValue);
+                this.node.done(randomDoneValue);
             }
         }
     });

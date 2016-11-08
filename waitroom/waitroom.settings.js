@@ -220,7 +220,7 @@ module.exports = {
 
     ON_CONNECT: function(waitingRoom, player) {
         var channel;
-        if (player.clientType === 'player') {
+        if (player.clientType !== 'bot') {
             channel = waitingRoom.channel;
             channel.connectBot(waitingRoom);
         }
