@@ -5,13 +5,20 @@ body {
   padding: 0;
   margin: 0;
   width: 100%;
+  height: 100%;
 }
 
 #ng_header {
-  height: 130px;
+  height: 75px;
   padding: 0;
   width: 100%;
-  box-shadow: 0 0 10px lightgrey;
+  box-shadow: 0 0 15px lightgrey;
+  position: relative;
+}
+
+iframe#ng_mainframe {
+  width: 100%;
+  padding: 0;
 }
 
 .visualround > .panel-body > div > div.stagediv {
