@@ -49,8 +49,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     channel.numChooseStop += 1;
                 }
                 channel.numStopGoDecisions += 1; // should not modify when practice or if bot
-                node.say('redChoice', node.game.bluePlayerId,
-                         node.game.redChoice);
+                node.say('redChoice', node.game.bluePlayerId, node.game.redChoice);
+
                 console.log('RECEIVED DONE: ', msg);
             });
         }
@@ -144,7 +144,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             blueP = p.stop.blue;
             redP = p.stop.red;
         }
-        node.say('payoff', 'ROOM', { blue: blueP, red: redP });
+        node.say('payoff', 'ROOM', { blue: blueP, red: redP, blueChoice: node.game.blueChoice, redChoice: node.game.redChoice});
         // channel.registry.get(node.game.bluePlayerId).totalBonus =
         // node.game.memory
 

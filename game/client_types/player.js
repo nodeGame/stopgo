@@ -138,6 +138,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 node.game.visualTimer.updateDisplay();
                 node.game.visualTimer.startTiming();
+
             });
 
             node.on.data('ROLE_BLUE', function(msg) {
@@ -246,16 +247,29 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             }
 
             node.on.data('payoff', function(msg) {
+                var otherPlayer;
+                var otherPlayerChoice;
+
                 if (node.game.role === 'blue') {
                     W.setInnerHTML('payoff', msg.data.blue + ' ' + node.game.runningTotalPayoff.currency);
                     node.game.totalPayoff += msg.data.blue;
                     node.game.runningTotalPayoff.update(msg.data.blue);
+
+                    otherPlayer = 'red';
+                    otherPlayerChoice = msg.data.redChoice;
                 }
                 else {
                     W.setInnerHTML('payoff', msg.data.red + ' ' + node.game.runningTotalPayoff.currency);
                     node.game.totalPayoff += msg.data.red;
                     node.game.runningTotalPayoff.update(msg.data.red);
+
+                    otherPlayer = 'blue';
+                    otherPlayerChoice = msg.data.blueChoice;
                 }
+
+                W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
+                W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
+
 
                 node.game.visualTimer.init({
                     milliseconds: node.game.settings.bidTime,
@@ -279,7 +293,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.game.totalPayoff = 0;
         },
         done: function() {
-            this.runningTotalPayoff.money = 0;
+            node.game.runningTotalPayoff.money = 0;
+            node.game.runningTotalPayoff.update(0);
         }
     });
 
@@ -291,7 +306,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.game.totalPayoff = 0;
         },
         done: function() {
-            this.runningTotalPayoff.money = 0;
+            node.game.runningTotalPayoff.money = 0;
+            node.game.runningTotalPayoff.update(0);
         }
     });
 
