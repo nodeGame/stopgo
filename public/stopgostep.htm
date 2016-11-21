@@ -3,7 +3,6 @@
 <link rel="stylesheet" href="/lib/bootstrap/bootstrap.min.css" />
 <link rel="stylesheet" href="css/style.css" />
 <body>
-  <div id="container" style="margin: 0 auto; max-width: 640px">
     <h1>Match</h1>
     <div id="instructions">
       <div id="info" class="alert alert-info" style="display:none" role="alert">
@@ -12,17 +11,13 @@
     <div id="red" style="display:none">
       <p>You are <strong>Red</strong>, and this is the state of the world: <span id="state_of_world"></span></p>
       <p>Recall: If you choose <strong>"Stop"</strong>, both you and Blue receive $<span id="payoff-stop"></span>.</p>
-      <br>
       <div id="payoff-table" class="panel panel-default">
         <div class="panel-heading">Below is the Payoff Table that describes what will happen if you choose <strong>"Go"</strong>.</div>
       </div>
-      <br/>
       Make your choice:
       <button id="stop" class="btn btn-primary">Stop</button>
       <button id="go" class="btn btn-primary">Go</button>
-      <br/>
       <span id="your_choice_red"></span>
-      <br/>
       <span id="waiting_for_blue" style="display:none">
         Blue player is now making a decision.
       </span>
@@ -34,11 +29,23 @@
       </span>
       <div id="make-blue-decision">
         <p>Red chose <span id="red-choice">__</span>.</p>
+        <p>Remember: If Red chose STOP, you get <span id="payoff-stop-blue"> __ </span>, regardless of your choice.</p>
+        <p>Otherwise, the payoff table possiblities are shown below (there is a chance for either): </p>
+        <div class="row">
+          <div id="payoff-matrix-a" class="panel panel-default half-size">
+            <div class="panel-heading">Payoff Table A</div>
+            <!-- Payoff Table A added here on init-->
+          </div>
+          <div id="payoff-matrix-b" class="panel panel-default half-size">
+            <div class="panel-heading">Payoff Table B</div>
+            <!-- Payoff Table B added here on init -->
+          </div>
+        </div>
+
         <p>Make your choice:</p>
         <button id="left" class="btn btn-primary">Left</button>
         <button id="right" class="btn btn-primary">Right</button>
       </div>
     </div>
 
-  </div>
 </body>

@@ -112,7 +112,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.setInnerHTML('state_of_world', node.game.worldState);
 
                 // assumes same Stop payoff
-                W.setInnerHTML('payoff-stop', node.game.payoffStopRed);
+                W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
 
                 buttonStop = W.getElementById('stop');
                 buttonStop.disabled = false;
@@ -197,6 +197,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 buttonRight = W.getElementById('right');
                 buttonRight.disabled = false;
 
+                W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTable['A']);
+                W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTable['B']);
+
+                W.setInnerHTML('payoff-stop-blue', node.game.payoffStopBlue + ' ' + node.game.runningTotalPayoff.currency);
+
                 buttonLeft.onclick = function() {
                     node.done('left');
                 };
@@ -242,12 +247,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             node.on.data('payoff', function(msg) {
                 if (node.game.role === 'blue') {
-                    W.setInnerHTML('payoff', msg.data.blue);
+                    W.setInnerHTML('payoff', msg.data.blue + ' ' + node.game.runningTotalPayoff.currency);
                     node.game.totalPayoff += msg.data.blue;
                     node.game.runningTotalPayoff.update(msg.data.blue);
                 }
                 else {
-                    W.setInnerHTML('payoff', msg.data.red);
+                    W.setInnerHTML('payoff', msg.data.red + ' ' + node.game.runningTotalPayoff.currency);
                     node.game.totalPayoff += msg.data.red;
                     node.game.runningTotalPayoff.update(msg.data.red);
                 }
@@ -270,7 +275,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         frame: 'end.htm',
         cb: function() {
             node.game.visualTimer.setToZero();
-            W.setInnerHTML('total', node.game.totalPayoff);
+            W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
             node.game.totalPayoff = 0;
         },
         done: function() {
@@ -282,7 +287,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         frame: 'practice-end.htm',
         cb: function() {
             node.game.visualTimer.setToZero();
-            W.setInnerHTML('total', node.game.totalPayoff);
+            W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
             node.game.totalPayoff = 0;
         },
         done: function() {
