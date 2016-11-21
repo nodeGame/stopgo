@@ -35,10 +35,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             that = this;
             this.node.on.data('ROLE_RED', function(msg) {
                 var randomDoneValue;
+                var chanceOfStop;
+                debugger
+
+                chanceOfStop = (that.settings.botType === 'dynamic') && channel.numStopGoDecisions ?
+                                channel.numChooseStop / channel.numStopGoDecisions : that.settings.chanceOfStop;
+
                 that.role = 'red';
                 that.worldState = msg.data;
 
-                randomDoneValue = Math.floor(Math.random() * 2) ? 'stop':'go';
+                randomDoneValue = (getRandom(0, 1) <= chanceOfStop) ? 'stop':'go';
                 that.node.done(randomDoneValue);
             });
             this.node.on.data('ROLE_BLUE', function(msg) {
@@ -54,13 +60,22 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('leftorright', {
         cb: function() {
             var randomDoneValue;
+            var chanceOfRight;
+            debugger
+            chanceOfRight = this.settings.botType === 'dynamic' && channel.numRightLeftDecisions ?
+                            channel.numChooseRight / channel.numRightLeftDecisions : this.settings.chanceOfRight;
+
             if (this.role === 'blue') {
-                randomDoneValue = Math.floor(Math.random() * 2) ?
+                randomDoneValue = (getRandom(0, 1) <= chanceOfRight)  ?
                     'right' : 'left';
                 this.node.done(randomDoneValue);
             }
         }
     });
+
+    function getRandom(min, max) {
+        return Math.random() * (max - min) + min;
+    }
 
     game.plot = stager.getState();
 

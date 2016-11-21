@@ -80,7 +80,6 @@ module.exports = {
     // Probability of A vs B.
     pi: 0.5,
 
-
     // # Treatments definition.
 
     // They can contain any number of properties, and also overwrite

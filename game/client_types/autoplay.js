@@ -50,9 +50,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             else {
               node.timer.randomDone(2000);
             }
-
-
-
         };
         return o;
     });

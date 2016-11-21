@@ -17,7 +17,7 @@ var counter = 0;
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     var node = gameRoom.node;
-    var channel =  gameRoom.channel;
+    var channel = gameRoom.channel;
 
     // Must implement the stages here.
 
@@ -25,9 +25,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     counter = counter ? ++counter : settings.SESSION_ID || 1;
 
     stager.setOnInit(function() {
-
         // Initialize the client.
-
+        channel.numChooseStop = 0;
+        channel.numStopGoDecisions = 0;
+        channel.numChooseRight = 0;
+        channel.numRightLeftDecisions = 0;
     });
 
     stager.extendStep('instructions', {
@@ -43,6 +45,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             doMatch();
             node.once.data('done', function(msg) {
                 node.game.redChoice = msg.data.stop ? 'stop' : 'go';
+                if (node.game.redChoice === 'stop') {
+                    channel.numChooseStop += 1;
+                }
+                channel.numStopGoDecisions += 1; // should not modify when practice or if bot
                 node.say('redChoice', node.game.bluePlayerId,
                          node.game.redChoice);
                 console.log('RECEIVED DONE: ', msg);
@@ -54,6 +60,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             node.on.data('done', function(msg) {
                 node.game.blueChoice = msg.data.left ? 'left' : 'right';
+
+                if (node.game.redChoice === 'right') {
+                    channel.numChooseRight += 1;
+                }
+                channel.numRightLeftDecisions += 1;
+
                 console.log('RECEIVED DONE: ', msg);
                 // if the game is always played by two players, this works well
 

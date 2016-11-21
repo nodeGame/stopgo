@@ -18,27 +18,25 @@
       </div>
       <br/>
       Make your choice:
-      <button id="stop" class="btn btn-primary">Stop</button> <button id="go" class="btn btn-primary">Go</button>
+      <button id="stop" class="btn btn-primary">Stop</button>
+      <button id="go" class="btn btn-primary">Go</button>
       <br/>
       <span id="your_choice_red"></span>
       <br/>
       <span id="waiting_for_blue" style="display:none">
-        Blue player is now making a decision<span id="dotsRed">.</span>
+        Blue player is now making a decision.
       </span>
     </div>
 
     <div id="blue" style="display:none">
       <span id="you_are_blue">
-        Your are <strong>Blue</strong>. Waiting for Red to make a decision<span id="dotsBlue">.</span>
+        <p>Your are <strong>Blue</strong>. Waiting for Red to make a decision.</p>
       </span>
-      <div id="blue_leftorright" style="display:none">
-        <span id="redstop">
-          Red just chose STOP. He hates you. Whatever you choose now
-          is irrelevant. But please choose something anyway. Let me emphasize this point.
-          Twice.
-        </span><br/>
-        Make your choice:
-        <button id="left" class="btn btn-primary">Left</button> <button id="right" class="btn btn-primary">Right</button>
+      <div id="make-blue-decision">
+        <p>Red chose <span id="red-choice">__</span>.</p>
+        <p>Make your choice:</p>
+        <button id="left" class="btn btn-primary">Left</button>
+        <button id="right" class="btn btn-primary">Right</button>
       </div>
     </div>
 

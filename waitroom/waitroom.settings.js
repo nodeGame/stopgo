@@ -222,7 +222,16 @@ module.exports = {
         var channel;
         if (player.clientType !== 'bot') {
             channel = waitingRoom.channel;
-            channel.connectBot(waitingRoom);
+            channel.connectBot({
+                // room: waitingRoom,
+                setup: {
+                    settings: {
+                        botType: 'dynamic', // 'dynamic' for based on player results
+                        chanceOfStop: 0.5,
+                        chanceOfRight: 0.5
+                    }
+                }
+            });
         }
     }
 
