@@ -6,6 +6,20 @@ body {
   margin-top: 30px;
 }
 
+.red {
+    color: rgb(203, 2, 2);
+    text-decoration: underline;
+}
+
+.blue {
+    color: rgb(12, 63, 176);
+    text-decoration: underline;
+}
+
+.money {
+    text-decoration: underline;
+}
+
 p {
   margin: 0;
   padding: 0;
@@ -22,4 +36,8 @@ p {
 
 .container {
   width: 100%;
+}
+
+h1 {
+    margin-bottom: 0.8em;
 }

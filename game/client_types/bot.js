@@ -36,7 +36,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             this.node.on.data('ROLE_RED', function(msg) {
                 var randomDoneValue;
                 var chanceOfStop;
-                debugger
 
                 chanceOfStop = (that.settings.botType === 'dynamic') && channel.numStopGoDecisions ?
                                 channel.numChooseStop / channel.numStopGoDecisions : that.settings.chanceOfStop;
@@ -61,7 +60,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             var randomDoneValue;
             var chanceOfRight;
-            debugger
+
             chanceOfRight = this.settings.botType === 'dynamic' && channel.numRightLeftDecisions ?
                             channel.numChooseRight / channel.numRightLeftDecisions : this.settings.chanceOfRight;
 

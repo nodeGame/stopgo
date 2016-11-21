@@ -38,7 +38,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         this.visualTimer = node.widgets.append('VisualTimer', header);
         this.runningTotalPayoff = node.widgets.append('MoneyTalks', header);
         this.runningTotalPayoff.init({currency: 'USD'});
-        this.doneButton = node.widgets.append('DoneButton', header);
+        this.doneButton = node.widgets.append('DoneButton', header, {text: 'Done'});
 
         node.game.visualTimer.setToZero();
 
@@ -78,6 +78,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('instructions', {
         frame: 'instructions.htm',
         cb: function() {
+            W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
             W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTable['A']);
             W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTable['B']);
         }
@@ -267,9 +268,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     otherPlayerChoice = msg.data.blueChoice;
                 }
 
+                W.setInnerHTML('player', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
+                W.addClass(W.getElementById('player'), node.game.role);
                 W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
                 W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
-
 
                 node.game.visualTimer.init({
                     milliseconds: node.game.settings.bidTime,
