@@ -22,16 +22,16 @@ module.exports = function(stager, settings) {
 
     stager.extendStage('game', {
     	steps: [
-    	    'stoporgo',
-    	    'leftorright',
+    	    'red',
+    	    'blue',
     	    'results'
     	]
     });
 
     stager.extendStage('practice', {
     	steps: [
-    	    'stoporgo',
-    	    'leftorright',
+    	    'red',
+    	    'blue',
     	    'results'
     	]
     });

@@ -1,11 +1,11 @@
 /**
- * # Logic type implementation of the game stages
- * Copyright(c) 2016 brenste <myemail>
- * MIT Licensed
- *
- * http://www.nodegame.org
- * ---
- */
+* # Logic type implementation of the game stages
+* Copyright(c) 2016 brenste <myemail>
+* MIT Licensed
+*
+* http://www.nodegame.org
+* ---
+*/
 
 "use strict";
 
@@ -38,70 +38,128 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    stager.extendStep('stoporgo', {
-        cb: function() {
-            console.log('Game round: ' + node.player.stage.round);
-            doStateOfTheWorld();
-            doMatch();
-            node.once.data('done', function(msg) {
-                node.game.redChoice = msg.data.stop ? 'stop' : 'go';
-                if (node.game.redChoice === 'stop') {
-                    channel.numChooseStop += 1;
-                }
-                channel.numStopGoDecisions += 1; // should not modify when practice or if bot
-                node.say('redChoice', node.game.bluePlayerId, node.game.redChoice);
-
-                console.log('RECEIVED DONE: ', msg);
-            });
-        }
-    });
-
-    stager.extendStep('leftorright', {
-        cb: function() {
-            node.on.data('done', function(msg) {
-                node.game.blueChoice = msg.data.left ? 'left' : 'right';
-
-                if (node.game.redChoice === 'right') {
-                    channel.numChooseRight += 1;
-                }
-                channel.numRightLeftDecisions += 1;
-
-                console.log('RECEIVED DONE: ', msg);
-                // if the game is always played by two players, this works well
-
-                node.done();
-            });
-        },
-        stepRule: stepRules.SOLO
-    });
-
-
-    stager.extendStep('results', {
-        cb: function() {
-            computePayoff();
-        }
-    });
-
-    stager.extendStep('end', {
-        cb: function() {
-
-            node.on.data('done', function(msg) {
-                var item;
-                item = node.game.memory
-                    .select('player', '=', msg.from)
-                    .last();
-            });
-
-            node.game.memory.save(channel.getGameDir() + 'data/data_' +
-                                  node.nodename + '.json');
-        }
-    });
-
     stager.setOnGameOver(function() {
 
         // Something to do.
 
     });
+
+    stager.extendStep('red-choice', {
+        matcher: {
+            roles: [ 'RED', 'BLUE', 'SOLO'],
+            match: 'random',
+            cycle: 'repeat',
+            skipBye: false,
+            sayPartner: false,
+        },
+        cb: function() {
+            assignRolesAndMatches();
+            assignTable();
+            node.once.data('done', function(msg) {
+                node.game.choices.red  = msg.data.choice;
+                var id = msg.data.id;
+                var redChoice = node.game.choices.red;
+
+                // validate selection
+                if (id === node.game.roles.RED && (redChoice === 'GO' || redChoice === 'STOP')) {
+                    node.say('RED-CHOICE', node.game.roles.BLUE, redChoice);
+                }
+                else {
+                    console.log('Error: Invalid Red choice.');
+                }
+            };
+        }
+    });
+
+    stager.extendStep('blue-choice', {
+        cb: function() {
+            // ??? should i use once or on?
+            node.once.data('done', function(msg) {
+                node.game.choices.blue = msg.data.choice;
+                var id = msg.data.id;
+                var blueChoice = node.game.choices.blue;
+
+                if (id === node.game.roles.BLUE && (blueChoice === 'LEFT' || blueChoice === 'RIGHT')) {
+                    node.say('BLUE-CHOICE', node.game.roles.RED, blueChoice);
+                }
+                else {
+                    console.log('Error: Invalid Blue choice');
+                }
+            }
+        }
+    });
+
+    stager.extendStep('results', {
+        cb: function() {
+            calculatePayoffs();
+            // saveResults();
+            // updateBotAverages();
+        }
+    });
+
+    stager.extendStep('end', {
+        cb: function() {
+            saveData();
+            updateBotBehavior();
+        }
+    });
+
+    function calculatePayoffs() {
+
+    }
+
+    function assignTable() {
+        // TODO: double check is pi chance for A or B?
+        if (Math.random() < node.game.settings.pi) {
+            node.game.payoffTable = 'A';
+        }
+        else {
+            node.game.payoffTable = 'B';
+        }
+    }
+
+    function assignRolesAndMatches() {
+        var match, id1, id2, soloId;
+
+            // Generates new random matches for this round.
+            node.game.matcher.match(true)
+            match = node.game.matcher.getMatch();
+
+            // Resets all roles.
+            node.game.roleMapper = {};
+
+            // While we have matches, send them to clients.
+            while (match) {
+                id1 = match[node.game.roles.RED];
+                id2 = match[node.game.roles.BLUE];
+
+                if (id1 !== 'bot' && id2 !== 'bot') {
+                    node.say('ROLE', id1, {
+                        role: 'RED',
+                        other: id2
+                    });
+                    node.say('ROLE', id2, {
+                        role: 'BLUE',
+                        other: id1
+                    });
+                    node.game.roleMapper[id1] = 'RED';
+                    node.game.roleMapper[id2] = 'BLUE';
+                }
+                // else {
+                //     // ???
+                //     soloId = id1 === 'bot' ? id2 : id1;
+                //     node.say('ROLE', soloId, {
+                //         role: 'SOLO',
+                //         other: null
+                //     });
+                //     node.game.roleMapper[soloId] = 'SOLO';
+                //
+                // }
+                match = node.game.matcher.getMatch();
+            }
+            console.log('Matching completed.');
+        }
+    }
 
     // Here we group together the definition of the game logic.
     return {
@@ -111,52 +169,4 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     };
 
-    // Helper functions.
-
-    function doStateOfTheWorld() {
-        if (Math.random() > node.game.settings.pi) {
-            node.game.worldState = 'A';
-        }
-        else {
-            node.game.worldState = 'B';
-        }
-    }
-
-    function doMatch() {
-        var players, len;
-        len = node.game.pl.size();
-        players = node.game.pl.shuffle().id.getAllKeys();
-        node.game.bluePlayerId = players[1];
-        node.game.redPlayerId = players[0];
-        node.say('ROLE_RED', players[0], node.game.worldState);
-        node.say('ROLE_BLUE', players[1]);
-    }
-
-    function computePayoff() {
-        // remember to recompute totals after practice round
-        var p, blueP, redP;
-        p = settings.payoff;
-        if (node.game.redChoice === 'go') {
-            blueP = p.go[node.game.worldState]['blue' + node.game.blueChoice];
-            redP = p.go[node.game.worldState]['red' + node.game.blueChoice];
-        }
-        else {
-            blueP = p.stop.blue;
-            redP = p.stop.red;
-        }
-        node.say('payoff', 'ROOM', { blue: blueP, red: redP, blueChoice: node.game.blueChoice, redChoice: node.game.redChoice});
-        // channel.registry.get(node.game.bluePlayerId).totalBonus =
-        // node.game.memory
-
-        node.on.data('done', function(msg) {
-            var item = node.game.memory.select('player', '=', msg.from).last();
-
-            if (msg.from === node.game.bluePlayerId) {
-                item.bonus = blueP;
-            }
-            else {
-                item.bonus = redP;
-            }
-        });
-    }
 };

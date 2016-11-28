@@ -46,7 +46,7 @@ div#ng_header {
   clear: both;
 }
 
-.panel-body {
+#ng_header > .ng_widget > .panel-body {
   height: auto;
   padding: 10px 0 !important;
   padding-right: 10px !important;
@@ -63,11 +63,21 @@ div#ng_header {
   padding-right: 0 !important;
 }
 
-.panel-heading {
+#ng_header > .ng_widget > .panel-heading {
   padding: 10px 0 !important;
   padding-right: 10px !important;
   line-height: 1em !important;
   font-size: 18px !important;
+}
+
+.requirements {
+  max-width: 42em;
+  width: 90%;
+  margin: 0 auto;
+}
+
+.ng-page-title {
+  text-align: center;
 }
 
 iframe#ng_mainframe {
