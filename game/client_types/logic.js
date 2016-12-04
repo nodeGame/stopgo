@@ -38,27 +38,20 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    stager.setOnGameOver(function() {
-
-        // Something to do.
-
-    });
-
     stager.extendStep('red-choice', {
         matcher: {
-            roles: [ 'RED', 'BLUE', 'SOLO'],
-            match: 'random',
-            cycle: 'repeat',
+            roles: ['RED', 'BLUE'],
+            match: 'roundrobin', // what does this mean???
+            // cycle: 'repeat_invert', // what does this mean???
             skipBye: false,
             sayPartner: false,
         },
         cb: function() {
-            assignRolesAndMatches();
             assignTable();
             node.once.data('done', function(msg) {
-                node.game.choices.red  = msg.data.choice;
+                node.game.redChoice = msg.data.choice;
                 var id = msg.data.id;
-                var redChoice = node.game.choices.red;
+                var redChoice = node.game.redChoice;
 
                 // validate selection
                 if (id === node.game.roles.RED && (redChoice === 'GO' || redChoice === 'STOP')) {
@@ -67,7 +60,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 else {
                     console.log('Error: Invalid Red choice.');
                 }
-            };
+            });
         }
     });
 
@@ -75,9 +68,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             // ??? should i use once or on?
             node.once.data('done', function(msg) {
-                node.game.choices.blue = msg.data.choice;
+                node.game.blueChoice = msg.data.choice;
                 var id = msg.data.id;
-                var blueChoice = node.game.choices.blue;
+                var blueChoice = node.game.blueChoice;
 
                 if (id === node.game.roles.BLUE && (blueChoice === 'LEFT' || blueChoice === 'RIGHT')) {
                     node.say('BLUE-CHOICE', node.game.roles.RED, blueChoice);
@@ -85,27 +78,56 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 else {
                     console.log('Error: Invalid Blue choice');
                 }
-            }
+            });
         }
     });
 
     stager.extendStep('results', {
         cb: function() {
-            calculatePayoffs();
-            // saveResults();
-            // updateBotAverages();
+            var payoffs, results;
+
+            payoffs = calculatePayoffs();
+            results = {
+                payoffs: payoff,
+
+                choices: {
+                    red: node.game.redChoice,
+                    blue: node.game.blueChoice
+                }
+            };
+
+            node.say('RESULTS', 'ROOM', results);
         }
     });
 
     stager.extendStep('end', {
         cb: function() {
-            saveData();
-            updateBotBehavior();
+            // saveData();
+            // updateBotBehavior();
         }
     });
 
+    // returns payoffs as a object
     function calculatePayoffs() {
+        var payoffs, bluePayoff, redPayoff;
+        var blueChoice;
+        payoffs = settings.payoffs;
 
+        blueChoice = node.game.blueChoice;
+
+        if (node.game.redChoice === 'GO') {
+            bluePayoff = payoffs.go[node.game.payoffTable][blueChoice].blue;
+            redPayoff = payoffs.go[node.game.payoffTable][blueChoice].red;
+        }
+        else {
+            bluePayoff = payoffs.stop.blue;
+            redPayoff = payoffs.stop.red;
+        }
+
+        return {
+            blue: bluePayoff,
+            red: redPayoff
+        };
     }
 
     function assignTable() {
@@ -115,49 +137,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
         else {
             node.game.payoffTable = 'B';
-        }
-    }
-
-    function assignRolesAndMatches() {
-        var match, id1, id2, soloId;
-
-            // Generates new random matches for this round.
-            node.game.matcher.match(true)
-            match = node.game.matcher.getMatch();
-
-            // Resets all roles.
-            node.game.roleMapper = {};
-
-            // While we have matches, send them to clients.
-            while (match) {
-                id1 = match[node.game.roles.RED];
-                id2 = match[node.game.roles.BLUE];
-
-                if (id1 !== 'bot' && id2 !== 'bot') {
-                    node.say('ROLE', id1, {
-                        role: 'RED',
-                        other: id2
-                    });
-                    node.say('ROLE', id2, {
-                        role: 'BLUE',
-                        other: id1
-                    });
-                    node.game.roleMapper[id1] = 'RED';
-                    node.game.roleMapper[id2] = 'BLUE';
-                }
-                // else {
-                //     // ???
-                //     soloId = id1 === 'bot' ? id2 : id1;
-                //     node.say('ROLE', soloId, {
-                //         role: 'SOLO',
-                //         other: null
-                //     });
-                //     node.game.roleMapper[soloId] = 'SOLO';
-                //
-                // }
-                match = node.game.matcher.getMatch();
-            }
-            console.log('Matching completed.');
         }
     }
 

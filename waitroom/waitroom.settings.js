@@ -221,17 +221,17 @@ module.exports = {
     ON_CONNECT: function(waitingRoom, player) {
         var channel;
         if (player.clientType !== 'bot') {
-            channel = waitingRoom.channel;
-            channel.connectBot({
-                // room: waitingRoom,
-                setup: {
-                    settings: {
-                        botType: 'dynamic', // 'dynamic' for based on player results
-                        chanceOfStop: 0.5,
-                        chanceOfRight: 0.5
-                    }
-                }
-            });
+            // channel = waitingRoom.channel;
+            // channel.connectBot({
+            //     // room: waitingRoom,
+            //     setup: {
+            //         settings: {
+            //             botType: 'dynamic', // 'dynamic' for based on player results
+            //             chanceOfStop: 0.5,
+            //             chanceOfRight: 0.5
+            //         }
+            //     }
+            // });
         }
     }
 
