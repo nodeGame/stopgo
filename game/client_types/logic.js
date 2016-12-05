@@ -61,8 +61,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('red-choice', {
         matcher: {
             roles: ['RED', 'BLUE'],
-            match: 'random_pairs', // should be random pairings, change this
-            // cycle: 'repeat_invert', // what does this mean?
+            match: 'roundrobin',
+            cycle: 'repeat_invert',
             skipBye: false,
             sayPartner: false,
         },
@@ -90,6 +90,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         node.say('RED-CHOICE', node.game.roles.BLUE, redChoice);
                     }
                     else {
+                        console.log(msg.data);
                         node.err('Error: Invalid Red choice. ID of sender: '+id);
                     }
                 }
@@ -113,16 +114,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     blueChoice = node.game.blueChoice;
 
-                    if (node.game.redChoice === 'LEFT') {
-                        channel.numChooseStop += 1;
+                    if (node.game.redChoice === 'RIGHT') {
+                        channel.numChooseRight += 1;
                     }
-                    channel.numStopGoDecisions += 1;
+                    channel.numRightLeftDecisions += 1;
 
                     // TODO: move validation to before node.game.blueChoice is assigned
                     if (msg.data.LEFT || msg.data.RIGHT) {
                         node.say('BLUE-CHOICE', node.game.roles.RED, blueChoice);
                     }
                     else {
+                        console.log(msg.data)
                         node.err('Error: Invalid Blue choice. ID of sender: '+id);
                     }
                 }
@@ -157,7 +159,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('end', {
         cb: function() {
             node.on.data('done', function(msg) {
-                saveData();
+                saveAll();
             });
         }
     });
