@@ -97,7 +97,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     randomDoneValue = (getRandom(0, 1) <= chanceOfRight)  ?
                                       'RIGHT' : 'LEFT';
-                    debugger
+
                     that.node.done(randomDoneValue);
                 }
             }

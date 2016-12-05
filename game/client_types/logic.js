@@ -90,7 +90,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         node.say('RED-CHOICE', node.game.roles.BLUE, redChoice);
                     }
                     else {
-                        console.log(msg.data);
                         node.err('Error: Invalid Red choice. ID of sender: '+id);
                     }
                 }
@@ -124,7 +123,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         node.say('BLUE-CHOICE', node.game.roles.RED, blueChoice);
                     }
                     else {
-                        console.log(msg.data)
                         node.err('Error: Invalid Blue choice. ID of sender: '+id);
                     }
                 }
