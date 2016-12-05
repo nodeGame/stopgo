@@ -266,11 +266,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         otherPlayerChoice = message.data.choices.blue;
 
                         node.game.runningTotalPayoff.update(message.data.payoffs.red);
+                        node.game.totalPayoff += message.data.payoffs.red;
 
                         W.setInnerHTML('payoff', message.data.payoffs.red + ' ' + node.game.runningTotalPayoff.currency);
 
                         W.setInnerHTML('player', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
-                        W.addClass(W.getElementById('player'), node.game.role);
+                        W.addClass(W.getElementById('player'), 'red');
                         W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
                         W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
 
@@ -301,11 +302,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         otherPlayerChoice = message.data.choices.red;
 
                         node.game.runningTotalPayoff.update(message.data.payoffs.blue);
+                        node.game.totalPayoff += message.data.payoffs.blue;
 
                         W.setInnerHTML('payoff', message.data.payoffs.blue + ' ' + node.game.runningTotalPayoff.currency);
 
                         W.setInnerHTML('player', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
-                        W.addClass(W.getElementById('player'), node.game.role);
+                        W.addClass(W.getElementById('player'), 'blue');
                         W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
                         W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
 
