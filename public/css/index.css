@@ -76,6 +76,12 @@ div#ng_header {
   margin: 0 auto;
 }
 
+.waitingroom {
+  max-width: 42em;
+  width: 90%;
+  margin: 0 auto;
+}
+
 .ng-page-title {
   text-align: center;
 }

@@ -32,6 +32,26 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         channel.numRightLeftDecisions = 0;
     });
 
+    stager.extendStage('game', { // or whatever is the name of the stage
+        minPlayers: [ 2, function(playerObj) {
+            // Collect data about player (e.g. previous choices),
+            // and pass them as parameter to the bot.
+            // More sophisticated bots could use that info (at the moment no).
+            channel.connectBot({
+                // room: waitingRoom,
+                setup: {
+                    settings: {
+                        botType: 'dynamic', // 'dynamic' for based on player results
+                        chanceOfStop: 0.5,
+                        chanceOfRight: 0.5
+                    }
+                }
+            });
+            // Mark the player as not allowed to reconnect in the registry.
+            channel.registry.updateClient(playerObj.id, { allowReconnect: false });
+        } ]
+    });
+
     stager.extendStep('instructions', {
         cb: function() {
             console.log('Instructions.');
@@ -41,20 +61,26 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('red-choice', {
         matcher: {
             roles: ['RED', 'BLUE'],
-            match: 'roundrobin', // what does this mean???
-            // cycle: 'repeat_invert', // what does this mean???
+            match: 'random_pairs', // should be random pairings, change this
+            // cycle: 'repeat_invert', // what does this mean?
             skipBye: false,
             sayPartner: false,
         },
         cb: function() {
             assignTable();
+            node.say('TABLE', node.game.roles.RED, node.game.payoffTable);
+
             node.once.data('done', function(msg) {
-                node.game.redChoice = msg.data.choice;
-                var id = msg.data.id;
-                var redChoice = node.game.redChoice;
+                var id, redChoice;
+
+                node.game.redChoice = msg.data.GO ? 'GO' : 'STOP';
+
+                id = msg.from;
+                redChoice = node.game.redChoice;
 
                 // validate selection
-                if (id === node.game.roles.RED && (redChoice === 'GO' || redChoice === 'STOP')) {
+                // TODO: move validation to before node.game.redChoice is assigned
+                if (id === node.game.roles.RED && (msg.data.GO || msg.data.STOP)) {
                     node.say('RED-CHOICE', node.game.roles.BLUE, redChoice);
                 }
                 else {
@@ -68,11 +94,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             // ??? should i use once or on?
             node.once.data('done', function(msg) {
-                node.game.blueChoice = msg.data.choice;
-                var id = msg.data.id;
-                var blueChoice = node.game.blueChoice;
+                var id, blueChoice;
 
-                if (id === node.game.roles.BLUE && (blueChoice === 'LEFT' || blueChoice === 'RIGHT')) {
+                node.game.blueChoice = msg.data.LEFT ? 'LEFT' : 'RIGHT';
+                id = msg.from;
+                blueChoice = node.game.blueChoice;
+
+                // TODO: move validation to before node.game.blueChoice is assigned
+                if (id === node.game.roles.BLUE && (msg.data.LEFT || msg.data.RIGHT)) {
                     node.say('BLUE-CHOICE', node.game.roles.RED, blueChoice);
                 }
                 else {
@@ -88,7 +117,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             payoffs = calculatePayoffs();
             results = {
-                payoffs: payoff,
+                payoffs: payoffs,
 
                 choices: {
                     red: node.game.redChoice,
@@ -111,9 +140,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     function calculatePayoffs() {
         var payoffs, bluePayoff, redPayoff;
         var blueChoice;
-        payoffs = settings.payoffs;
 
-        blueChoice = node.game.blueChoice;
+        payoffs = settings.payoffs;
+        blueChoice = node.game.blueChoice.toLowerCase();
 
         if (node.game.redChoice === 'GO') {
             bluePayoff = payoffs.go[node.game.payoffTable][blueChoice].blue;
