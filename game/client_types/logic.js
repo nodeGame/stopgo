@@ -73,18 +73,28 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.once.data('done', function(msg) {
                 var id, redChoice;
 
-                node.game.redChoice = msg.data.GO ? 'GO' : 'STOP';
-
                 id = msg.from;
-                redChoice = node.game.redChoice;
 
-                // validate selection
-                // TODO: move validation to before node.game.redChoice is assigned
-                if (id === node.game.roles.RED && (msg.data.GO || msg.data.STOP)) {
-                    node.say('RED-CHOICE', node.game.roles.BLUE, redChoice);
+                if (id === node.game.roles.RED) {
+                    node.game.redChoice = msg.data.GO ? 'GO' : 'STOP';
+                    redChoice = node.game.redChoice;
+
+                    if (node.game.redChoice === 'STOP') {
+                        channel.numChooseStop += 1;
+                    }
+                    channel.numStopGoDecisions += 1;
+
+                    // validate selection
+                    // TODO: move validation to before node.game.redChoice is assigned
+                    if (msg.data.GO || msg.data.STOP) {
+                        node.say('RED-CHOICE', node.game.roles.BLUE, redChoice);
+                    }
+                    else {
+                        node.err('Error: Invalid Red choice. ID of sender: '+id);
+                    }
                 }
                 else {
-                    console.log('Error: Invalid Red choice.');
+                    node.err('Error: Sender not Red player. ID of sender: '+id);
                 }
             });
         }
@@ -96,16 +106,28 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.once.data('done', function(msg) {
                 var id, blueChoice;
 
-                node.game.blueChoice = msg.data.LEFT ? 'LEFT' : 'RIGHT';
                 id = msg.from;
-                blueChoice = node.game.blueChoice;
 
-                // TODO: move validation to before node.game.blueChoice is assigned
-                if (id === node.game.roles.BLUE && (msg.data.LEFT || msg.data.RIGHT)) {
-                    node.say('BLUE-CHOICE', node.game.roles.RED, blueChoice);
+                if (id === node.game.roles.BLUE) {
+                    node.game.blueChoice = msg.data.LEFT ? 'LEFT' : 'RIGHT';
+
+                    blueChoice = node.game.blueChoice;
+
+                    if (node.game.redChoice === 'LEFT') {
+                        channel.numChooseStop += 1;
+                    }
+                    channel.numStopGoDecisions += 1;
+
+                    // TODO: move validation to before node.game.blueChoice is assigned
+                    if (msg.data.LEFT || msg.data.RIGHT) {
+                        node.say('BLUE-CHOICE', node.game.roles.RED, blueChoice);
+                    }
+                    else {
+                        node.err('Error: Invalid Blue choice. ID of sender: '+id);
+                    }
                 }
                 else {
-                    console.log('Error: Invalid Blue choice');
+                    node.err('Error: Sender not Blue player. ID of sender: '+id);
                 }
             });
         }
@@ -116,6 +138,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var payoffs, results;
 
             payoffs = calculatePayoffs();
+            addData(node.game.roles.RED, payoffs.red);
+            addData(node.game.roles.BLUE, payoffs.blue);
+
             results = {
                 payoffs: payoffs,
 
@@ -131,10 +156,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         cb: function() {
-            // saveData();
-            // updateBotBehavior();
+            node.on.data('done', function(msg) {
+                saveData();
+            });
         }
     });
+
+    function addData(playerId, data) {
+        var item = node.game.memory.player[playerId].last();
+        item.bonus = data;
+    }
+
+    function saveAll() {
+        node.game.memory.save(channel.getGameDir() + 'data/data_' +
+        node.nodename + '.json');
+    }
 
     // returns payoffs as a object
     function calculatePayoffs() {

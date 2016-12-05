@@ -258,12 +258,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         W.show('info');
                     }
 
-                    node.on.data('RESULTS', function(message) {
+                    node.once.data('RESULTS', function(message) {
                         var otherPlayer;
                         var otherPlayerChoice;
 
                         otherPlayer = 'BLUE';
                         otherPlayerChoice = message.data.choices.blue;
+
+                        node.game.runningTotalPayoff.update(message.data.payoffs.red);
 
                         W.setInnerHTML('payoff', message.data.payoffs.red + ' ' + node.game.runningTotalPayoff.currency);
 
@@ -291,12 +293,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         W.show('info');
                     }
 
-                    node.on.data('RESULTS', function(message) {
+                    node.once.data('RESULTS', function(message) {
                         var otherPlayer;
                         var otherPlayerChoice;
 
                         otherPlayer = 'RED';
                         otherPlayerChoice = message.data.choices.red;
+
+                        node.game.runningTotalPayoff.update(message.data.payoffs.blue);
 
                         W.setInnerHTML('payoff', message.data.payoffs.blue + ' ' + node.game.runningTotalPayoff.currency);
 
