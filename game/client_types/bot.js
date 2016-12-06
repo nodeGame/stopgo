@@ -21,8 +21,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.setDefaultCallback(function() {
         var that;
         that = this;
-        console.log('Stage: ' , this.getCurrentGameStage());
-        this.node.timer.randomDone();
+        console.log('Stage: ' , that.getCurrentGameStage());
+        that.node.timer.randomDone();
     });
 
     stager.extendStep('red-choice', {
@@ -86,9 +86,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var isDynamic;
 
                     that = this;
-                    isDynamic = this.settings.botType === 'dynamic';
+                    isDynamic = (that.settings.botType === 'dynamic');
 
-                    if (isDynamic && channel.numStopGoDecisions >= 1) {
+                    if (isDynamic && channel.numRightLeftDecisions >= 1) {
                         chanceOfRight = channel.numChooseRight / channel.numRightLeftDecisions;
                     }
                     else {

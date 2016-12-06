@@ -72,17 +72,22 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             node.once.data('done', function(msg) {
                 var id, redChoice;
+                var playerObj;
 
                 id = msg.from;
+
+                playerObj = node.game.pl.get(id);
 
                 if (id === node.game.roles.RED) {
                     node.game.redChoice = msg.data.GO ? 'GO' : 'STOP';
                     redChoice = node.game.redChoice;
 
-                    if (node.game.redChoice === 'STOP') {
-                        channel.numChooseStop += 1;
+                    if (playerObj.clientType !== 'bot') {
+                        if (node.game.redChoice === 'STOP') {
+                            channel.numChooseStop += 1;
+                        }
+                        channel.numStopGoDecisions += 1;
                     }
-                    channel.numStopGoDecisions += 1;
 
                     // validate selection
                     // TODO: move validation to before node.game.redChoice is assigned
@@ -105,6 +110,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             // ??? should i use once or on?
             node.once.data('done', function(msg) {
                 var id, blueChoice;
+                var playerObj;
 
                 id = msg.from;
 
@@ -113,10 +119,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     blueChoice = node.game.blueChoice;
 
-                    if (node.game.redChoice === 'RIGHT') {
-                        channel.numChooseRight += 1;
+                    playerObj = node.game.pl.get(id);
+                    // playerObj = channel.registry.get(id);
+
+                    if (playerObj.clientType !== 'bot') {
+                        if (node.game.blueChoice === 'RIGHT') {
+                            channel.numChooseRight += 1;
+                        }
+                        channel.numRightLeftDecisions += 1;
+                        // console.log('RIGHT/LEFT: ' + channel.numChooseRight / channel.numRightLeftDecisions);
                     }
-                    channel.numRightLeftDecisions += 1;
 
                     // TODO: move validation to before node.game.blueChoice is assigned
                     if (msg.data.LEFT || msg.data.RIGHT) {
