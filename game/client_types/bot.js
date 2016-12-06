@@ -26,8 +26,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('red-choice', {
-        role: function() { return this.role; },
-        partner: function() { return this.partner; },
         roles: {
             RED: {
                 cb: function() {

@@ -9,6 +9,7 @@
 
 "use strict";
 
+var fs = require('fs');
 var ngc = require('nodegame-client');
 var stepRules = ngc.stepRules;
 var constants = ngc.constants;
@@ -62,9 +63,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         matcher: {
             roles: ['RED', 'BLUE'],
             match: 'roundrobin',
-            cycle: 'repeat_invert',
+            cycle: 'repeat',
             skipBye: false,
-            sayPartner: false,
+            sayPartner: false
         },
         cb: function() {
             assignTable();
@@ -180,8 +181,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     }
 
     function saveAll() {
-        node.game.memory.save(channel.getGameDir() + 'data/data_' +
-        node.nodename + '.json');
+        var gDir, line;
+        gDir = channel.getGameDir();
+        node.game.memory.save( gDir + 'data/data_' + node.nodename + '.json');
+
+        line = node.nodename + ',' + channel.numStopGoDecisions + ',' + channel.numChooseStop +
+            ',' + channel.numRightLeftDecisions + ',' + channel.numChooseRight + "\n";
+        fs.appendFile(gDir + 'data/avgDecisions.csv', line, function(err) {
+            if (err) console.log('An error occurred saving: ' + line);
+        });
     }
 
     // returns payoffs as a object
@@ -215,6 +223,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         else {
             node.game.payoffTable = 'B';
         }
+        // console.log('THE STATE OF THE WORLD IS: ' + node.game.payoffTable);
     }
 
     // Here we group together the definition of the game logic.
