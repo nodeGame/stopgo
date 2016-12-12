@@ -148,38 +148,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 node.game.role = 'blue';
                 node.game.visualTimer.setToZero();
 
-                //                 node.game.visualTimer.clear();
-                //                 node.game.visualTimer.startWaiting({
-                //                     milliseconds: node.game.settings.bidTime,
-                //                     timeup: false
-                //                 });
-
-                // Make the observer display visible.
-                W.show('blue');
-                // span = W.getElementById('dotsBlue');
-                // W.addLoadingDots(span);
-
-                node.on.data('redChoice', function(msg) {
-                    node.game.redChoice = msg.data;
-                    node.done();
-                });
-
-            });
-        },
-        done: function(choice) {
-            var button, span;
-            if (node.game.role === 'red') {
-                button = W.getElementById('stop');
-                button.disabled = true;
-                button = W.getElementById('go');
-                button.disabled = true;
-                W.show('waiting_for_blue');
-                // span = W.getElementById('dotsRed');
-                // W.addLoadingDots(span);
-                W.setInnerHTML('your_choice_red', 'Your choice: ' + choice);
-            }
-            else {
-                W.hide('you_are_blue');
+                        W.show('make-blue-decision');
+                        W.hide('awaiting-red-decision');
+                        node.done();
+                    });
+                }
             }
         }
     });
@@ -291,6 +264,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         frame: 'end.htm',
         cb: function() {
             node.game.visualTimer.setToZero();
+
             W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
             node.game.totalPayoff = 0;
         },
@@ -304,6 +278,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         frame: 'practice-end.htm',
         cb: function() {
             node.game.visualTimer.setToZero();
+            node.game.visualTimer.init({
+                milliseconds: node.game.settings.bidTime,
+                timeup: function() {
+                    node.done();
+                }
+            });
+
+            node.game.visualTimer.updateDisplay();
+            node.game.visualTimer.startTiming();
+
             W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
             node.game.totalPayoff = 0;
         },

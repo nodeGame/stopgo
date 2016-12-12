@@ -30,6 +30,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         channel.numStopGoDecisions = 0;
         channel.numChooseRight = 0;
         channel.numRightLeftDecisions = 0;
+
+        node.game.choices = {};
+        node.game.tables = {};
     });
 
     stager.extendStep('instructions', {
@@ -40,36 +43,105 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('stoporgo', {
         cb: function() {
-            console.log('Game round: ' + node.player.stage.round);
-            doStateOfTheWorld();
-            doMatch();
-            node.once.data('done', function(msg) {
-                node.game.redChoice = msg.data.stop ? 'stop' : 'go';
-                if (node.game.redChoice === 'stop') {
-                    channel.numChooseStop += 1;
-                }
-                channel.numStopGoDecisions += 1; // should not modify when practice or if bot
-                node.say('redChoice', node.game.bluePlayerId, node.game.redChoice);
+            var allMatchesInRound;
+            var i;
+            var match;
+            var roles;
+            var payoffTable;
 
-                console.log('RECEIVED DONE: ', msg);
+            allMatchesInRound = node.game.matcher.matcher.getMatch(node.game.getCurrentGameStage().round);
+
+            for (i = 0; i < allMatchesInRound.length; i++) {
+                match = allMatchesInRound[i];
+
+                roles = getRoles(match[0], match[1]);
+                console.log('ROLES -----');
+                console.log(roles);
+
+                payoffTable = getRandomTable();
+                node.game.tables[roles.RED] = payoffTable;
+
+                node.say('TABLE', roles.RED, payoffTable);
+            }
+
+            node.on.data('done', function(msg) {
+                var id, otherId;
+                var playerObj;
+                var roles;
+                var redChoice;
+
+                id = msg.from;
+                playerObj = node.game.pl.get(id);
+                otherId = node.game.matcher.getMatchFor(id);
+                roles = getRoles(id, otherId);
+
+                if (id === roles.RED) {
+                    // TODO: fix this so red choice is stored elsewhere
+                    redChoice = msg.data.GO ? 'GO' : 'STOP';
+                    node.game.choices[roles.RED] = { redChoice: redChoice };
+
+                    if (playerObj.clientType !== 'bot') {
+                        if (redChoice === 'STOP') {
+                            channel.numChooseStop += 1;
+                        }
+                        channel.numStopGoDecisions += 1;
+                    }
+
+                    // validate selection
+                    // TODO: move validation to before node.game.redChoice is assigned
+                    if (msg.data.GO || msg.data.STOP) {
+                        node.say('RED-CHOICE', roles.BLUE, redChoice);
+                    }
+                    else {
+                        node.err('Error: Invalid Red choice. ID of sender: '+id);
+                    }
+                }
+                // else {
+                    // node.err('Error: Sender not Red player. ID of sender: '+id);
+                // }
             });
         }
     });
 
     stager.extendStep('leftorright', {
         cb: function() {
+            // ??? should i use once or on?
             node.on.data('done', function(msg) {
-                node.game.blueChoice = msg.data.left ? 'left' : 'right';
+                var id, otherId;
+                var blueChoice;
+                var playerObj;
+                var roles;
 
-                if (node.game.redChoice === 'right') {
-                    channel.numChooseRight += 1;
+                id = msg.from;
+                otherId = node.game.matcher.getMatchFor(id);
+                roles = getRoles(id, otherId);
+
+                if (id === roles.BLUE) {
+                    blueChoice = msg.data.LEFT ? 'LEFT' : 'RIGHT';
+
+                    node.game.choices[roles.RED].blueChoice = blueChoice;
+
+                    playerObj = node.game.pl.get(id);
+
+                    if (playerObj.clientType !== 'bot') {
+                        if (node.game.choices[roles.RED].blueChoice === 'RIGHT') {
+                            channel.numChooseRight += 1;
+                        }
+                        channel.numRightLeftDecisions += 1;
+                        // console.log('RIGHT/LEFT: ' + channel.numChooseRight / channel.numRightLeftDecisions);
+                    }
+
+                    // TODO: move validation to before node.game.choices[roles.RED].blueChoice is assigned
+                    if (msg.data.LEFT || msg.data.RIGHT) {
+                        node.say('BLUE-CHOICE', roles.RED, blueChoice);
+                    }
+                    else {
+                        node.err('Error: Invalid Blue choice. ID of sender: '+id);
+                    }
                 }
-                channel.numRightLeftDecisions += 1;
-
-                console.log('RECEIVED DONE: ', msg);
-                // if the game is always played by two players, this works well
-
-                node.done();
+                // else {
+                    // node.err('Error: Sender not Blue player. ID of sender: '+id);
+                // }
             });
         },
         stepRule: stepRules.SOLO
@@ -78,7 +150,36 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('results', {
         cb: function() {
-            computePayoff();
+            var payoffs, results;
+            var allMatchesInRound;
+            var match;
+            var roles;
+            var i;
+
+            debugger;
+            allMatchesInRound = node.game.matcher.matcher.getMatch(node.getCurrentGameStage().round);
+
+            for (i = 0; i < allMatchesInRound.length; i++) {
+                match = allMatchesInRound[i];
+                roles = getRoles(match[0], match[1]);
+                payoffs = calculatePayoffs(node.choices[roles.RED], node.tables[roles.RED]);
+
+                addData(node.game.roles.RED, payoffs.red);
+                addData(node.game.roles.BLUE, payoffs.blue);
+
+                results = {
+                    payoffs: payoffs,
+
+                    choices: {
+                        red: node.game.choices[roles.RED].redChoice,
+                        blue: node.game.choices[roles.RED].blueChoice
+                    }
+                };
+
+                node.say('RESULTS', roles.RED, results);
+                node.say('RESULTS', roles.BLUE, results);
+
+            }
         }
     });
 
@@ -97,7 +198,28 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    stager.setOnGameOver(function() {
+    function getRoles(id1, id2) {
+      var redId, blueId;
+
+      if (node.game.matcher.getRoleFor(id1) === 'RED') {
+        redId = id1;
+        blueId = id2;
+      }
+      else {
+        redId = id2;
+        blueId = id1;
+      }
+
+      return {
+        RED: redId,
+        BLUE: blueId
+      };
+    }
+
+    function addData(playerId, data) {
+        var item = node.game.memory.player[playerId].last();
+        item.bonus = data;
+    }
 
         // Something to do.
 
@@ -109,13 +231,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Extracts, and compacts the game plot that we defined above.
         plot: stager.getState(),
 
-    };
+    // returns payoffs as a object
+    function calculatePayoffs(choices, table) {
+        var payoffs, bluePayoff, redPayoff;
+        var blueChoice;
 
-    // Helper functions.
+        payoffs = settings.payoffs;
+        blueChoice = choices.blueChoice.toLowerCase();
 
-    function doStateOfTheWorld() {
-        if (Math.random() > node.game.settings.pi) {
-            node.game.worldState = 'A';
+        if (choices.redChoice === 'GO') {
+            bluePayoff = payoffs.go[table][blueChoice].blue;
+            redPayoff = payoffs.go[table][blueChoice].red;
         }
         else {
             node.game.worldState = 'B';
@@ -132,31 +258,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.say('ROLE_BLUE', players[1]);
     }
 
-    function computePayoff() {
-        // remember to recompute totals after practice round
-        var p, blueP, redP;
-        p = settings.payoff;
-        if (node.game.redChoice === 'go') {
-            blueP = p.go[node.game.worldState]['blue' + node.game.blueChoice];
-            redP = p.go[node.game.worldState]['red' + node.game.blueChoice];
+    function getRandomTable() {
+        var payoffTable;
+
+        // TODO: double check is pi chance for A or B?
+        if (Math.random() < node.game.settings.pi) {
+            payoffTable = 'A';
         }
         else {
-            blueP = p.stop.blue;
-            redP = p.stop.red;
+            payoffTable = 'B';
         }
-        node.say('payoff', 'ROOM', { blue: blueP, red: redP, blueChoice: node.game.blueChoice, redChoice: node.game.redChoice});
-        // channel.registry.get(node.game.bluePlayerId).totalBonus =
-        // node.game.memory
 
-        node.on.data('done', function(msg) {
-            var item = node.game.memory.select('player', '=', msg.from).last();
-
-            if (msg.from === node.game.bluePlayerId) {
-                item.bonus = blueP;
-            }
-            else {
-                item.bonus = redP;
-            }
-        });
+        return payoffTable;
+        // console.log('THE STATE OF THE WORLD IS: ' + node.game.payoffTable);
     }
 };
