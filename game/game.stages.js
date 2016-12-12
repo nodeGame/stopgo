@@ -22,22 +22,22 @@ module.exports = function(stager, settings) {
 
     stager.extendStage('game', {
     	steps: [
-    	    'stoporgo',
-    	    'leftorright',
+    	    'red-choice',
+    	    'blue-choice',
     	    'results'
     	]
     });
 
     stager.extendStage('practice', {
     	steps: [
-    	    'stoporgo',
-    	    'leftorright',
+    	    'red-choice',
+    	    'blue-choice',
     	    'results'
     	]
     });
 
     // Modify the stager to skip one stage.
-    // stager.skip('instructions');
+    // stager.skip('instructions')
     stager.skip('quiz');
     // stager.skip('practice');
 

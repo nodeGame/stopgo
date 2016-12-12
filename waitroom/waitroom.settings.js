@@ -233,6 +233,8 @@ module.exports = {
                 }
             });
         }
+
+        // if (node.game.pl.size() <)
     }
 
 };

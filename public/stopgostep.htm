@@ -9,26 +9,26 @@
         </div>
     </div>
     <div id="red" style="display:none">
-        <p>You are <strong class="red">Red</strong>, and this is the state of the world: <span id="state_of_world"> __ </span></p>
+        <p>You are <strong class="red">Red</strong>, and this is the state of the world: <strong><span id="state_of_world"> __ </span></strong></p>
         <p>Recall: If you choose <strong>STOP</strong>, both you and Blue receive <span id="payoff-stop"> __ </span>.</p>
         <div id="payoff-table" class="panel panel-default">
             <div class="panel-heading">Below is the Payoff Table that describes what will happen if you choose <strong>GO</strong>.</div>
         </div>
         Make your choice:
-        <button id="stop" class="btn btn-primary">Stop</button>
-        <button id="go" class="btn btn-primary">Go</button>
-        <span id="your_choice_red"></span>
-        <span id="waiting_for_blue" style="display:none">
+        <button id="stop" class="btn btn-lg btn-primary">Stop</button>
+        <button id="go" class="btn btn-lg btn-primary">Go</button>
+        <p id="red-decision"></p>
+        <p id="awaiting-blue-decision" style="display:none">
             Blue player is now making a decision.
-        </span>
+        </p>
     </div>
 
     <div id="blue" style="display:none">
         <p>You are <strong class="blue">Blue</strong>.</p>
-        <p id="you_are_blue">
+        <p id="awaiting-red-decision">
             Waiting for Red to make a decision.
         </p>
-        <div id="make-blue-decision">
+        <div id="make-blue-decision" style="display: none">
             <p>The other player, Red, chose <strong><span id="red-choice">__</span></strong>.</p>
             <p>Remember: If Red chose <strong>STOP</strong>, you get <span id="payoff-stop-blue"> __ </span>, regardless of your choice.</p>
             <p>Otherwise, if Red chose <strong>GO</strong>, the payoff table possiblities are shown below (there is a chance for either): </p>
@@ -44,8 +44,8 @@
             </div>
 
             <p>Choose wisely! Make your choice:</p>
-            <button id="left" class="btn btn-primary">Left</button>
-            <button id="right" class="btn btn-primary">Right</button>
+            <button id="left" class="btn btn-lg btn-primary">Left</button>
+            <button id="right" class="btn btn-lg btn-primary">Right</button>
         </div>
     </div>
 
