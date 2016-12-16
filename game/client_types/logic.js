@@ -9,6 +9,7 @@
 
 "use strict";
 
+var fs = require('fs');
 var ngc = require('nodegame-client');
 var stepRules = ngc.stepRules;
 var constants = ngc.constants;
@@ -41,7 +42,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    stager.extendStep('stoporgo', {
+    stager.extendStep('red-choice', {
+        matcher: {
+            roles: ['RED', 'BLUE'],
+            match: 'roundrobin',
+            cycle: 'repeat',
+            skipBye: false,
+            sayPartner: false
+        },
         cb: function() {
             var allMatchesInRound;
             var i;
@@ -103,7 +111,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    stager.extendStep('leftorright', {
+    stager.extendStep('blue-choice', {
         cb: function() {
             // ??? should i use once or on?
             node.on.data('done', function(msg) {
@@ -147,7 +155,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         stepRule: stepRules.SOLO
     });
 
-
     stager.extendStep('results', {
         cb: function() {
             var payoffs, results;
@@ -156,7 +163,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var roles;
             var i;
 
-            debugger;
             allMatchesInRound = node.game.matcher.matcher.getMatch(node.getCurrentGameStage().round);
 
             for (i = 0; i < allMatchesInRound.length; i++) {
@@ -185,16 +191,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         cb: function() {
-
             node.on.data('done', function(msg) {
-                var item;
-                item = node.game.memory
-                .select('player', '=', msg.from)
-                .last();
+                saveAll();
             });
-
-            node.game.memory.save(channel.getGameDir() + 'data/data_' +
-            node.nodename + '.json');
         }
     });
 
@@ -238,16 +237,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     }
 
-    function doMatch() {
-        var players, len;
-        len = node.game.pl.size();
-        players = node.game.pl.shuffle().id.getAllKeys();
-        node.game.bluePlayerId = players[1];
-        node.game.redPlayerId = players[0];
-        node.say('ROLE_RED', players[0], node.game.worldState);
-        node.say('ROLE_BLUE', players[1]);
-    }
-
     function getRandomTable() {
         var payoffTable;
 
@@ -263,7 +252,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // console.log('THE STATE OF THE WORLD IS: ' + node.game.payoffTable);
     }
 
-    // Something to do.
+    function saveAll() {
+        var gDir, line;
+        gDir = channel.getGameDir();
+        node.game.memory.save( gDir + 'data/data_' + node.nodename + '.json');
+
+        line = node.nodename + ',' + channel.numStopGoDecisions + ',' + channel.numChooseStop +
+        ',' + channel.numRightLeftDecisions + ',' + channel.numChooseRight + "\n";
+        fs.appendFile(gDir + 'data/avgDecisions.csv', line, function(err) {
+            if (err) console.log('An error occurred saving: ' + line);
+        });
+    }
+
 
     return {
         nodename: 'lgc' + counter,
