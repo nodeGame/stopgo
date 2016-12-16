@@ -46,6 +46,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
 
                     randomDoneValue = (getRandom(0, 1) <= chanceOfStop) ? 'STOP' : 'GO';
+
+                    console.log('RED ROLE BOT:', that.node.player.id, ', partner: ', that.partner);
+                    console.log(randomDoneValue);
+
                     that.node.done(randomDoneValue);
                 }
             },
@@ -53,6 +57,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     var that;
                     that = this;
+
+                    console.log('BLUE ROLE BOT:', that.node.player.id, ', partner: ', that.partner);
 
                     that.node.once.data('RED-CHOICE', function() {
                         that.node.done();

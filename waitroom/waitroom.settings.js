@@ -33,7 +33,7 @@ module.exports = {
      *
      * The size of each group dispatched by the waiting room
      */
-    GROUP_SIZE: 4,
+    GROUP_SIZE: 2,
 
     /**
      * ## POOL_SIZE (number) Optional
@@ -44,7 +44,7 @@ module.exports = {
      *
      * Default: GROUP_SIZE
      */
-    POOL_SIZE: 4,
+    POOL_SIZE: 2,
 
     /**
      * ## N_GAMES (number) Optional
@@ -222,16 +222,16 @@ module.exports = {
         var channel;
         if (player.clientType !== 'bot') {
             channel = waitingRoom.channel;
-            channel.connectBot({
-                // room: waitingRoom,
-                setup: {
-                    settings: {
-                        botType: 'dynamic', // 'dynamic' for based on player results
-                        chanceOfStop: 0.5,
-                        chanceOfRight: 0.5
-                    }
-                }
-            });
+            // channel.connectBot({
+            //     // room: waitingRoom,
+            //     setup: {
+            //         settings: {
+            //             botType: 'dynamic', // 'dynamic' for based on player results
+            //             chanceOfStop: 0.5,
+            //             chanceOfRight: 0.5
+            //         }
+            //     }
+            // });
         }
 
         // if (node.game.pl.size() <)

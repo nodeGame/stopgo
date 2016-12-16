@@ -46,9 +46,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         matcher: {
             roles: ['RED', 'BLUE'],
             match: 'roundrobin',
-            cycle: 'repeat',
-            skipBye: false,
-            sayPartner: false
+            cycle: 'repeat'//,
+            // skipBye: false,
+            // sayPartner: false
         },
         cb: function() {
             var allMatchesInRound;
@@ -57,14 +57,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var roles;
             var payoffTable;
 
-            allMatchesInRound = node.game.matcher.matcher.getMatch(node.game.getCurrentGameStage().round);
+            // node.game.matcher.matcher.init({x: null, y: null});
+            allMatchesInRound = node.game.matcher.matcher.getMatch(node.game.getCurrentGameStage().round - 1);
+
+            console.log(allMatchesInRound);
+            debugger;
 
             for (i = 0; i < allMatchesInRound.length; i++) {
                 match = allMatchesInRound[i];
 
                 roles = getRoles(match[0], match[1]);
-                console.log('ROLES -----');
-                console.log(roles);
 
                 payoffTable = getRandomTable();
                 node.game.tables[roles.RED] = payoffTable;
@@ -83,8 +85,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 otherId = node.game.matcher.getMatchFor(id);
                 roles = getRoles(id, otherId);
 
+                console.log('DONE: '+id);
+
                 if (id === roles.RED) {
-                    // TODO: fix this so red choice is stored elsewhere
                     redChoice = msg.data.GO ? 'GO' : 'STOP';
                     node.game.choices[roles.RED] = { redChoice: redChoice };
 
@@ -113,7 +116,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('blue-choice', {
         cb: function() {
-            // ??? should i use once or on?
             node.on.data('done', function(msg) {
                 var id, otherId;
                 var blueChoice;
@@ -151,8 +153,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 // node.err('Error: Sender not Blue player. ID of sender: '+id);
                 // }
             });
-        },
-        stepRule: stepRules.SOLO
+        }
+        //stepRule: stepRules.SOLO
     });
 
     stager.extendStep('results', {
@@ -163,22 +165,22 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var roles;
             var i;
 
-            allMatchesInRound = node.game.matcher.matcher.getMatch(node.getCurrentGameStage().round);
+            allMatchesInRound = node.game.matcher.matcher.getMatch(node.game.getCurrentGameStage().round - 1);
 
             for (i = 0; i < allMatchesInRound.length; i++) {
                 match = allMatchesInRound[i];
                 roles = getRoles(match[0], match[1]);
-                payoffs = calculatePayoffs(node.choices[roles.RED], node.tables[roles.RED]);
+                payoffs = calculatePayoffs(node.game.choices[roles.RED], node.game.tables[roles.RED]);
 
-                addData(node.game.roles.RED, payoffs.red);
-                addData(node.game.roles.BLUE, payoffs.blue);
+                addData(roles.RED, payoffs.RED);
+                addData(roles.BLUE, payoffs.BLUE);
 
                 results = {
                     payoffs: payoffs,
 
                     choices: {
-                        red: node.game.choices[roles.RED].redChoice,
-                        blue: node.game.choices[roles.RED].blueChoice
+                        RED: node.game.choices[roles.RED].redChoice,
+                        BLUE: node.game.choices[roles.RED].blueChoice
                     }
                 };
 
@@ -200,6 +202,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     function getRoles(id1, id2) {
         var redId, blueId;
 
+        console.log('getRoleFor '+id1+': '+node.game.matcher.getRoleFor(id1));
         if (node.game.matcher.getRoleFor(id1) === 'RED') {
             redId = id1;
             blueId = id2;
@@ -226,14 +229,20 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var blueChoice;
 
         payoffs = settings.payoffs;
-        blueChoice = choices.blueChoice.toLowerCase();
+        blueChoice = choices.blueChoice;
 
         if (choices.redChoice === 'GO') {
-            bluePayoff = payoffs.go[table][blueChoice].blue;
-            redPayoff = payoffs.go[table][blueChoice].red;
+            bluePayoff = payoffs.GO[table][blueChoice].BLUE;
+            redPayoff = payoffs.GO[table][blueChoice].RED;
         }
         else {
-            node.game.worldState = 'B';
+            bluePayoff = payoffs.STOP.BLUE;
+            redPayoff = payoffs.STOP.RED;
+        }
+
+        return {
+            RED: redPayoff,
+            BLUE: bluePayoff
         }
     }
 

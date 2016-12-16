@@ -46,16 +46,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         payoffTableA = new W.Table();
         payoffTableA.addRow(['', 'Left', 'Right']);
-        payoffTableA.addRow(['Red', payoffs.go.A.left.red, payoffs.go.A.right.red]);
-        payoffTableA.addRow(['Blue', payoffs.go.A.left.blue, payoffs.go.A.right.blue]);
+        payoffTableA.addRow(['Red', payoffs.GO.A.LEFT.RED, payoffs.GO.A.RIGHT.RED]);
+        payoffTableA.addRow(['Blue', payoffs.GO.A.LEFT.BLUE, payoffs.GO.A.RIGHT.BLUE]);
 
         payoffTableB = new W.Table();
         payoffTableB.addRow(['', 'Left', 'Right']);
-        payoffTableB.addRow(['Red', payoffs.go.B.left.red, payoffs.go.B.right.red]);
-        payoffTableB.addRow(['Blue', payoffs.go.B.left.blue, payoffs.go.B.right.blue]);
+        payoffTableB.addRow(['Red', payoffs.GO.B.LEFT.RED, payoffs.GO.B.RIGHT.RED]);
+        payoffTableB.addRow(['Blue', payoffs.GO.B.LEFT.BLUE, payoffs.GO.B.RIGHT.BLUE]);
 
-        var payoffStopRed = payoffs.stop.red;
-        var payoffStopBlue = payoffs.stop.blue;
+        var payoffStopRed = payoffs.STOP.RED;
+        var payoffStopBlue = payoffs.STOP.BLUE;
 
         node.game.payoffTables = {};
         node.game.payoffTables.A = W.addClass(payoffTableA.parse(), 'table table-bordered');
@@ -90,7 +90,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // partner: function() { return this.partner; },
         init: function() {
             node.game.redChoice = null;
-            node.game.role = null;
         },
         roles: {
             RED: {
@@ -99,11 +98,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     button = W.getElementById('stop');
                     button.disabled = true;
+
                     button = W.getElementById('go');
                     button.disabled = true;
+
                     W.show('waiting_for_blue');
-                    // span = W.getElementById('dotsRed');
-                    // W.addLoadingDots(span);
                     W.setInnerHTML('red-decision', 'Your choice: ' + choice);
                 },
                 cb: function() {
@@ -114,9 +113,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     var buttonStop, buttonGo, payoffTableDiv1;
 
-                    node.game.role = 'RED';
-
-                    node.once.data('TABLE', function(message) {
+                    node.on.data('TABLE', function(message) {
                         node.game.worldState = message.data;
 
                         W.getElementById('payoff-table').appendChild(node.game.payoffTables[node.game.worldState]);
@@ -166,17 +163,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     var span;
 
-                    node.game.role = 'BLUE';
                     node.game.visualTimer.setToZero();
                     W.show('blue');
 
                     // Make the observer display visible.
 
-                    node.once.data('RED-CHOICE', function(msg) {
+                    node.on.data('RED-CHOICE', function(msg) {
                         node.game.redChoice = msg.data;
 
                         W.show('make-blue-decision');
-                        W.hide('awaiting-red-decision');``
+                        W.hide('awaiting-red-decision');
                         node.done();
                     });
                 }
@@ -193,7 +189,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     node.game.visualTimer.setToZero();
 
-                    node.once.data('BLUE-CHOICE', function(message) {
+                    node.on.data('BLUE-CHOICE', function(message) {
                         node.done();
                     });
                 }
@@ -215,6 +211,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     buttonLeft = W.getElementById('left');
                     buttonLeft.disabled = false;
+                    
                     buttonRight = W.getElementById('right');
                     buttonRight.disabled = false;
 
@@ -258,17 +255,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         W.show('info');
                     }
 
-                    node.once.data('RESULTS', function(message) {
+                    node.on.data('RESULTS', function(message) {
                         var otherPlayer;
                         var otherPlayerChoice;
 
                         otherPlayer = 'BLUE';
-                        otherPlayerChoice = message.data.choices.blue;
+                        otherPlayerChoice = message.data.choices.BLUE;
 
-                        node.game.runningTotalPayoff.update(message.data.payoffs.red);
-                        node.game.totalPayoff += message.data.payoffs.red;
+                        node.game.runningTotalPayoff.update(message.data.payoffs.RED);
+                        node.game.totalPayoff += message.data.payoffs.RED;
 
-                        W.setInnerHTML('payoff', message.data.payoffs.red + ' ' + node.game.runningTotalPayoff.currency);
+                        W.setInnerHTML('payoff', message.data.payoffs.RED + ' ' + node.game.runningTotalPayoff.currency);
 
                         W.setInnerHTML('player', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
                         W.addClass(W.getElementById('player'), 'red');
@@ -299,12 +296,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         var otherPlayerChoice;
 
                         otherPlayer = 'RED';
-                        otherPlayerChoice = message.data.choices.red;
+                        otherPlayerChoice = message.data.choices.RED;
 
-                        node.game.runningTotalPayoff.update(message.data.payoffs.blue);
-                        node.game.totalPayoff += message.data.payoffs.blue;
+                        node.game.runningTotalPayoff.update(message.data.payoffs.BLUE);
+                        node.game.totalPayoff += message.data.payoffs.BLUE;
 
-                        W.setInnerHTML('payoff', message.data.payoffs.blue + ' ' + node.game.runningTotalPayoff.currency);
+                        W.setInnerHTML('payoff', message.data.payoffs.BLUE + ' ' + node.game.runningTotalPayoff.currency);
 
                         W.setInnerHTML('player', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
                         W.addClass(W.getElementById('player'), 'blue');
