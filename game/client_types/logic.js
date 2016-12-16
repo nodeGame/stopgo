@@ -57,11 +57,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var roles;
             var payoffTable;
 
-            // node.game.matcher.matcher.init({x: null, y: null});
-            allMatchesInRound = node.game.matcher.matcher.getMatch(node.game.getCurrentGameStage().round - 1);
-
-            console.log(allMatchesInRound);
-            debugger;
+            allMatchesInRound = node.game.matcher.getMatches();
 
             for (i = 0; i < allMatchesInRound.length; i++) {
                 match = allMatchesInRound[i];
@@ -165,7 +161,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var roles;
             var i;
 
-            allMatchesInRound = node.game.matcher.matcher.getMatch(node.game.getCurrentGameStage().round - 1);
+            allMatchesInRound = node.game.matcher.getMatches();
 
             for (i = 0; i < allMatchesInRound.length; i++) {
                 match = allMatchesInRound[i];
