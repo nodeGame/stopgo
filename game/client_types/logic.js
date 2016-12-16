@@ -1,11 +1,11 @@
 /**
- * # Logic type implementation of the game stages
- * Copyright(c) 2016 brenste <myemail>
- * MIT Licensed
- *
- * http://www.nodegame.org
- * ---
- */
+* # Logic type implementation of the game stages
+* Copyright(c) 2016 brenste <myemail>
+* MIT Licensed
+*
+* http://www.nodegame.org
+* ---
+*/
 
 "use strict";
 
@@ -97,7 +97,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
                 }
                 // else {
-                    // node.err('Error: Sender not Red player. ID of sender: '+id);
+                // node.err('Error: Sender not Red player. ID of sender: '+id);
                 // }
             });
         }
@@ -140,7 +140,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
                 }
                 // else {
-                    // node.err('Error: Sender not Blue player. ID of sender: '+id);
+                // node.err('Error: Sender not Blue player. ID of sender: '+id);
                 // }
             });
         },
@@ -189,47 +189,37 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.on.data('done', function(msg) {
                 var item;
                 item = node.game.memory
-                    .select('player', '=', msg.from)
-                    .last();
+                .select('player', '=', msg.from)
+                .last();
             });
 
             node.game.memory.save(channel.getGameDir() + 'data/data_' +
-                                  node.nodename + '.json');
+            node.nodename + '.json');
         }
     });
 
     function getRoles(id1, id2) {
-      var redId, blueId;
+        var redId, blueId;
 
-      if (node.game.matcher.getRoleFor(id1) === 'RED') {
-        redId = id1;
-        blueId = id2;
-      }
-      else {
-        redId = id2;
-        blueId = id1;
-      }
+        if (node.game.matcher.getRoleFor(id1) === 'RED') {
+            redId = id1;
+            blueId = id2;
+        }
+        else {
+            redId = id2;
+            blueId = id1;
+        }
 
-      return {
-        RED: redId,
-        BLUE: blueId
-      };
+        return {
+            RED: redId,
+            BLUE: blueId
+        };
     }
 
     function addData(playerId, data) {
         var item = node.game.memory.player[playerId].last();
         item.bonus = data;
     }
-
-        // Something to do.
-
-    });
-
-    // Here we group together the definition of the game logic.
-    return {
-        nodename: 'lgc' + counter,
-        // Extracts, and compacts the game plot that we defined above.
-        plot: stager.getState(),
 
     // returns payoffs as a object
     function calculatePayoffs(choices, table) {
@@ -272,4 +262,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         return payoffTable;
         // console.log('THE STATE OF THE WORLD IS: ' + node.game.payoffTable);
     }
-};
+
+    // Something to do.
+
+    return {
+        nodename: 'lgc' + counter,
+        // Extracts, and compacts the game plot that we defined above.
+        plot: stager.getState(),
+        // If debug is false (default false), exception will be caught and
+        // and printed to screen, and the game will continue.
+        debug: settings.DEBUG,
+        // Controls the amount of information printed to screen.
+        verbosity: -100
+    };
+}
