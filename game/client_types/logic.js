@@ -57,13 +57,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var roles;
             var payoffTable;
 
-            allMatchesInRound = node.game.matcher.getMatches();
+            allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES');
+
+            // allMatchesInRound = node.game.matcher.getMatches();
 
             for (i = 0; i < allMatchesInRound.length; i++) {
-                match = allMatchesInRound[i];
+                // was:
+                // match = allMatchesInRound[i];
+                // roles = getRoles(match[0], match[1]);
 
-                roles = getRoles(match[0], match[1]);
-
+                roles = allMatchesInRound[i];
+                debugger
                 payoffTable = getRandomTable();
                 node.game.tables[roles.RED] = payoffTable;
 
@@ -160,12 +164,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var match;
             var roles;
             var i;
-
-            allMatchesInRound = node.game.matcher.getMatches();
+            
+            allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES');
 
             for (i = 0; i < allMatchesInRound.length; i++) {
-                match = allMatchesInRound[i];
-                roles = getRoles(match[0], match[1]);
+                // was:
+                // match = allMatchesInRound[i];
+                // roles = getRoles(match[0], match[1]);
+
+                roles = allMatchesInRound[i];
+                debugger
                 payoffs = calculatePayoffs(node.game.choices[roles.RED], node.game.tables[roles.RED]);
 
                 addData(roles.RED, payoffs.RED);
