@@ -157,6 +157,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         //stepRule: stepRules.SOLO
     });
 
+    stager.extendStage('practice', {
+    //   stepRule: stepRules.SYNC_STAGE // function(...) { return TRUE or FALSE;}
+    });
+
     stager.extendStep('results', {
         cb: function() {
             var payoffs, results;
@@ -164,7 +168,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var match;
             var roles;
             var i;
-            
+
             allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
 
             for (i = 0; i < allMatchesInRound.length; i++) {
@@ -173,7 +177,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 // roles = getRoles(match[0], match[1]);
 
                 roles = allMatchesInRound[i];
-                debugger
+                // debugger
                 payoffs = calculatePayoffs(node.game.choices[roles.RED], node.game.tables[roles.RED]);
 
                 addData(roles.RED, payoffs.RED);

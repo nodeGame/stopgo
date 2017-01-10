@@ -33,7 +33,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         // Add widgets.
         this.visualRound = node.widgets.append('VisualRound', header);
-        this.visualTimer = node.widgets.append('VisualTimer', header);
+        node.game.visualTimer = node.widgets.append('VisualTimer', header);
         this.runningTotalPayoff = node.widgets.append('MoneyTalks', header);
         this.runningTotalPayoff.init({currency: 'USD'});
         this.doneButton = node.widgets.append('DoneButton', header, {text: 'Done'});
@@ -139,15 +139,23 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         // return;
                         // Setup the timer.
+
                         node.game.visualTimer.init({
                             milliseconds: node.game.settings.bidTime,
+                            update: 1000,
                             timeup: function() {
                                 node.done(Math.floor(Math.random() * 2) ? 'STOP':'GO');
                             }
                         });
 
-                        node.game.visualTimer.updateDisplay();
-                        node.game.visualTimer.startTiming();
+                        // WEIRD.
+                        console.log(node.game.visualTimer);
+                        //node.game.visualTimer.updateDisplay();
+                        setTimeout(function(){
+                            node.game.visualTimer.start();
+
+                        }, 2000)
+
                     });
                 }
             },
@@ -163,7 +171,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     var span;
 
-                    node.game.visualTimer.setToZero();
                     W.show('blue');
 
                     // Make the observer display visible.
@@ -211,7 +218,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     buttonLeft = W.getElementById('left');
                     buttonLeft.disabled = false;
-                    
+
                     buttonRight = W.getElementById('right');
                     buttonRight.disabled = false;
 
@@ -335,7 +342,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         done: function() {
             node.game.runningTotalPayoff.money = 0;
             node.game.runningTotalPayoff.update(0);
-        }
+        },
+        stepRule: stepRules.SOLO
     });
 
     stager.extendStep('practice-end', {
