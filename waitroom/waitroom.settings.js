@@ -199,7 +199,7 @@ module.exports = {
      *
      * @see WaitingRoom.dispatch
      */
-    // PING_BEFORE_DISPATCH: true,
+    PING_BEFORE_DISPATCH: false,
 
     /**
      * ## logicPath (string) Optional

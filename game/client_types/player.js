@@ -93,6 +93,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         },
         roles: {
             RED: {
+// Timer can be specified here.
+//                 timer: {
+//                     milliseconds: settings.bidTime,
+//                     timeup: function() {
+//                         node.done(Math.floor(Math.random() * 2) ? 'STOP':'GO');
+//                     }
+//                 },
                 done: function(choice) {
                     var button;
 
@@ -137,24 +144,66 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                             node.done('GO');
                         };
 
+
+                        // Keep this comments for the moment!
+
+                        // ISSUE.
+                        //
+                        // Loading the frame for the step is async.
+                        // Then the step cb (this function) is executed.
+                        // 
+                        // The TABLE message might arrive BEFORE or AFTER
+                        // the frame has finished loading.
+                        //
+                        // CASE A:
+                        // If it arrives BEFORE, it is actually unbuffered
+                        // and emitted right before emitting PLAYING.
+                        //
+                        // When playing is emitted VisualTimer reads the options
+                        // from the step and tries to configure itself.
+                        //
+                        // With the version of VisualTimer in the last git pull,
+                        // if there are no options, VisualTimer sets itself to 0
+                        // (regardless of the state of the timer), so it was
+                        // killing the timer started in the TABLE cb (here). 
+                        // Now this is fixed, and if a timer is running is not
+                        // stopped.
+                        //
+                        // CASE B:
+                        // If it arrives AFTER the frame is loaded, 
+                        // PLAYING has already been emitted. In this
+                        // case the code would have worked fine. BUT the
+                        // measurament of the time spent on the step is not
+                        // precise. Time passed starts from PLAYING until DONE,
+                        // however here PLAYING is called before the full
+                        // interface is loaded (after TABLE is emitted).
+
+                        // Alternative solution for timer issue.
+                        // Instead of adding a timer property to step.
+
                         // return;
                         // Setup the timer.
 
-                        node.game.visualTimer.init({
-                            milliseconds: node.game.settings.bidTime,
-                            update: 1000,
-                            timeup: function() {
-                                node.done(Math.floor(Math.random() * 2) ? 'STOP':'GO');
-                            }
-                        });
-
-                        // WEIRD.
-                        console.log(node.game.visualTimer);
-                        //node.game.visualTimer.updateDisplay();
-                        setTimeout(function(){
+                        var startTimer = function() {
+                            node.game.visualTimer.init({
+                                milliseconds: node.game.settings.bidTime,
+                                timeup: function() {
+                                    node.done(Math.floor(Math.random() * 2) ? 'STOP':'GO');
+                                }
+                            });
                             node.game.visualTimer.start();
+                        };
 
-                        }, 2000)
+                        if (node.game.getStageLevel() === 
+                            node.constants.stageLevels.PLAYING) {
+
+                            startTimer();
+                        }
+                        else {
+                            node.once('PLAYING', function() {
+                                startTimer();
+                            });
+                        }
 
                     });
                 }
