@@ -83,6 +83,22 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
+    stager.extendStage('test', {
+        stepRule: stepRules.SOLO_STEP
+    });
+
+    stager.extendStep('step1', {
+        frame: 'practice-end.htm',
+    });
+
+    stager.extendStep('step2', {
+        frame: 'end.htm',
+    });
+
+    stager.extendStep('step3', {
+        frame: 'results.htm',
+    });
+
     stager.extendStep('red-choice', {
         donebutton: false,
         frame: 'stopgostep.htm', // change this name
@@ -391,8 +407,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         done: function() {
             node.game.runningTotalPayoff.money = 0;
             node.game.runningTotalPayoff.update(0);
-        },
-        stepRule: stepRules.SOLO
+        }
     });
 
     stager.extendStep('practice-end', {

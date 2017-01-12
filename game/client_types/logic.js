@@ -154,11 +154,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 // }
             });
         }
-        //stepRule: stepRules.SOLO
     });
 
-    stager.extendStage('practice', {
-    //   stepRule: stepRules.SYNC_STAGE // function(...) { return TRUE or FALSE;}
+    stager.extendStage('test', {
+        stepRule: function(stage, myStageLevel, pl, game) {
+            if (pl.isStepDone('1.3.3')) {
+                game.breakStage(true);
+                return true;
+            };
+        }
     });
 
     stager.extendStep('results', {
