@@ -19,9 +19,25 @@ body {
     background-color: rgb(203, 2, 2);
 }
 
+.red-button:hover {
+    color: white;
+}
+
+.red-button:focus  {
+    color: white;
+}
+
 .blue-button {
     color: white;
     background-color: rgb(12, 63, 176);
+}
+
+.blue-button:hover {
+    color: white;
+}
+
+.blue-button:focus {
+    color: white;
 }
 
 .red {

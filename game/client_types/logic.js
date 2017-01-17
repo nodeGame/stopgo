@@ -34,11 +34,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         node.game.choices = {};
         node.game.tables = {};
+        node.game.tourRoles = {};
     });
 
-    stager.extendStep('instructions', {
+    stager.extendStep('choose-tour', {
         cb: function() {
-            console.log('Instructions.');
+            var selectedTourRole;
+            var id;
+
+            node.on.data('done', function(msg) {
+                id = msg.from;
+                selectedTourRole = msg.data.RED ? 'RED' : 'BLUE';
+
+                node.game.tourRoles[id] = selectedTourRole;
+                console.log(id, selectedTourRole);
+            });
         }
     });
 

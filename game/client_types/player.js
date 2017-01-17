@@ -77,8 +77,20 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     });
 
-    stager.extendStage('choose-tour', {
-        frame: 'choose-tour.htm'
+    stager.extendStep('choose-tour', { // why extend step not stage?
+        frame: 'choose-tour.htm',
+        cb: function() {
+            var redSelectButton = W.getElementById('tour-red-selection');
+            var blueSelectButton = W.getElementById('tour-blue-selection');
+
+            redSelectButton.onclick = function() {
+                node.done('RED');
+            };
+
+            blueSelectButton.onclick = function() {
+                node.done('BLUE');
+            };
+        }
     });
 
     stager.extendStep('red-tour', {
@@ -105,7 +117,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // stager.extendStage('test', {
     //     stepRule: stepRules.SOLO_STEP // can advance on own as long as stage is same
     // });
-    // 
+    //
     // stager.extendStep('step1', {
     //     frame: 'practice-end.htm',
     // });
