@@ -12,8 +12,10 @@
 module.exports = function(stager, settings) {
 
     stager
-        .repeat('test', 3)
         .next('instructions')
+        .next('choose-tour') // choose blue/red
+        .repeat('tour', settings.TOUR.length) //
+        .next('tour-end') // remind players that they are randomly assigned to blue/red
         .repeat('practice', settings.REPEAT_PRACTICE)
         .next('practice-end')
         .next('quiz')
@@ -21,11 +23,11 @@ module.exports = function(stager, settings) {
         .next('end')
         .gameover();
 
-    stager.extendStage('test', {
+    stager.extendStage('tour', {
     	steps: [
-    	    'step1',
-    	    'step2',
-          'step3'
+    	    'red-tour',
+    	    'blue-tour',
+            'results-tour'
     	]
     });
 
@@ -46,9 +48,10 @@ module.exports = function(stager, settings) {
     });
 
     // Modify the stager to skip one stage.
-    // stager.skip('instructions')
+    stager.skip('instructions')
     stager.skip('quiz');
-    stager.skip('test');
+    stager.skip('practice');
+    // stager.skip('test');
 
     return stager.getState();
 };

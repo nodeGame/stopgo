@@ -51,14 +51,29 @@ module.exports = {
     // Number of game rounds repetitions in practice.
     REPEAT_PRACTICE: 3,
 
+    TOUR: [
+        {
+            RED: 'GO',
+            BLUE: 'LEFT'
+        },
+        {
+            RED: 'GO',
+            BLUE: 'RIGHT'
+        },
+        {
+            RED: 'STOP',
+            BLUE: 'RANDOM'
+        }
+    ],
+
     // Number of game rounds repetitions.
     REPEAT: 3,
 
     // Payoffs of the game.
     payoffs: {
     	STOP: {
-    		BLUE: 3,
-    		RED: 3
+            RED: 3,
+    		BLUE: 3
     	},
     	GO: {
     		A: {

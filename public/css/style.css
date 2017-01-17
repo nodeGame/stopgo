@@ -6,6 +6,24 @@ body {
   margin-top: 30px;
 }
 
+.btn {
+    background-color: rgb(231, 231, 231);
+}
+
+.btn-primary {
+    background-color: rgb(231, 231, 231);
+}
+
+.red-button {
+    color: white;
+    background-color: rgb(203, 2, 2);
+}
+
+.blue-button {
+    color: white;
+    background-color: rgb(12, 63, 176);
+}
+
 .red {
     color: rgb(203, 2, 2);
     text-decoration: underline;

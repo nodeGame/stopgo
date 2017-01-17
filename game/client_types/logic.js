@@ -67,7 +67,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 // roles = getRoles(match[0], match[1]);
 
                 roles = allMatchesInRound[i];
-                debugger
                 payoffTable = getRandomTable();
                 node.game.tables[roles.RED] = payoffTable;
 
@@ -156,14 +155,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    stager.extendStage('test', {
-        stepRule: function(stage, myStageLevel, pl, game) {
-            if (pl.isStepDone('1.3.3')) {
-                game.breakStage(true);
-                return true;
-            };
-        }
-    });
+    // stager.extendStage('test', {
+    //     stepRule: function(stage, myStageLevel, pl, game) {
+    //         if (pl.isStepDone('1.3.3')) {
+    //             game.breakStage(true);
+    //             return true;
+    //         };
+    //     }
+    // });
 
     stager.extendStep('results', {
         cb: function() {

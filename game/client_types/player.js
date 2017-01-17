@@ -40,6 +40,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         node.game.visualTimer.setToZero();
 
+        // node.player.stage.round
+
         // Add payoff tables
         node.game.totalPayoff = 0;
         var payoffs = node.game.settings.payoffs;
@@ -66,12 +68,29 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
 
-        node.game.practiceStageNumber = node.game.plot.normalizeGameStage('practice').stage;
+        // only needed for practice
+        // node.game.practiceStageNumber = node.game.plot.normalizeGameStage('practice').stage;
+        //
+        // node.game.checkIsPracticeStage = function() {
+        //     return node.game.getCurrentGameStage().stage === node.game.practiceStageNumber;
+        // };
 
-        node.game.checkIsPracticeStage = function() {
-            return node.game.getCurrentGameStage().stage === node.game.practiceStageNumber;
-        };
+    });
 
+    stager.extendStage('choose-tour', {
+        frame: 'choose-tour.htm'
+    });
+
+    stager.extendStep('red-tour', {
+        frame: 'stopgostep.htm'
+    });
+
+    stager.extendStep('blue-tour', {
+        frame: 'stopgostep.htm'
+    });
+
+    stager.extendStep('results-tour', {
+        frame: 'results.htm'
     });
 
     stager.extendStep('instructions', {
@@ -83,21 +102,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    stager.extendStage('test', {
-        stepRule: stepRules.SOLO_STEP
-    });
-
-    stager.extendStep('step1', {
-        frame: 'practice-end.htm',
-    });
-
-    stager.extendStep('step2', {
-        frame: 'end.htm',
-    });
-
-    stager.extendStep('step3', {
-        frame: 'results.htm',
-    });
+    // stager.extendStage('test', {
+    //     stepRule: stepRules.SOLO_STEP // can advance on own as long as stage is same
+    // });
+    // 
+    // stager.extendStep('step1', {
+    //     frame: 'practice-end.htm',
+    // });
+    //
+    // stager.extendStep('step2', {
+    //     frame: 'end.htm',
+    // });
+    //
+    // stager.extendStep('step3', {
+    //     frame: 'results.htm',
+    // });
 
     stager.extendStep('red-choice', {
         donebutton: false,
