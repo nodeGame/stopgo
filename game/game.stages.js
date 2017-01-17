@@ -25,7 +25,7 @@ module.exports = function(stager, settings) {
     	steps: [
     	    'step1',
     	    'step2',
-            'step3'
+          'step3'
     	]
     });
 
@@ -48,7 +48,7 @@ module.exports = function(stager, settings) {
     // Modify the stager to skip one stage.
     // stager.skip('instructions')
     stager.skip('quiz');
-    // stager.skip('practice');
+    stager.skip('test');
 
     return stager.getState();
 };

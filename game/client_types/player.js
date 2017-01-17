@@ -129,12 +129,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.setInnerHTML('red-decision', 'Your choice: ' + choice);
                 },
                 cb: function() {
+                    var buttonStop, buttonGo, payoffTableDiv1;
+                    var startTimer;
+
                     if (node.game.checkIsPracticeStage()) {
                         W.setInnerHTML('info', 'This is a practice stage.');
                         W.show('info');
                     }
-
-                    var buttonStop, buttonGo, payoffTableDiv1;
 
                     node.on.data('TABLE', function(message) {
                         node.game.worldState = message.data;
@@ -167,7 +168,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         //
                         // Loading the frame for the step is async.
                         // Then the step cb (this function) is executed.
-                        // 
+                        //
                         // The TABLE message might arrive BEFORE or AFTER
                         // the frame has finished loading.
                         //
@@ -181,12 +182,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         // With the version of VisualTimer in the last git pull,
                         // if there are no options, VisualTimer sets itself to 0
                         // (regardless of the state of the timer), so it was
-                        // killing the timer started in the TABLE cb (here). 
+                        // killing the timer started in the TABLE cb (here).
                         // Now this is fixed, and if a timer is running is not
                         // stopped.
                         //
                         // CASE B:
-                        // If it arrives AFTER the frame is loaded, 
+                        // If it arrives AFTER the frame is loaded,
                         // PLAYING has already been emitted. In this
                         // case the code would have worked fine. BUT the
                         // measurament of the time spent on the step is not
@@ -200,7 +201,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         // return;
                         // Setup the timer.
 
-                        var startTimer = function() {
+                        startTimer = function() {
                             node.game.visualTimer.init({
                                 milliseconds: node.game.settings.bidTime,
                                 timeup: function() {
@@ -210,7 +211,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                             node.game.visualTimer.start();
                         };
 
-                        if (node.game.getStageLevel() === 
+                        if (node.game.getStageLevel() ===
                             node.constants.stageLevels.PLAYING) {
 
                             startTimer();
@@ -276,6 +277,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 },
                 cb: function() {
                     var buttonLeft, buttonRight;
+                    var startTimer;
 
                     W.show('make-blue-decision');
                     W.setInnerHTML('red-choice', node.game.redChoice === 'STOP' ? 'STOP' : 'GO');
@@ -300,15 +302,26 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         node.done('RIGHT');
                     };
 
-                    node.game.visualTimer.init({
-                        milliseconds: node.game.settings.bidTime,
-                        timeup: function() {
-                            node.done(Math.floor(Math.random() * 2) ? 'LEFT':'RIGHT');
-                        }
-                    });
+                    startTimer = function() {
+                        node.game.visualTimer.init({
+                            milliseconds: node.game.settings.bidTime,
+                            timeup: function() {
+                                node.done(Math.floor(Math.random() * 2) ? 'LEFT':'RIGHT');
+                            }
+                        });
+                        node.game.visualTimer.start();
+                    };
 
-                    node.game.visualTimer.updateDisplay();
-                    node.game.visualTimer.startTiming();
+                    if (node.game.getStageLevel() ===
+                        node.constants.stageLevels.PLAYING) {
+
+                        startTimer();
+                    }
+                    else {
+                        node.once('PLAYING', function() {
+                            startTimer();
+                        });
+                    }
 
                 }
             }
@@ -330,6 +343,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     node.on.data('RESULTS', function(message) {
                         var otherPlayer;
                         var otherPlayerChoice;
+                        var startTimer;
 
                         otherPlayer = 'BLUE';
                         otherPlayerChoice = message.data.choices.BLUE;
@@ -344,15 +358,26 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
                         W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
 
-                        node.game.visualTimer.init({
-                            milliseconds: node.game.settings.bidTime,
-                            timeup: function() {
-                                node.done();
-                            }
-                        });
+                        startTimer = function() {
+                            node.game.visualTimer.init({
+                                milliseconds: node.game.settings.bidTime,
+                                timeup: function() {
+                                    node.done();
+                                }
+                            });
+                            node.game.visualTimer.start();
+                        };
 
-                        node.game.visualTimer.updateDisplay();
-                        node.game.visualTimer.startTiming();
+                        if (node.game.getStageLevel() ===
+                            node.constants.stageLevels.PLAYING) {
+
+                            startTimer();
+                        }
+                        else {
+                            node.once('PLAYING', function() {
+                                startTimer();
+                            });
+                        }
                     });
                 }
             },
@@ -366,6 +391,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     node.once.data('RESULTS', function(message) {
                         var otherPlayer;
                         var otherPlayerChoice;
+                        var startTimer;
 
                         otherPlayer = 'RED';
                         otherPlayerChoice = message.data.choices.RED;
@@ -380,15 +406,26 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
                         W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
 
-                        node.game.visualTimer.init({
-                            milliseconds: node.game.settings.bidTime,
-                            timeup: function() {
-                                node.done();
-                            }
-                        });
+                        startTimer = function() {
+                            node.game.visualTimer.init({
+                                milliseconds: node.game.settings.bidTime,
+                                timeup: function() {
+                                    node.done();
+                                }
+                            });
+                            node.game.visualTimer.start();
+                        };
 
-                        node.game.visualTimer.updateDisplay();
-                        node.game.visualTimer.startTiming();
+                        if (node.game.getStageLevel() ===
+                            node.constants.stageLevels.PLAYING) {
+
+                            startTimer();
+                        }
+                        else {
+                            node.once('PLAYING', function() {
+                                startTimer();
+                            });
+                        }
                     });
                 }
             }
@@ -413,16 +450,28 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('practice-end', {
         frame: 'practice-end.htm',
         cb: function() {
-            node.game.visualTimer.setToZero();
-            node.game.visualTimer.init({
-                milliseconds: node.game.settings.bidTime,
-                timeup: function() {
-                    node.done();
-                }
-            });
+            var startTimer;
 
-            node.game.visualTimer.updateDisplay();
-            node.game.visualTimer.startTiming();
+            startTimer = function() {
+                node.game.visualTimer.init({
+                    milliseconds: node.game.settings.bidTime,
+                    timeup: function() {
+                        node.done(Math.floor(Math.random() * 2) ? 'STOP':'GO');
+                    }
+                });
+                node.game.visualTimer.start();
+            };
+
+            if (node.game.getStageLevel() ===
+                node.constants.stageLevels.PLAYING) {
+
+                startTimer();
+            }
+            else {
+                node.once('PLAYING', function() {
+                    startTimer();
+                });
+            }
 
             W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
             node.game.totalPayoff = 0;
