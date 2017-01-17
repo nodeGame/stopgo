@@ -161,7 +161,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                             node.done('GO');
                         };
 
-
                         // Keep this comments for the moment!
 
                         // ISSUE.
@@ -268,6 +267,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             },
             BLUE: {
+                timer: {
+                    milliseconds: settings.bidTime,
+                    timeup: function() {
+                        node.done(Math.floor(Math.random() * 2) ? 'LEFT' : 'RIGHT');
+                    }
+                },
                 done: function() {
                     var button;
                     button = W.getElementById('left');
@@ -301,28 +306,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     buttonRight.onclick = function() {
                         node.done('RIGHT');
                     };
-
-                    startTimer = function() {
-                        node.game.visualTimer.init({
-                            milliseconds: node.game.settings.bidTime,
-                            timeup: function() {
-                                node.done(Math.floor(Math.random() * 2) ? 'LEFT':'RIGHT');
-                            }
-                        });
-                        node.game.visualTimer.start();
-                    };
-
-                    if (node.game.getStageLevel() ===
-                        node.constants.stageLevels.PLAYING) {
-
-                        startTimer();
-                    }
-                    else {
-                        node.once('PLAYING', function() {
-                            startTimer();
-                        });
-                    }
-
                 }
             }
         }
@@ -334,6 +317,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         partner: function() { return this.partner; },
         roles: {
             RED: {
+                timer: {
+                    milliseconds: settings.bidTime,
+                    timeup: function() {
+                        node.done();
+                    }
+                },
                 cb: function() {
                     if (node.game.checkIsPracticeStage()) {
                         W.setInnerHTML('info', 'This is a practice stage.');
@@ -343,7 +332,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     node.on.data('RESULTS', function(message) {
                         var otherPlayer;
                         var otherPlayerChoice;
-                        var startTimer;
 
                         otherPlayer = 'BLUE';
                         otherPlayerChoice = message.data.choices.BLUE;
@@ -357,31 +345,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         W.addClass(W.getElementById('player'), 'red');
                         W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
                         W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
-
-                        startTimer = function() {
-                            node.game.visualTimer.init({
-                                milliseconds: node.game.settings.bidTime,
-                                timeup: function() {
-                                    node.done();
-                                }
-                            });
-                            node.game.visualTimer.start();
-                        };
-
-                        if (node.game.getStageLevel() ===
-                            node.constants.stageLevels.PLAYING) {
-
-                            startTimer();
-                        }
-                        else {
-                            node.once('PLAYING', function() {
-                                startTimer();
-                            });
-                        }
                     });
                 }
             },
             BLUE: {
+                timer: {
+                    milliseconds: settings.bidTime,
+                    timeup: function() {
+                        node.done();
+                    }
+                },
                 cb: function() {
                     if (node.game.checkIsPracticeStage()) {
                         W.setInnerHTML('info', 'This is a practice stage.');
@@ -391,7 +364,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     node.once.data('RESULTS', function(message) {
                         var otherPlayer;
                         var otherPlayerChoice;
-                        var startTimer;
 
                         otherPlayer = 'RED';
                         otherPlayerChoice = message.data.choices.RED;
@@ -405,27 +377,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         W.addClass(W.getElementById('player'), 'blue');
                         W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
                         W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
-
-                        startTimer = function() {
-                            node.game.visualTimer.init({
-                                milliseconds: node.game.settings.bidTime,
-                                timeup: function() {
-                                    node.done();
-                                }
-                            });
-                            node.game.visualTimer.start();
-                        };
-
-                        if (node.game.getStageLevel() ===
-                            node.constants.stageLevels.PLAYING) {
-
-                            startTimer();
-                        }
-                        else {
-                            node.once('PLAYING', function() {
-                                startTimer();
-                            });
-                        }
                     });
                 }
             }
@@ -449,30 +400,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('practice-end', {
         frame: 'practice-end.htm',
+        timer: {
+            milliseconds: settings.bidTime,
+            timeup: function() {
+                node.done();
+            }
+        },
         cb: function() {
-            var startTimer;
-
-            startTimer = function() {
-                node.game.visualTimer.init({
-                    milliseconds: node.game.settings.bidTime,
-                    timeup: function() {
-                        node.done(Math.floor(Math.random() * 2) ? 'STOP':'GO');
-                    }
-                });
-                node.game.visualTimer.start();
-            };
-
-            if (node.game.getStageLevel() ===
-                node.constants.stageLevels.PLAYING) {
-
-                startTimer();
-            }
-            else {
-                node.once('PLAYING', function() {
-                    startTimer();
-                });
-            }
-
             W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
             node.game.totalPayoff = 0;
         },
