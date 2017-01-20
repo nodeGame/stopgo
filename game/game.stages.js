@@ -48,9 +48,13 @@ module.exports = function(stager, settings) {
     });
 
     // Modify the stager to skip one stage.
-    stager.skip('instructions')
+    // stager.skip('instructions')
     stager.skip('quiz');
     stager.skip('practice');
+    stager.skip('practice-end');
+    // stager.skip('choose-tour');
+    // stager.skip('tour');
+    // stager.skip('tour-end');
     // stager.skip('test');
 
     return stager.getState();

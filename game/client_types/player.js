@@ -70,10 +70,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         // only needed for practice
         // node.game.practiceStageNumber = node.game.plot.normalizeGameStage('practice').stage;
-        //
-        // node.game.checkIsPracticeStage = function() {
-        //     return node.game.getCurrentGameStage().stage === node.game.practiceStageNumber;
-        // };
+
+        node.game.checkIsPracticeStage = function() {
+            return node.game.getCurrentGameStage().stage === node.game.practiceStageNumber;
+        };
 
     });
 
@@ -140,13 +140,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         },
         roles: {
             RED: {
-// Timer can be specified here.
-//                 timer: {
-//                     milliseconds: settings.bidTime,
-//                     timeup: function() {
-//                         node.done(Math.floor(Math.random() * 2) ? 'STOP':'GO');
-//                     }
-//                 },
                 done: function(choice) {
                     var button;
 
@@ -256,9 +249,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             },
             BLUE: {
-                // done: function() {
-                //     W.hide('you_are_blue');
-                // },
                 cb: function() {
                     if (node.game.checkIsPracticeStage()) {
                         W.setInnerHTML('info', 'This is a practice stage.');
