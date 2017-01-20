@@ -14,7 +14,7 @@ module.exports = function(stager, settings) {
     stager
         .next('instructions')
         .next('choose-tour') // choose blue/red
-        .repeat('tour', settings.TOUR.length) //
+        .repeat('tour', settings.tour.length) //
         .next('tour-end') // remind players that they are randomly assigned to blue/red
         .repeat('practice', settings.REPEAT_PRACTICE)
         .next('practice-end')
@@ -25,8 +25,8 @@ module.exports = function(stager, settings) {
 
     stager.extendStage('tour', {
     	steps: [
-    	    'red-tour',
-    	    'blue-tour',
+    	    'red-choice-tour',
+    	    'blue-choice-tour',
             'results-tour'
     	]
     });

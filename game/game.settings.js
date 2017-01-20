@@ -51,7 +51,7 @@ module.exports = {
     // Number of game rounds repetitions in practice.
     REPEAT_PRACTICE: 3,
 
-    TOUR: [
+    tour: [
         {
             RED: 'GO',
             BLUE: 'LEFT'
