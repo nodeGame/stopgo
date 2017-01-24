@@ -1,14 +1,15 @@
 /**
- * # Logic type implementation of the game stages
- * Copyright(c) 2016 brenste <myemail>
- * MIT Licensed
- *
- * http://www.nodegame.org
- * ---
- */
+* # Logic type implementation of the game stages
+* Copyright(c) 2016 brenste <myemail>
+* MIT Licensed
+*
+* http://www.nodegame.org
+* ---
+*/
 
 "use strict";
 
+var fs = require('fs');
 var ngc = require('nodegame-client');
 var stepRules = ngc.stepRules;
 var constants = ngc.constants;
@@ -17,7 +18,7 @@ var counter = 0;
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     var node = gameRoom.node;
-    var channel =  gameRoom.channel;
+    var channel = gameRoom.channel;
 
     // Must implement the stages here.
 
@@ -25,9 +26,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     counter = counter ? ++counter : settings.SESSION_ID || 1;
 
     stager.setOnInit(function() {
-
         // Initialize the client.
+        channel.numChooseStop = 0;
+        channel.numStopGoDecisions = 0;
+        channel.numChooseRight = 0;
+        channel.numRightLeftDecisions = 0;
 
+        node.game.choices = {};
+        node.game.tables = {};
     });
 
     stager.extendStep('instructions', {
@@ -36,93 +42,258 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    stager.extendStep('stoporgo', {
+    stager.extendStep('red-choice', {
+        matcher: {
+            roles: ['RED', 'BLUE'],
+            match: 'roundrobin',
+            cycle: 'repeat'//,
+            // skipBye: false,
+            // sayPartner: false
+        },
         cb: function() {
-            console.log('Game round: ' + node.player.stage.round);
-            doStateOfTheWorld();
-            doMatch();
-            node.once.data('done', function(msg) {
-            	node.game.redChoice = msg.data.stop ? 'stop' : 'go';
-            	node.say('redChoice', node.game.bluePlayerId,
-                         node.game.redChoice);
-            	console.log('RECEIVED DONE: ', msg);
+            var allMatchesInRound;
+            var i;
+            var match;
+            var roles;
+            var payoffTable;
+
+            allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
+
+            // allMatchesInRound = node.game.matcher.getMatches();
+
+            for (i = 0; i < allMatchesInRound.length; i++) {
+                // was:
+                // match = allMatchesInRound[i];
+                // roles = getRoles(match[0], match[1]);
+
+                roles = allMatchesInRound[i];
+                debugger
+                payoffTable = getRandomTable();
+                node.game.tables[roles.RED] = payoffTable;
+
+                node.say('TABLE', roles.RED, payoffTable);
+            }
+
+            node.on.data('done', function(msg) {
+                var id, otherId;
+                var playerObj;
+                var roles;
+                var redChoice;
+
+                id = msg.from;
+                playerObj = node.game.pl.get(id);
+                otherId = node.game.matcher.getMatchFor(id);
+                roles = getRoles(id, otherId);
+
+                console.log('DONE: '+id);
+
+                if (id === roles.RED) {
+                    redChoice = msg.data.GO ? 'GO' : 'STOP';
+                    node.game.choices[roles.RED] = { redChoice: redChoice };
+
+                    if (playerObj.clientType !== 'bot') {
+                        if (redChoice === 'STOP') {
+                            channel.numChooseStop += 1;
+                        }
+                        channel.numStopGoDecisions += 1;
+                    }
+
+                    // validate selection
+                    // TODO: move validation to before node.game.redChoice is assigned
+                    if (msg.data.GO || msg.data.STOP) {
+                        node.say('RED-CHOICE', roles.BLUE, redChoice);
+                    }
+                    else {
+                        node.err('Error: Invalid Red choice. ID of sender: '+id);
+                    }
+                }
+                // else {
+                // node.err('Error: Sender not Red player. ID of sender: '+id);
+                // }
             });
         }
     });
-    
-    stager.extendStep('leftorright', {
+
+    stager.extendStep('blue-choice', {
         cb: function() {
             node.on.data('done', function(msg) {
-            	node.game.blueChoice = msg.data.left ? 'left' : 'right';
-            	console.log('RECEIVED DONE: ', msg);
-                // if the game is always played by two players, this works well 
-		
-            	node.done();
+                var id, otherId;
+                var blueChoice;
+                var playerObj;
+                var roles;
+
+                id = msg.from;
+                otherId = node.game.matcher.getMatchFor(id);
+                roles = getRoles(id, otherId);
+
+                if (id === roles.BLUE) {
+                    blueChoice = msg.data.LEFT ? 'LEFT' : 'RIGHT';
+
+                    node.game.choices[roles.RED].blueChoice = blueChoice;
+
+                    playerObj = node.game.pl.get(id);
+
+                    if (playerObj.clientType !== 'bot') {
+                        if (node.game.choices[roles.RED].blueChoice === 'RIGHT') {
+                            channel.numChooseRight += 1;
+                        }
+                        channel.numRightLeftDecisions += 1;
+                        // console.log('RIGHT/LEFT: ' + channel.numChooseRight / channel.numRightLeftDecisions);
+                    }
+
+                    // TODO: move validation to before node.game.choices[roles.RED].blueChoice is assigned
+                    if (msg.data.LEFT || msg.data.RIGHT) {
+                        node.say('BLUE-CHOICE', roles.RED, blueChoice);
+                    }
+                    else {
+                        node.err('Error: Invalid Blue choice. ID of sender: '+id);
+                    }
+                }
+                // else {
+                // node.err('Error: Sender not Blue player. ID of sender: '+id);
+                // }
             });
-        },
-        stepRule: stepRules.SOLO
+        }
     });
 
+    stager.extendStage('test', {
+        stepRule: function(stage, myStageLevel, pl, game) {
+            if (pl.isStepDone('1.3.3')) {
+                game.breakStage(true);
+                return true;
+            };
+        }
+    });
 
     stager.extendStep('results', {
         cb: function() {
-            computePayoff();
+            var payoffs, results;
+            var allMatchesInRound;
+            var match;
+            var roles;
+            var i;
+
+            allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
+
+            for (i = 0; i < allMatchesInRound.length; i++) {
+                // was:
+                // match = allMatchesInRound[i];
+                // roles = getRoles(match[0], match[1]);
+
+                roles = allMatchesInRound[i];
+                // debugger
+                payoffs = calculatePayoffs(node.game.choices[roles.RED], node.game.tables[roles.RED]);
+
+                addData(roles.RED, payoffs.RED);
+                addData(roles.BLUE, payoffs.BLUE);
+
+                results = {
+                    payoffs: payoffs,
+
+                    choices: {
+                        RED: node.game.choices[roles.RED].redChoice,
+                        BLUE: node.game.choices[roles.RED].blueChoice
+                    }
+                };
+
+                node.say('RESULTS', roles.RED, results);
+                node.say('RESULTS', roles.BLUE, results);
+
+            }
         }
     });
 
     stager.extendStep('end', {
-        cb: function() {      
-            node.game.memory.save(channel.getGameDir() + 'data/data_' +
-                                  node.nodename + '.json');
+        cb: function() {
+            node.on.data('done', function(msg) {
+                saveAll();
+            });
         }
     });
 
-    stager.setOnGameOver(function() {
+    function getRoles(id1, id2) {
+        var redId, blueId;
 
-        // Something to do.
+        console.log('getRoleFor '+id1+': '+node.game.matcher.getRoleFor(id1));
+        if (node.game.matcher.getRoleFor(id1) === 'RED') {
+            redId = id1;
+            blueId = id2;
+        }
+        else {
+            redId = id2;
+            blueId = id1;
+        }
 
-    });
+        return {
+            RED: redId,
+            BLUE: blueId
+        };
+    }
 
-    // Here we group together the definition of the game logic.
+    function addData(playerId, data) {
+        var item = node.game.memory.player[playerId].last();
+        item.bonus = data;
+    }
+
+    // returns payoffs as a object
+    function calculatePayoffs(choices, table) {
+        var payoffs, bluePayoff, redPayoff;
+        var blueChoice;
+
+        payoffs = settings.payoffs;
+        blueChoice = choices.blueChoice;
+
+        if (choices.redChoice === 'GO') {
+            bluePayoff = payoffs.GO[table][blueChoice].BLUE;
+            redPayoff = payoffs.GO[table][blueChoice].RED;
+        }
+        else {
+            bluePayoff = payoffs.STOP.BLUE;
+            redPayoff = payoffs.STOP.RED;
+        }
+
+        return {
+            RED: redPayoff,
+            BLUE: bluePayoff
+        }
+    }
+
+    function getRandomTable() {
+        var payoffTable;
+
+        // TODO: double check is pi chance for A or B?
+        if (Math.random() < node.game.settings.pi) {
+            payoffTable = 'A';
+        }
+        else {
+            payoffTable = 'B';
+        }
+
+        return payoffTable;
+        // console.log('THE STATE OF THE WORLD IS: ' + node.game.payoffTable);
+    }
+
+    function saveAll() {
+        var gDir, line;
+        gDir = channel.getGameDir();
+        node.game.memory.save( gDir + 'data/data_' + node.nodename + '.json');
+
+        line = node.nodename + ',' + channel.numStopGoDecisions + ',' + channel.numChooseStop +
+        ',' + channel.numRightLeftDecisions + ',' + channel.numChooseRight + "\n";
+        fs.appendFile(gDir + 'data/avgDecisions.csv', line, function(err) {
+            if (err) console.log('An error occurred saving: ' + line);
+        });
+    }
+
+
     return {
         nodename: 'lgc' + counter,
         // Extracts, and compacts the game plot that we defined above.
         plot: stager.getState(),
-
+        // If debug is false (default false), exception will be caught and
+        // and printed to screen, and the game will continue.
+        debug: settings.DEBUG,
+        // Controls the amount of information printed to screen.
+        verbosity: -100
     };
-
-    // Helper functions.
-    
-    function doStateOfTheWorld() {
-	if (Math.random() > node.game.settings.pi) {
-	    node.game.worldState = 'A';
-	}
-	else {
-	    node.game.worldState = 'B';
-	}
-    }
-    
-    function doMatch() {
-        var players, len;
-        len = node.game.pl.size();
-        players = node.game.pl.shuffle().id.getAllKeys();
-        node.game.bluePlayerId = players[1];
-        node.game.redPlayerId = players[0];
-        node.say('ROLE_RED', players[0], node.game.worldState);
-        node.say('ROLE_BLUE', players[1]);
-    }
-    
-    function computePayoff() {
-    	var p, blueP, redP;
-    	p = settings.payoff;
-    	if (node.game.redChoice === 'go') {
-    	    blueP = p.go[node.game.worldState]['blue' + node.game.blueChoice];
-    	    redP = p.go[node.game.worldState]['red' + node.game.blueChoice];
-    	}
-    	else {
-    	    blueP = p.stop.blue;
-    	    redP = p.stop.red;
-    	}
-    	node.say('payoff', 'ROOM', { blue: blueP, red: redP });
-    }
-};
+}

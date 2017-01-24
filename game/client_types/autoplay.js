@@ -8,11 +8,12 @@
  * http://www.nodegame.org
  */
 
+ var ngc =  require('nodegame-client');
+
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     var channel = gameRoom.channel;
     var node = gameRoom.node;
-    var ngc =  require('nodegame-client');
 
     var game, stager;
 
@@ -34,10 +35,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             id = stepObj.id
 
             // TODO: Adapt to specific steps.
-            // if (id === XXX) ...
-
-            node.timer.randomDone(2000);
-
+            if (id === 'stoporgo') {
+              node.on.data('ROLE_RED', function() {
+                var randomButtonId = Math.floor(Math.random() * 2) ? 'stop':'go';
+                W.getElementById(randomButtonId).click();
+              });
+            }
+            else if (id === 'leftorright') {
+              if (node.game.role === 'blue') {
+                var randomButtonId = Math.floor(Math.random() * 2) ? 'left':'right';
+                W.getElementById(randomButtonId).click();
+              }
+            }
+            else {
+              node.timer.randomDone(2000);
+            }
         };
         return o;
     });

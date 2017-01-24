@@ -29,7 +29,7 @@ module.exports = {
      * spawn game room. The session id is saved in each entry in the
      * memory database of the logics, and used as the name of the
      * session folder in the data/ directory.
-     */ 
+     */
     SESSION_ID: 1,
 
     /**
@@ -44,41 +44,49 @@ module.exports = {
         instructions: 60000
     },
 
+    bidTime: 60000,
+
     // # Game specific properties
 
     // Number of game rounds repetitions in practice.
     REPEAT_PRACTICE: 3,
-    
+
     // Number of game rounds repetitions.
     REPEAT: 3,
-    
+
     // Payoffs of the game.
-    payoff: {
-    	stop: {
-    		blue: 3,
-    		red: 3
+    payoffs: {
+    	STOP: {
+    		BLUE: 3,
+    		RED: 3
     	},
-    	go: {
+    	GO: {
     		A: {
-    			redleft: 0,
-    			blueleft: 6,
-    			redright: 10,
-    			blueright: 0
+                LEFT: {
+                    RED: 0,
+                    BLUE: 6
+                },
+                RIGHT: {
+                    RED: 10,
+                    BLUE: 0
+                }
     		},
-    		 
     		B: {
-    			redleft: 6,
-    			blueleft: 0,
-    			redright: 0,
-    			blueright: 10
+                LEFT: {
+                    RED: 6,
+                    BLUE: 0
+                },
+                RIGHT: {
+                    RED: 0,
+                    BLUE: 10
+                }
     		}
     	}
     },
-    
+
     // Probability of A vs B.
     pi: 0.5,
-    
-    
+
     // # Treatments definition.
 
     // They can contain any number of properties, and also overwrite

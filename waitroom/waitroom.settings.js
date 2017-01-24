@@ -40,7 +40,7 @@ module.exports = {
      *
      * If set, waits until POOL_SIZE clients are connected to dispatch a group
      *
-     * Must be >= POOL_SIZE.
+     * Must be >= GROUP_SIZE.
      *
      * Default: GROUP_SIZE
      */
@@ -199,7 +199,7 @@ module.exports = {
      *
      * @see WaitingRoom.dispatch
      */
-    // PING_BEFORE_DISPATCH: true,
+    PING_BEFORE_DISPATCH: false,
 
     /**
      * ## logicPath (string) Optional
@@ -215,5 +215,26 @@ module.exports = {
      *
      * Disconnect a client if not selected for a game when dispatching
      */
-    DISCONNECT_IF_NOT_SELECTED: false
+    DISCONNECT_IF_NOT_SELECTED: false,
+
+
+    ON_CONNECT: function(waitingRoom, player) {
+        var channel;
+        if (player.clientType !== 'bot') {
+            channel = waitingRoom.channel;
+            // channel.connectBot({
+            //     // room: waitingRoom,
+            //     setup: {
+            //         settings: {
+            //             botType: 'dynamic', // 'dynamic' for based on player results
+            //             chanceOfStop: 0.5,
+            //             chanceOfRight: 0.5
+            //         }
+            //     }
+            // });
+        }
+
+        // if (node.game.pl.size() <)
+    }
+
 };

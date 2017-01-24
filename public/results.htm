@@ -1,12 +1,15 @@
 <!doctype html>
 <title>Results</title>
 <link rel="stylesheet" href="/lib/bootstrap/bootstrap.min.css" />
+<link rel="stylesheet" href="css/style.css"/>
 <body>
-  <div id="container" style="margin: 0 auto; max-width: 640px">
     <h1>Round Results</h1>
+    <div id="info" class="alert alert-warning" style="display:none" role="alert">
+    </div>
     <div id="instructions">
-      Your payoff in this round is: <span id="payoff"></span>.
-      <br/>
-      Press "DONE" to go to the next round.
-    </div>	
+        <p>You are <strong><span id="player"> __ </span></strong>.</p>
+        <p>The other player, <strong><span id="other-player"> __ </span></strong>, chose <strong><span id="other-player-choice"> __ </span></strong>.</p>
+        <p>Your payoff in this round is: <span id="payoff" class="money">__</span>.</p>
+        <p>Press <em>"Done"</em> to go to the next round.</p>
+    </div>
 </body>

@@ -12,25 +12,43 @@
 module.exports = function(stager, settings) {
 
     stager
+        .repeat('test', 3)
         .next('instructions')
         .repeat('practice', settings.REPEAT_PRACTICE)
+        .next('practice-end')
         .next('quiz')
         .repeat('game', settings.REPEAT)
         .next('end')
         .gameover();
-    
+
+    stager.extendStage('test', {
+    	steps: [
+    	    'step1',
+    	    'step2',
+          'step3'
+    	]
+    });
+
     stager.extendStage('game', {
-    	steps: [		
-    	    'stoporgo',
-    	    'leftorright',
+    	steps: [
+    	    'red-choice',
+    	    'blue-choice',
     	    'results'
     	]
-    });	
+    });
+
+    stager.extendStage('practice', {
+    	steps: [
+    	    'red-choice',
+    	    'blue-choice',
+    	    'results'
+    	]
+    });
 
     // Modify the stager to skip one stage.
-    stager.skip('instructions');
+    // stager.skip('instructions')
     stager.skip('quiz');
-    stager.skip('practice');
+    stager.skip('test');
 
     return stager.getState();
 };

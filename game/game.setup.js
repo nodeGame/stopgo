@@ -26,7 +26,7 @@ module.exports = function(settings, stages) {
 
     setup.window = {
         promptOnleave: !setup.debug
-    }
+    };
 
     // Metadata. Taken from package.json. Can be overwritten.
     // setup.metadata = {
