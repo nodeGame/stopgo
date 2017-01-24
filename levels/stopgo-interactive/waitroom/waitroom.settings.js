@@ -33,7 +33,7 @@ module.exports = {
      *
      * The size of each group dispatched by the waiting room
      */
-    GROUP_SIZE: 1,
+    GROUP_SIZE: 2,
 
     /**
      * ## POOL_SIZE (number) Optional
@@ -44,7 +44,7 @@ module.exports = {
      *
      * Default: GROUP_SIZE
      */
-    POOL_SIZE: 1,
+    POOL_SIZE: 2,
 
     /**
      * ## N_GAMES (number) Optional
@@ -65,7 +65,7 @@ module.exports = {
      *
      * After the max waiting time expired clients are disconnected
      */
-    //MAX_WAIT_TIME: 90000,
+    MAX_WAIT_TIME: 90000,
 
     /**
      * ## START_DATE (string|object) Optional
@@ -96,9 +96,9 @@ module.exports = {
      *
      * Default: undefined, random treatment
      */
-    //CHOSEN_TREATMENT: function(treatments, roomCounter) {
-    //    return treatments[roomCounter % treatments.length];
-    //},
+    CHOSEN_TREATMENT: function(treatments, roomCounter) {
+        return treatments[roomCounter % treatments.length];
+    },
 
     /**
      * ## PLAYER_SORTING
@@ -199,7 +199,7 @@ module.exports = {
      *
      * @see WaitingRoom.dispatch
      */
-    PING_BEFORE_DISPATCH: false
+    PING_BEFORE_DISPATCH: false,
 
     /**
      * ## logicPath (string) Optional
@@ -215,6 +215,26 @@ module.exports = {
      *
      * Disconnect a client if not selected for a game when dispatching
      */
-    //DISCONNECT_IF_NOT_SELECTED: false,
+    DISCONNECT_IF_NOT_SELECTED: false,
+
+
+    ON_CONNECT: function(waitingRoom, player) {
+        var channel;
+        if (player.clientType !== 'bot') {
+            channel = waitingRoom.channel;
+            // channel.connectBot({
+            //     // room: waitingRoom,
+            //     setup: {
+            //         settings: {
+            //             botType: 'dynamic', // 'dynamic' for based on player results
+            //             chanceOfStop: 0.5,
+            //             chanceOfRight: 0.5
+            //         }
+            //     }
+            // });
+        }
+
+        // if (node.game.pl.size() <)
+    }
 
 };

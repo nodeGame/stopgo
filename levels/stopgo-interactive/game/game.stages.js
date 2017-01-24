@@ -18,6 +18,9 @@ module.exports = function(stager, settings) {
         .next('tour-end') // remind players that they are randomly assigned to blue/red
         .repeat('practice', settings.REPEAT_PRACTICE)
         .next('practice-end')
+        .next('quiz')
+        .repeat('game', settings.REPEAT)
+        .next('end')
         .gameover();
 
     stager.extendStage('tour', {
@@ -28,6 +31,13 @@ module.exports = function(stager, settings) {
     	]
     });
 
+    stager.extendStage('game', {
+    	steps: [
+    	    'red-choice',
+    	    'blue-choice',
+    	    'results'
+    	]
+    });
 
     stager.extendStage('practice', {
     	steps: [
