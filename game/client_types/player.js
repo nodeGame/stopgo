@@ -94,7 +94,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         frame: 'stopgostep.htm',
         stepRule: stepRules.SOLO_STEP, // can advance on own as long as stage is same
         done: function() {
-            var roundNumber = node.game.getRound();
+            var roundNumber = node.game.getRound() - 1;
             var tourChoices = node.game.settings.tour[roundNumber];
 
             console.log(tourChoices);
@@ -135,12 +135,43 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('blue-choice-tour', {
         stepRule: stepRules.SOLO_STEP, // can advance on own as long as stage is same
         cb: function() {
+            var roundNumber = node.game.getRound() - 1;
+            var tourChoices = node.game.settings.tour[roundNumber];
 
+            if (node.game.tourRole === 'BLUE') {
+                W.setInnerHTML('red-choice', tourChoices.RED);
+                W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTables.A);
+                W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTables.B);
+
+                W.setInnerHTML('payoff-stop-blue', node.game.payoffStopBlue + ' ' + node.game.runningTotalPayoff.currency);
+            }
         }
     });
 
     stager.extendStep('results-tour', {
-        frame: 'results.htm'
+        frame: 'results.htm',
+        cb: function() {
+            var roundNumber = node.game.getRound() - 1;
+            var tourChoices = node.game.settings.tour[roundNumber];
+            var payoffs = node.game.settings.payoffs;
+            var otherPlayerRole = node.game.tourRole === 'RED' ? 'BLUE' : 'RED';
+
+            var pay;
+
+            if (tourChoices.RED === 'GO') {
+                console.log(payoffs);
+                pay = payoffs.GO[node.game.tourWorldState][tourChoices.BLUE][node.game.tourRole];
+            }
+            else {
+                pay = payoffs.STOP[node.game.tourRole];
+            }
+
+            W.setInnerHTML('player', node.game.tourRole);
+            W.addClass(W.getElementById('player'), node.game.tourRole === 'RED' ? 'red' : 'blue'); // just lowercase somehow later
+            W.setInnerHTML('other-player', otherPlayerRole);
+            W.setInnerHTML('other-player-choice', tourChoices[otherPlayerRole]);
+            W.setInnerHTML('payoff', pay + ' ' + node.game.runningTotalPayoff.currency);
+        }
     });
 
     stager.extendStep('tour-end', {
