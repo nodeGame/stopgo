@@ -320,6 +320,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         W.setInnerHTML('payoff', message.data.payoffs.RED + ' ' + node.game.runningTotalPayoff.currency);
 
                         W.setInnerHTML('player', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
+                        W.setInnerHTML('player-choice', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
                         W.addClass(W.getElementById('player'), 'red');
                         W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
                         W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());

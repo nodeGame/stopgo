@@ -69,6 +69,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // this.debugInfo = node.widgets.append('DebugInfo', header)
 
         node.game.tourRole = '';
+        node.game.tourPay = 0;
+
+        node.game.infoText = 'Reminder: this is a tour of the game. The computer is playing for you. Click "Done" when you are ready to see the next step. In a normal game you would make a selection to proceed to the next step.';
     });
 
     stager.extendStep('choose-tour', { // why extend step not stage?
@@ -92,12 +95,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('red-choice-tour', {
         frame: 'stopgostep.htm',
-        stepRule: stepRules.SOLO_STEP, // can advance on own as long as stage is same
+        // stepRule: stepRules.SOLO_STEP, // can advance on own as long as stage is same
         done: function() {
             var roundNumber = node.game.getRound() - 1;
             var tourChoices = node.game.settings.tour[roundNumber];
-
-            console.log(tourChoices);
 
             if (node.game.tourRole === 'RED') {
                 W.show('waiting_for_blue');
@@ -112,9 +113,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             }
         },
         cb: function() {
-            W.setInnerHTML('info', 'Reminder: this is a tour of the game. The computer is playing for you. Click "Done" when you are ready to see the next step. In a normal game you would make a selection to proceed to the next step.');
+            W.setInnerHTML('info', node.game.infoText);
             W.show('info');
 
+            // save this value
             node.game.tourWorldState = Math.floor(Math.random() * 2) ? 'A' : 'B';
 
             if (node.game.tourRole === 'RED') {
@@ -133,7 +135,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('blue-choice-tour', {
-        stepRule: stepRules.SOLO_STEP, // can advance on own as long as stage is same
+        // stepRule: stepRules.SOLO_STEP, // can advance on own as long as stage is same
         cb: function() {
             var roundNumber = node.game.getRound() - 1;
             var tourChoices = node.game.settings.tour[roundNumber];
@@ -155,8 +157,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var tourChoices = node.game.settings.tour[roundNumber];
             var payoffs = node.game.settings.payoffs;
             var otherPlayerRole = node.game.tourRole === 'RED' ? 'BLUE' : 'RED';
-
             var pay;
+
+            W.setInnerHTML('info', node.game.infoText);
+            W.show('info');
 
             if (tourChoices.RED === 'GO') {
                 console.log(payoffs);
@@ -166,9 +170,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 pay = payoffs.STOP[node.game.tourRole];
             }
 
+            console.log(pay, node.game);
+            node.game.tourPay += pay;
+            node.game.runningTotalPayoff.update(pay);
+
             W.setInnerHTML('player', node.game.tourRole);
+            W.setInnerHTML('player-choice', tourChoices[node.game.tourRole].toUpperCase());
             W.addClass(W.getElementById('player'), node.game.tourRole === 'RED' ? 'red' : 'blue'); // just lowercase somehow later
             W.setInnerHTML('other-player', otherPlayerRole);
+            W.addClass(W.getElementById('other-player'), node.game.tourRole === 'RED' ? 'blue' : 'red'); // just lowercase somehow later
             W.setInnerHTML('other-player-choice', tourChoices[otherPlayerRole]);
             W.setInnerHTML('payoff', pay + ' ' + node.game.runningTotalPayoff.currency);
         }
@@ -177,7 +187,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('tour-end', {
         frame: 'end.htm',
         done: function() {
-            node.say('tour-over');
+            node.game.runningTotalPayoff.money = 0;
+            node.game.runningTotalPayoff.update(0);
+        },
+        cb: function() {
+            W.setInnerHTML('info', node.game.infoText);
+            W.show('info');
+            // node.say('tour-over');
+            W.setInnerHTML('total', node.game.tourPay + ' ' + node.game.runningTotalPayoff.currency);
         }
     });
 
