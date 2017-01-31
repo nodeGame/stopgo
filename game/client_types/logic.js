@@ -25,6 +25,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // Increment counter.
     counter = counter ? ++counter : settings.SESSION_ID || 1;
 
+    stager.setDefaultStepRule(stepRules.SOLO);
+
     stager.setOnInit(function() {
         node.on.data('tour-over', function(msg) {
             var db;
