@@ -24,7 +24,7 @@ module.exports = function(stager, settings) {
     	steps: [
     	    'red-choice-tour',
     	    'blue-choice-tour',
-          'results-tour'
+            'results-tour'
     	]
     });
 

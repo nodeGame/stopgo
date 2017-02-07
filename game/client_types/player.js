@@ -75,6 +75,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         node.game.infoText = 'Reminder: this is a tour of the game. The computer is playing for you. Click "Done" when you are ready to see the next step. In a normal game you would make a selection to proceed to the next step. ';
 
+        node.game.selectTourRole = function(role) {
+            node.game.tourRole = role;
+            node.game.setRole(role, true);
+            node.done({tourRole: role});
+        };
+
         node.game.clickDone = function() {
             node.done({world: node.game.tourWorldState});
         };
@@ -87,82 +93,65 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('choose-tour', { // why extend step not stage?
         donebutton: false,
         frame: 'choose-tour.htm',
+        //role: true,
+        // roles: { RED: {}, BLUE: {} },
         cb: function() {
             var redSelectButton = W.getElementById('tour-red-selection');
             var blueSelectButton = W.getElementById('tour-blue-selection');
 
-            redSelectButton.onclick = function() {
-                node.game.tourRole = 'RED';
-                node.done({tourRole: 'RED'});
-            };
-
-            blueSelectButton.onclick = function() {
-                node.game.tourRole = 'BLUE';
-                node.done({tourRole: 'BLUE'});
-            };
+            redSelectButton.onclick = node.game.selectTourRole('RED');
+            blueSelectButton.onclick = node.game.selectTourRole('BLUE');
         }
     });
 
     stager.extendStep('red-choice-tour', {
+        role: function() { return this.role; },
         frame: 'stopgostep.htm',
-        // caused a bug when single person for tour
-        // stepRule: stepRules.SOLO_STEP, // can advance on own as long as stage is same
-        done: function() {
-            var roundNumber = node.game.getRound() - 1;
-            var tourChoices = node.game.settings.tour[roundNumber];
+        roles: {
+            RED: {
+                doneButton: false,
+                done: function() {
+                    W.show('waiting_for_blue');
+                    W.setInnerHTML('red-decision', 'Your choice: ' + tourChoices.RED);
+                },
+                cb: function() {
+                    var roundNumber = node.game.getRound() - 1;
+                    var tourChoices = node.game.settings.tour[roundNumber];
 
-            if (node.game.tourRole === 'RED') {
-                W.show('waiting_for_blue');
-                W.setInnerHTML('red-decision', 'Your choice: ' + tourChoices.RED);
-            }
-            // else if (node.game.tourRole === 'BLUE') {
-            //     W.setInnerHTML('info', node.game.infoText +  'Please choose ' + tourChoices.BLUE);
-            //
-            //     W.show('make-blue-decision');
-            //     W.hide('awaiting-red-decision');
-            // }
-            // else {
-                // console.error('node.game.tourRole not set');
-            // }
-        },
-        cb: function() {
-            var roundNumber = node.game.getRound() - 1;
-            var tourChoices = node.game.settings.tour[roundNumber];
+                    // save this value
+                    node.game.tourWorldState = Math.floor(Math.random() * 2) ? 'A' : 'B';
 
-            // save this value
-            node.game.tourWorldState = Math.floor(Math.random() * 2) ? 'A' : 'B';
+                    W.setInnerHTML('info', node.game.infoText +  'Please choose ' + tourChoices.RED);
+                    W.show('info');
 
-            if (node.game.tourRole === 'RED') {
-                W.setInnerHTML('info', node.game.infoText +  'Please choose ' + tourChoices.RED);
-                W.show('info');
+                    W.show('red');
+                    W.getElementById('payoff-table').appendChild(node.game.payoffTables[node.game.tourWorldState]);
+                    W.setInnerHTML('state_of_world', node.game.tourWorldState);
+                    W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
+                    node.game.doneButton.disable();
 
-                W.show('red');
-                W.getElementById('payoff-table').appendChild(node.game.payoffTables[node.game.tourWorldState]);
-                W.setInnerHTML('state_of_world', node.game.tourWorldState);
-                W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
-
-                if (tourChoices.RED === 'STOP') {
-                    W.getElementById('stop').onclick = node.game.clickDone;
-                    W.getElementById('go').onclick = node.game.clickWrong;
+                    if (tourChoices.RED === 'STOP') {
+                        W.getElementById('stop').onclick = node.game.clickDone;
+                        W.getElementById('go').onclick = node.game.clickWrong;
+                    }
+                    else {
+                        W.getElementById('go').onclick = node.game.clickDone;
+                        W.getElementById('stop').onclick = node.game.clickWrong;
+                    }
                 }
-                else {
-                    W.getElementById('go').onclick = node.game.clickDone;
-                    W.getElementById('stop').onclick = node.game.clickWrong;
+            },
+            BLUE: {
+                cb: function() {
+                    W.setInnerHTML('info', node.game.infoText);
+                    W.show('info');
+                    W.show('blue');
                 }
-            }
-            else if (node.game.tourRole === 'BLUE') {
-                W.setInnerHTML('info', node.game.infoText);
-                W.show('info');
-
-                W.show('blue');
-            }
-            else {
-                console.error('node.game.tourRole not set');
             }
         }
     });
 
     stager.extendStep('blue-choice-tour', {
+        role: function() { return this.role; },
         // stepRule: stepRules.SOLO_STEP, // can advance on own as long as stage is same
         cb: function() {
             var roundNumber = node.game.getRound() - 1;
@@ -175,6 +164,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.hide('awaiting-red-decision');
 
                 W.setInnerHTML('red-choice', tourChoices.RED);
+                node.game.doneButton.disable();
 
                 if (tourChoices.BLUE === 'LEFT') {
                     W.getElementById('left').onclick = node.game.clickDone;
@@ -194,7 +184,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('results-tour', {
+          role: function() { return this.role; },
         frame: 'results.htm',
+        roles: {
+          red: {
+            //cb
+            // donebutton: false,
+          }
+        },
         cb: function() {
             var roundNumber = node.game.getRound() - 1;
             var tourChoices = node.game.settings.tour[roundNumber];
