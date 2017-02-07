@@ -183,7 +183,7 @@ module.exports = {
      *
      * @see WaitingRoom.lastGameRoom
      */
-    // DISPATCH_TO_SAME_ROOM: true
+    DISPATCH_TO_SAME_ROOM: true,
 
     /**
      * ## PING_BEFORE_DISPATCH (boolean) Optional

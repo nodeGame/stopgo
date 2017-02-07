@@ -22,6 +22,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     var game;
 
+    stager.setDefaultStepRule(stepRules.SOLO);
+
     stager.setOnInit(function() {
         // Initialize the client.
         // Setup page: header + frame.
@@ -70,8 +72,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         node.game.tourRole = '';
         node.game.tourPay = 0;
+        node.game.tourWorldState = '';
 
-        node.game.infoText = 'Reminder: this is a tour of the game. The computer is playing for you. Click "Done" when you are ready to see the next step. In a normal game you would make a selection to proceed to the next step.';
+        node.game.infoText = 'This is only a tour of the game, not the actual game.';
+
+        node.game.clickDone = function() {
+            node.done({world: node.game.tourWorldState});
+        };
+
+        node.game.node.game.clickWrong = function() {
+            alert('Please follow the instructions! Choose the specified selection.');
+        };
     });
 
     stager.extendStep('choose-tour', { // why extend step not stage?
@@ -83,18 +94,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             redSelectButton.onclick = function() {
                 node.game.tourRole = 'RED';
-                node.done('RED');
+                node.done({tourRole: 'RED'});
             };
 
             blueSelectButton.onclick = function() {
                 node.game.tourRole = 'BLUE';
-                node.done('BLUE');
+                node.done({tourRole: 'BLUE'});
             };
         }
     });
 
     stager.extendStep('red-choice-tour', {
         frame: 'stopgostep.htm',
+        // caused a bug when single person for tour
         // stepRule: stepRules.SOLO_STEP, // can advance on own as long as stage is same
         done: function() {
             var roundNumber = node.game.getRound() - 1;
@@ -104,28 +116,50 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.show('waiting_for_blue');
                 W.setInnerHTML('red-decision', 'Your choice: ' + tourChoices.RED);
             }
-            else if (node.game.tourRole === 'BLUE') {
-                W.show('make-blue-decision');
-                W.hide('awaiting-red-decision');
-            }
-            else {
-                console.error('node.game.tourRole not set');
-            }
+            // else if (node.game.tourRole === 'BLUE') {
+            //     W.setInnerHTML('info', node.game.infoText +  'Please choose ' + tourChoices.BLUE);
+            //
+            //     W.show('make-blue-decision');
+            //     W.hide('awaiting-red-decision');
+            // }
+            // else {
+                // console.error('node.game.tourRole not set');
+            // }
         },
         cb: function() {
-            W.setInnerHTML('info', node.game.infoText);
-            W.show('info');
+            var roundNumber = node.game.getRound() - 1;
+            var tourChoices = node.game.settings.tour[roundNumber];
 
             // save this value
             node.game.tourWorldState = Math.floor(Math.random() * 2) ? 'A' : 'B';
 
             if (node.game.tourRole === 'RED') {
+                W.setInnerHTML('info', node.game.infoText);
+                W.setInnerHTML('tour-instructions', 'Please choose ' + tourChoices.RED + ' below. In a normal game you could choose whatever you like.');
+                W.show('info');
+                W.show('tour-instructions');
+
                 W.show('red');
                 W.getElementById('payoff-table').appendChild(node.game.payoffTables[node.game.tourWorldState]);
                 W.setInnerHTML('state_of_world', node.game.tourWorldState);
                 W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
+
+                if (tourChoices.RED === 'STOP') {
+                    W.getElementById('stop').onclick = node.game.clickDone;
+                    W.getElementById('go').onclick = node.game.clickWrong;
+                }
+                else {
+                    W.getElementById('go').onclick = node.game.clickDone;
+                    W.getElementById('stop').onclick = node.game.clickWrong;
+                }
             }
             else if (node.game.tourRole === 'BLUE') {
+                W.setInnerHTML('info', node.game.infoText);
+                W.setInnerHTML('tour-instructions', 'Click "Done" to recieve Red\'s choice. You do not get to see their choice. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
+
+                W.show('info');
+                W.show('tour-instructions');
+
                 W.show('blue');
             }
             else {
@@ -141,11 +175,30 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var tourChoices = node.game.settings.tour[roundNumber];
 
             if (node.game.tourRole === 'BLUE') {
+                W.setInnerHTML('info', node.game.infoText);
+                W.setInnerHTML('tour-instructions', 'Please choose ' + tourChoices.BLUE + ' below. In a normal game you could choose whatever you like.');
+
+                W.show('make-blue-decision');
+                W.hide('awaiting-red-decision');
+
                 W.setInnerHTML('red-choice', tourChoices.RED);
+
+                if (tourChoices.BLUE === 'LEFT') {
+                    W.getElementById('left').onclick = node.game.clickDone;
+                    W.getElementById('right').onclick = node.game.clickWrong;
+                }
+                else if (tourChoices.BLUE === 'RIGHT') {
+                    W.getElementById('right').onclick = node.game.clickDone;
+                    W.getElementById('left').onclick = node.game.clickWrong;
+                }
+
                 W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTables.A);
                 W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTables.B);
 
                 W.setInnerHTML('payoff-stop-blue', node.game.payoffStopBlue + ' ' + node.game.runningTotalPayoff.currency);
+            }
+            else {
+                W.setInnerHTML('tour-instructions', 'Click "Done" to recieve Blue\'s choice and the results. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
             }
         }
     });
@@ -181,6 +234,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.addClass(W.getElementById('other-player'), node.game.tourRole === 'RED' ? 'blue' : 'red'); // just lowercase somehow later
             W.setInnerHTML('other-player-choice', tourChoices[otherPlayerRole]);
             W.setInnerHTML('payoff', pay + ' ' + node.game.runningTotalPayoff.currency);
+            W.setInnerHTML('world-state', node.game.tourWorldState);
         }
     });
 
@@ -189,11 +243,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         done: function() {
             node.game.runningTotalPayoff.money = 0;
             node.game.runningTotalPayoff.update(0);
+
+            node.say('tour-over');
         },
         cb: function() {
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
-            // node.say('tour-over');
             W.setInnerHTML('total', node.game.tourPay + ' ' + node.game.runningTotalPayoff.currency);
         }
     });
