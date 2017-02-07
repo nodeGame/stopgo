@@ -74,6 +74,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.tourPay = 0;
 
         node.game.infoText = 'Reminder: this is a tour of the game. The computer is playing for you. Click "Done" when you are ready to see the next step. In a normal game you would make a selection to proceed to the next step. ';
+
+        node.game.clickDone = function() {
+            node.done({world: node.game.tourWorldState});
+        };
+
+        node.game.node.game.clickWrong = function() {
+            alert('Please follow the instructions! Choose the specified selection.');
+        };
     });
 
     stager.extendStep('choose-tour', { // why extend step not stage?
@@ -85,12 +93,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             redSelectButton.onclick = function() {
                 node.game.tourRole = 'RED';
-                node.done('RED');
+                node.done({tourRole: 'RED'});
             };
 
             blueSelectButton.onclick = function() {
                 node.game.tourRole = 'BLUE';
-                node.done('BLUE');
+                node.done({tourRole: 'BLUE'});
             };
         }
     });
@@ -121,13 +129,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var roundNumber = node.game.getRound() - 1;
             var tourChoices = node.game.settings.tour[roundNumber];
 
-            var clickDone = function() {
-                node.done(node.game.tourWorldState)
-            };
-            var clickWrong = function() {
-                alert('Please follow the instructions! Choose the specified selection.');
-            };
-
             // save this value
             node.game.tourWorldState = Math.floor(Math.random() * 2) ? 'A' : 'B';
 
@@ -141,12 +142,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
 
                 if (tourChoices.RED === 'STOP') {
-                    W.getElementById('stop').onclick = clickDone;
-                    W.getElementById('go').onclick = clickWrong
+                    W.getElementById('stop').onclick = node.game.clickDone;
+                    W.getElementById('go').onclick = node.game.clickWrong;
                 }
                 else {
-                    W.getElementById('go').onclick = clickDone;
-                    W.getElementById('stop').onclick = clickWrong
+                    W.getElementById('go').onclick = node.game.clickDone;
+                    W.getElementById('stop').onclick = node.game.clickWrong;
                 }
             }
             else if (node.game.tourRole === 'BLUE') {
@@ -167,13 +168,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var roundNumber = node.game.getRound() - 1;
             var tourChoices = node.game.settings.tour[roundNumber];
 
-            var clickDone = function() {
-                node.done(node.game.tourWorldState)
-            };
-            var clickWrong = function() {
-                alert('Please follow the instructions! Choose the specified selection.');
-            };
-
             if (node.game.tourRole === 'BLUE') {
                 W.setInnerHTML('info', node.game.infoText +  'Please choose ' + tourChoices.BLUE);
 
@@ -183,12 +177,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.setInnerHTML('red-choice', tourChoices.RED);
 
                 if (tourChoices.BLUE === 'LEFT') {
-                    W.getElementById('left').onclick = clickDone;
-                    W.getElementById('right').onclick = clickWrong;
+                    W.getElementById('left').onclick = node.game.clickDone;
+                    W.getElementById('right').onclick = node.game.clickWrong;
                 }
                 else if (tourChoices.BLUE === 'RIGHT') {
-                    W.getElementById('right').onclick = clickDone;
-                    W.getElementById('left').onclick = clickWrong;
+                    W.getElementById('right').onclick = node.game.clickDone;
+                    W.getElementById('left').onclick = node.game.clickWrong;
                 }
 
                 W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTables.A);

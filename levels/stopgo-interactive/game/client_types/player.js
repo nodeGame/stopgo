@@ -105,11 +105,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var buttonStop, buttonGo, payoffTableDiv1;
                     var startTimer;
 
-                    if (node.game.checkIsPracticeStage()) {
-                        W.setInnerHTML('info', 'This is a practice stage.');
-                        W.show('info');
-                    }
-
                     node.on.data('TABLE', function(message) {
                         node.game.worldState = message.data;
 
@@ -199,11 +194,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             },
             BLUE: {
                 cb: function() {
-                    if (node.game.checkIsPracticeStage()) {
-                        W.setInnerHTML('info', 'This is a practice stage.');
-                        W.show('info');
-                    }
-
                     var span;
 
                     W.show('blue');
@@ -294,11 +284,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
                 },
                 cb: function() {
-                    if (node.game.checkIsPracticeStage()) {
-                        W.setInnerHTML('info', 'This is a practice stage.');
-                        W.show('info');
-                    }
-
                     node.on.data('RESULTS', function(message) {
                         var otherPlayer;
                         var otherPlayerChoice;
@@ -327,11 +312,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
                 },
                 cb: function() {
-                    if (node.game.checkIsPracticeStage()) {
-                        W.setInnerHTML('info', 'This is a practice stage.');
-                        W.show('info');
-                    }
-
                     node.once.data('RESULTS', function(message) {
                         var otherPlayer;
                         var otherPlayerChoice;
@@ -360,24 +340,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             node.game.visualTimer.setToZero();
 
-            W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
-            node.game.totalPayoff = 0;
-        },
-        done: function() {
-            node.game.runningTotalPayoff.money = 0;
-            node.game.runningTotalPayoff.update(0);
-        }
-    });
-
-    stager.extendStep('practice-end', {
-        frame: 'practice-end.htm',
-        timer: {
-            milliseconds: settings.bidTime,
-            timeup: function() {
-                node.done();
-            }
-        },
-        cb: function() {
             W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
             node.game.totalPayoff = 0;
         },
