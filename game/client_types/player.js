@@ -118,12 +118,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             RED: {
                 doneButton: false,
                 done: function() {
-                    W.show('waiting_for_blue');
-                    W.setInnerHTML('red-decision', 'Your choice: ' + tourChoices.RED);
+                    W.show('waiting_for_blue');                  
                 },
                 cb: function() {
                     var roundNumber = node.game.getRound() - 1;
                     var tourChoices = node.game.settings.tour[roundNumber];
+                    var correctB, wrongB;
 
                     W.setInnerHTML('info', node.game.infoText +  'Please choose ' + tourChoices.RED);
                     W.show('info');
@@ -132,16 +132,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.getElementById('payoff-table').appendChild(node.game.payoffTables[node.game.tourWorldState]);
                     W.setInnerHTML('state_of_world', node.game.tourWorldState);
                     W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
-                    node.game.doneButton.disable();
 
                     if (tourChoices.RED === 'STOP') {
-                        W.getElementById('stop').onclick = node.game.clickDone;
-                        W.getElementById('go').onclick = node.game.clickWrong;
+                        correctB = W.getElementById('stop');
+                        wrongB = W.getElementById('go');
                     }
                     else {
-                        W.getElementById('go').onclick = node.game.clickDone;
-                        W.getElementById('stop').onclick = node.game.clickWrong;
+                        correctB = W.getElementById('go');
+                        wrongB = W.getElementById('stop');
                     }
+                    correctB.onclick = function() {
+                        node.game.clickDone();
+                        W.setInnerHTML('red-decision',
+                                       'Your choice: ' + tourChoices.RED);
+                    };
+                    wrongB.onclick = node.game.clickWrong;
                 }
             },
             BLUE: {
@@ -158,6 +163,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         role: true,
         roles: {
             BLUE: {                
+                donebutton: false,
                 cb: function() {
                     var roundNumber = node.game.getRound() - 1;
                     var tourChoices = node.game.settings.tour[roundNumber];
@@ -168,7 +174,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.hide('awaiting-red-decision');
                     
                     W.setInnerHTML('red-choice', tourChoices.RED);
-                    node.game.doneButton.disable();
                     
                     if (tourChoices.BLUE === 'LEFT') {
                         W.getElementById('left').onclick = node.game.clickDone;
@@ -192,7 +197,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('results-tour', {
         frame: 'results.htm',
         cb: function() {
-            debugger
             var roundNumber = node.game.getRound() - 1;
             var tourChoices = node.game.settings.tour[roundNumber];
             var payoffs = node.game.settings.payoffs;
