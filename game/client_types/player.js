@@ -236,6 +236,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.setInnerHTML('other-player-choice', tourChoices[otherPlayerRole]);
             W.setInnerHTML('payoff', pay + ' ' + node.game.runningTotalPayoff.currency);
 
+            // Sets the role again.
             node.game.plot.updateProperty(node.game.getNextStep(),
                                           'role', node.game.tourRole);
         }
