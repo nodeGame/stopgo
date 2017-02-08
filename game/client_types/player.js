@@ -35,12 +35,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         // Add widgets.
         this.visualRound = node.widgets.append('VisualRound', header);
-        node.game.visualTimer = node.widgets.append('VisualTimer', header);
-        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header);
-        this.runningTotalPayoff.init({currency: 'USD'});
-        this.doneButton = node.widgets.append('DoneButton', header, {text: 'Done'});
-
-        node.game.visualTimer.setToZero();
+        this.visualTimer = node.widgets.append('VisualTimer', header);
+        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header,
+                                                      {currency: 'USD'});
+        this.doneButton = node.widgets.append('DoneButton', header,
+                                              {text: 'Done'});
 
         // node.player.stage.round
 
@@ -110,20 +109,20 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('red-choice-tour', {
         frame: 'stopgostep.htm',
-        init: function() {         
+        init: function() {
             // save this value
             this.tourWorldState = Math.floor(Math.random() * 2) ? 'A' : 'B';
         },
         roles: {
             RED: {
-                doneButton: false,
+                donebutton: false,
                 done: function() {
-                    W.show('waiting_for_blue');                  
+                    W.show('waiting_for_blue');
                 },
                 cb: function() {
                     var roundNumber = node.game.getRound() - 1;
                     var tourChoices = node.game.settings.tour[roundNumber];
-                    var correctB, wrongB;
+                    var correctButton, wrongButton;
 
                     W.setInnerHTML('info', node.game.infoText +  'Please choose ' + tourChoices.RED);
                     W.show('info');
@@ -134,19 +133,26 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
 
                     if (tourChoices.RED === 'STOP') {
-                        correctB = W.getElementById('stop');
-                        wrongB = W.getElementById('go');
+                        correctButton = W.getElementById('stop');
+                        wrongButton = W.getElementById('go');
                     }
                     else {
-                        correctB = W.getElementById('go');
-                        wrongB = W.getElementById('stop');
+                        correctButton = W.getElementById('go');
+                        wrongButton = W.getElementById('stop');
                     }
-                    correctB.onclick = function() {
+                    correctButton.onclick = function() {
+                        // Disable buttons.
+                        correctButton.disabled = true;
+                        wrongButton.disabled = true;
+
                         node.game.clickDone();
                         W.setInnerHTML('red-decision',
                                        'Your choice: ' + tourChoices.RED);
                     };
-                    wrongB.onclick = node.game.clickWrong;
+                    wrongButton.onclick = node.game.clickWrong;
+
+                    correctButton.disabled = false;
+                    wrongButton.disabled = false;
                 }
             },
             BLUE: {
@@ -162,7 +168,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('blue-choice-tour', {
         role: true,
         roles: {
-            BLUE: {                
+            BLUE: {
                 donebutton: false,
                 cb: function() {
                     var roundNumber = node.game.getRound() - 1;
@@ -172,9 +178,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     W.show('make-blue-decision');
                     W.hide('awaiting-red-decision');
-                    
+
                     W.setInnerHTML('red-choice', tourChoices.RED);
-                    
+
                     if (tourChoices.BLUE === 'LEFT') {
                         W.getElementById('left').onclick = node.game.clickDone;
                         W.getElementById('right').onclick = node.game.clickWrong;
@@ -183,14 +189,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         W.getElementById('right').onclick = node.game.clickDone;
                         W.getElementById('left').onclick = node.game.clickWrong;
                     }
-                    
+
                     W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTables.A);
                     W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTables.B);
-                    
+
                     W.setInnerHTML('payoff-stop-blue', node.game.payoffStopBlue + ' ' + node.game.runningTotalPayoff.currency);
                 }
             },
-            RED: {}
+            RED: {
+                cb: function() {
+                    // Update alert text.
+                }
+            }
         }
     });
 
