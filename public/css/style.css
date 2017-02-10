@@ -7,7 +7,7 @@ body {
 }
 
 #stop, #go, #right, #left {
-    width: 4em;
+    width: 5em;
     /*background-color: rgb(231, 231, 231);*/
     /*border-color: rgb(186, 186, 186);*/
     /*color: black;*/
