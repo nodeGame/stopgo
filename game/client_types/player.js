@@ -96,8 +96,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         donebutton: false,
         frame: 'choose-tour.htm',
         cb: function() {
-            var redSelectButton = W.getElementById('tour-red-selection');
-            var blueSelectButton = W.getElementById('tour-blue-selection');
+            var redSelectButton;
+            var blueSelectButton;
+
+            redSelectButton = W.getElementById('tour-red-selection');
+            blueSelectButton = W.getElementById('tour-blue-selection');
 
             redSelectButton.onclick = function() {
                 node.game.selectTourRole('RED');
@@ -121,12 +124,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.show('waiting_for_blue');
                 },
                 cb: function() {
-                    var roundNumber = node.game.getRound() - 1;
-                    var tourChoices = node.game.settings.tour[roundNumber];
+                    var roundNumber;
+                    var tourChoices;
                     var correctButton, wrongButton;
 
+                    roundNumber = node.game.getRound() - 1;
+                    tourChoices = node.game.settings.tour[roundNumber];
+
                     W.setInnerHTML('info', node.game.infoText);
-                    W.setInnerHTML('tour-instructions', 'Please choose ' + tourChoices.RED + ' below. In a normal game you could choose whatever you like.');
+                    W.setInnerHTML('tour-instructions', 'Please choose <strong>' + tourChoices.RED + '</strong> below. In a normal game you could choose whatever you like.');
                     W.show('info');
                     W.show('tour-instructions');
 
@@ -161,7 +167,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             BLUE: {
                 cb: function() {
                     W.setInnerHTML('info', node.game.infoText);
-                    W.setInnerHTML('tour-instructions', 'Click "Done" to recieve Blue\'s choice and the results. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
+                    W.setInnerHTML('tour-instructions', 'Click <strong>"Done"</strong> to recieve Blue\'s choice and the results. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
 
                     W.show('info');
                     W.show('tour-instructions');
@@ -178,11 +184,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             BLUE: {
                 donebutton: false,
                 cb: function() {
-                    var roundNumber = node.game.getRound() - 1;
-                    var tourChoices = node.game.settings.tour[roundNumber];
+                    var roundNumber;
+                    var tourChoices;
+
+                    roundNumber = node.game.getRound() - 1;
+                    tourChoices = node.game.settings.tour[roundNumber];
 
                     W.setInnerHTML('info', node.game.infoText);
-                    W.setInnerHTML('tour-instructions', 'Please choose ' + tourChoices.BLUE + ' below. In a normal game you could choose whatever you like.');
+                    W.setInnerHTML('tour-instructions', 'Please choose  <strong>' + tourChoices.BLUE + '</strong> below. In a normal game you could choose whatever you like.');
                     W.show('make-blue-decision');
                     W.hide('awaiting-red-decision');
 
@@ -205,7 +214,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             },
             RED: {
                 cb: function() {
-                    W.setInnerHTML('tour-instructions', 'Click "Done" to recieve Blue\'s choice and the results. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
+                    W.setInnerHTML('tour-instructions', 'Click  <strong>"Done"</strong> to recieve Blue\'s choice and the results. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
                 }
             }
         }
@@ -214,11 +223,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('results-tour', {
         frame: 'results.htm',
         cb: function() {
-            var roundNumber = node.game.getRound() - 1;
-            var tourChoices = node.game.settings.tour[roundNumber];
-            var payoffs = node.game.settings.payoffs;
-            var otherPlayerRole = node.game.tourRole === 'RED' ? 'BLUE' : 'RED';
+            var roundNumber;
+            var tourChoices;
+            var payoffs;
+            var otherPlayerRole;
             var pay;
+
+            roundNumber = node.game.getRound() - 1;
+            tourChoices = node.game.settings.tour[roundNumber];
+            payoffs = node.game.settings.payoffs;
+            otherPlayerRole = node.game.tourRole === 'RED' ? 'BLUE' : 'RED';
 
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
