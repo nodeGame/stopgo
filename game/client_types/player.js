@@ -99,9 +99,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         this.clickDone = function(obj) {
             var response;
-            response = node.JSUS.mixin({
+            response = {
                 world: node.game.tourWorldState
-            }, obj);
+            };
+            node.JSUS.mixin(response, obj);
             node.done(response);
         };
 
@@ -168,7 +169,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     ' ' + node.game.runningTotalPayoff.currency);
 
                     stopGoButtons = W.getElementById('stop-go-buttons');
-                    buttonOrder = node.JSUS.shuffleElements(stopGoButtons);
+                    buttonOrder = {
+                        buttons: node.JSUS.shuffleElements(stopGoButtons)
+                    };
 
                     if (tourChoices.RED === 'STOP') {
                         correctButton = W.getElementById('stop');
@@ -183,7 +186,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         correctButton.disabled = true;
                         wrongButton.disabled = true;
 
-                        node.game.clickDone();
+                        node.game.clickDone(buttonOrder);
                         W.setInnerHTML('red-decision',
                                        'Your choice: ' + tourChoices.RED);
                     };
@@ -220,6 +223,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var roundNumber;
                     var tourChoices;
                     var leftRightButtons;
+                    var buttonOrder;
 
                     roundNumber = node.game.getRound() - 1;
                     tourChoices = node.game.settings.tour[roundNumber];
@@ -235,14 +239,20 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.setInnerHTML('red-choice', tourChoices.RED);
 
                     leftRightButtons = W.getElementById('left-right-buttons');
-                    node.JSUS.shuffleElements(leftRightButtons);
+                    buttonOrder = {
+                        buttons: node.JSUS.shuffleElements(leftRightButtons)
+                    };
 
                     if (tourChoices.BLUE === 'LEFT') {
-                        W.getElementById('left').onclick = this.clickDone;
+                        W.getElementById('left').onclick = function() {
+                            node.game.clickDone(buttonOrder);
+                        };
                         W.getElementById('right').onclick = this.clickWrong;
                     }
                     else if (tourChoices.BLUE === 'RIGHT') {
-                        W.getElementById('right').onclick = this.clickDone;
+                        W.getElementById('right').onclick = function() {
+                            node.game.clickDone(buttonOrder);
+                        };
                         W.getElementById('left').onclick = this.clickWrong;
                     }
 
