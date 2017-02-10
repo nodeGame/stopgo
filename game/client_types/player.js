@@ -138,8 +138,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     W.show('red');
                     W.getElementById('payoff-table').appendChild(node.game.payoffTables[node.game.tourWorldState]);
-                    W.setInnerHTML('state_of_world', node.game.tourWorldState);
+                    W.setInnerHTML('world-state', node.game.tourWorldState);
                     W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
+
+                    node.JSUS.shuffleElements(W.getElementById('stop-go-buttons'));
 
                     if (tourChoices.RED === 'STOP') {
                         correctButton = W.getElementById('stop');
@@ -196,6 +198,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.hide('awaiting-red-decision');
 
                     W.setInnerHTML('red-choice', tourChoices.RED);
+                    node.JSUS.shuffleElements(W.getElementById('left-right-buttons'));
 
                     if (tourChoices.BLUE === 'LEFT') {
                         W.getElementById('left').onclick = node.game.clickDone;

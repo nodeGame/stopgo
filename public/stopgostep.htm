@@ -11,14 +11,16 @@
         </div>
     </div>
     <div id="red" style="display:none">
-        <p>You are <strong class="red">Red</strong>, and this is the state of the world: <strong><span id="state_of_world"> __ </span></strong></p>
+        <p>You are <strong class="red">Red</strong>, and this is the state of the world: <strong><span id="world-state"> __ </span></strong></p>
         <p>Recall: If you choose <strong>STOP</strong>, both you and Blue receive <span id="payoff-stop"> __ </span>.</p>
         <div id="payoff-table" class="panel panel-default">
             <div class="panel-heading">Below is the Payoff Table that describes what will happen if you choose <strong>GO</strong>.</div>
         </div>
         Make your choice:
-        <button id="stop" class="btn btn-lg btn-primary">Stop</button>
-        <button id="go" class="btn btn-lg btn-primary">Go</button>
+        <div id="stop-go-buttons">
+            <button id="stop" class="btn btn-lg btn-primary">Stop</button>
+            <button id="go" class="btn btn-lg btn-primary">Go</button>
+        </div>
         <p id="red-decision"></p>
         <p id="awaiting-blue-decision" style="display:none">
             Blue player is now making a decision.
@@ -46,8 +48,10 @@
             </div>
 
             <p>Choose wisely! Make your choice:</p>
-            <button id="left" class="btn btn-lg btn-primary">Left</button>
-            <button id="right" class="btn btn-lg btn-primary">Right</button>
+            <div id="left-right-buttons">
+                <button id="left" class="btn btn-lg btn-primary">Left</button>
+                <button id="right" class="btn btn-lg btn-primary">Right</button>
+            </div>
         </div>
     </div>
 
