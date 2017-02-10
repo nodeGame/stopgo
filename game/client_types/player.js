@@ -161,7 +161,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             BLUE: {
                 cb: function() {
                     W.setInnerHTML('info', node.game.infoText);
+                    W.setInnerHTML('tour-instructions', 'Click "Done" to recieve Blue\'s choice and the results. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
+
                     W.show('info');
+                    W.show('tour-instructions');
+
                     W.show('blue');
                 }
             }
@@ -201,11 +205,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             },
             RED: {
                 cb: function() {
-                    // Update alert text.
+                    W.setInnerHTML('tour-instructions', 'Click "Done" to recieve Blue\'s choice and the results. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
                 }
-            }
-            else {
-                W.setInnerHTML('tour-instructions', 'Click "Done" to recieve Blue\'s choice and the results. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
             }
         }
     });
