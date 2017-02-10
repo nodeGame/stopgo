@@ -34,9 +34,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             // Move client to part2
             // (async so that it finishes all current step operations).
             setTimeout(function() {
-                console.log('moving client to stopgo interactive: ', msg.from);
+                // console.log('moving client to stopgo interactive: ', msg.from);
                 channel.moveClientToGameLevel(msg.from, 'stopgo-interactive',
-                gameRoom.name);
+                                              gameRoom.name);
             }, 10);
 
             // Save client's data.

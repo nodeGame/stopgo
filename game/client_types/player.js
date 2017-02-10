@@ -31,7 +31,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var frame = W.generateFrame();
         W.setHeaderPosition('top');
 
+        var payoffs;
         var payoffTableA, payoffTableB;
+        var redRowA, redRowB;
+        var blueRowA, blueRowB;
+        var tableClasses;
+
+        var payoffStopRed, payoffStopBlue;
 
         // Add widgets.
         this.visualRound = node.widgets.append('VisualRound', header);
@@ -45,37 +51,45 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         // Add payoff tables
         node.game.totalPayoff = 0;
-        var payoffs = node.game.settings.payoffs;
+        payoffs = node.game.settings.payoffs;
+
+        redRowA = ['Red', payoffs.GO.A.LEFT.RED, payoffs.GO.A.RIGHT.RED];
+        blueRowA = ['Blue', payoffs.GO.A.LEFT.BLUE, payoffs.GO.A.RIGHT.BLUE];
 
         payoffTableA = new W.Table();
         payoffTableA.addRow(['', 'Left', 'Right']);
-        payoffTableA.addRow(['Red', payoffs.GO.A.LEFT.RED, payoffs.GO.A.RIGHT.RED]);
-        payoffTableA.addRow(['Blue', payoffs.GO.A.LEFT.BLUE, payoffs.GO.A.RIGHT.BLUE]);
+        payoffTableA.addRow(redRowA);
+        payoffTableA.addRow(blueRowA);
 
+        redRowB = ['Red', payoffs.GO.B.LEFT.RED, payoffs.GO.B.RIGHT.RED];
+        blueRowB = ['Blue', payoffs.GO.B.LEFT.BLUE, payoffs.GO.B.RIGHT.BLUE];
         payoffTableB = new W.Table();
         payoffTableB.addRow(['', 'Left', 'Right']);
-        payoffTableB.addRow(['Red', payoffs.GO.B.LEFT.RED, payoffs.GO.B.RIGHT.RED]);
-        payoffTableB.addRow(['Blue', payoffs.GO.B.LEFT.BLUE, payoffs.GO.B.RIGHT.BLUE]);
+        payoffTableB.addRow(redRowB);
+        payoffTableB.addRow(blueRowB);
 
-        var payoffStopRed = payoffs.STOP.RED;
-        var payoffStopBlue = payoffs.STOP.BLUE;
+        payoffStopRed = payoffs.STOP.RED;
+        payoffStopBlue = payoffs.STOP.BLUE;
 
-        node.game.payoffTables = {};
-        node.game.payoffTables.A = W.addClass(payoffTableA.parse(), 'table table-bordered');
-        node.game.payoffTables.B = W.addClass(payoffTableB.parse(), 'table table-bordered');
-        node.game.payoffStopRed = payoffStopRed;
-        node.game.payoffStopBlue = payoffStopBlue;
+        tableClasses = 'table table-bordered';
+
+        this.payoffTables = {};
+        this.payoffTables.A = W.addClass(payoffTableA.parse(), tableClasses);
+        this.payoffTables.B = W.addClass(payoffTableB.parse(), tableClasses);
+        this.payoffStopRed = payoffStopRed;
+        this.payoffStopBlue = payoffStopBlue;
 
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
 
-        node.game.tourRole = '';
-        node.game.tourPay = 0;
-        node.game.tourWorldState = '';
+        this.tourRole = '';
+        this.tourPay = 0;
+        this.tourWorldState = '';
 
-        node.game.infoText = 'This is only a tour of the game, not the actual game.';
+        this.infoText = 'This is only a tour of the game, ' +
+                        'not the actual game.';
 
-        node.game.selectTourRole = function(role) {
+        this.selectTourRole = function(role) {
             node.game.tourRole = role;
             // node.game.setRole(role, true);
             node.game.plot.setStepProperty(node.game.getNextStep(),
@@ -83,12 +97,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.done({tourRole: role});
         };
 
-        node.game.clickDone = function() {
-            node.done({world: node.game.tourWorldState});
+        this.clickDone = function(obj) {
+            var response;
+            response = node.JSUS.mixin({
+                world: node.game.tourWorldState
+            }, obj);
+            node.done(response);
         };
 
         node.game.node.game.clickWrong = function() {
-            alert('Please follow the instructions! Choose the specified selection.');
+            alert('Please follow the instructions! ' +
+                  'Choose the specified selection.');
         };
     });
 
@@ -126,20 +145,30 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     var roundNumber;
                     var tourChoices;
-                    var correctButton, wrongButton;
+                    var correctButton, wrongButton, stopGoButtons;
+                    var buttonOrder;
+                    var payoffTable;
 
-                    roundNumber = node.game.getRound() - 1;
-                    tourChoices = node.game.settings.tour[roundNumber];
+                    roundNumber = this.getRound() - 1;
+                    tourChoices = this.settings.tour[roundNumber];
+                    payoffTable = this.payoffTables[node.game.tourWorldState];
 
                     W.setInnerHTML('info', node.game.infoText);
-                    W.setInnerHTML('tour-instructions', 'Please choose <strong>' + tourChoices.RED + '</strong> below. In a normal game you could choose whatever you like.');
+                    W.setInnerHTML('tour-instructions', 'Please choose ' +
+                    '<strong>' + tourChoices.RED + '</strong> below. ' +
+                    'In a normal game you could choose whatever you like.');
+
                     W.show('info');
                     W.show('tour-instructions');
 
                     W.show('red');
-                    W.getElementById('payoff-table').appendChild(node.game.payoffTables[node.game.tourWorldState]);
-                    W.setInnerHTML('state_of_world', node.game.tourWorldState);
-                    W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
+                    W.getElementById('payoff-table').appendChild(payoffTable);
+                    W.setInnerHTML('world-state', node.game.tourWorldState);
+                    W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
+                    ' ' + node.game.runningTotalPayoff.currency);
+
+                    stopGoButtons = W.getElementById('stop-go-buttons');
+                    buttonOrder = node.JSUS.shuffleElements(stopGoButtons);
 
                     if (tourChoices.RED === 'STOP') {
                         correctButton = W.getElementById('stop');
@@ -167,7 +196,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             BLUE: {
                 cb: function() {
                     W.setInnerHTML('info', node.game.infoText);
-                    W.setInnerHTML('tour-instructions', 'Click <strong>"Done"</strong> to recieve Blue\'s choice and the results. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
+                    W.setInnerHTML('tour-instructions', 'Click ' +
+                    '<strong>"Done"</strong> to recieve Red\'s choice and ' +
+                    'the results. In a normal game, you would wait for the ' +
+                    'other player to make a selection (the "Done" button ' +
+                    'will be disabled).');
 
                     W.show('info');
                     W.show('tour-instructions');
@@ -186,35 +219,49 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     var roundNumber;
                     var tourChoices;
+                    var leftRightButtons;
 
                     roundNumber = node.game.getRound() - 1;
                     tourChoices = node.game.settings.tour[roundNumber];
 
                     W.setInnerHTML('info', node.game.infoText);
-                    W.setInnerHTML('tour-instructions', 'Please choose  <strong>' + tourChoices.BLUE + '</strong> below. In a normal game you could choose whatever you like.');
+                    W.setInnerHTML('tour-instructions', 'Please choose ' +
+                    '<strong>' + tourChoices.BLUE + '</strong> below. ' +
+                    'In a normal game you could choose whatever you like.');
+
                     W.show('make-blue-decision');
                     W.hide('awaiting-red-decision');
 
                     W.setInnerHTML('red-choice', tourChoices.RED);
 
+                    leftRightButtons = W.getElementById('left-right-buttons');
+                    node.JSUS.shuffleElements(leftRightButtons);
+
                     if (tourChoices.BLUE === 'LEFT') {
-                        W.getElementById('left').onclick = node.game.clickDone;
-                        W.getElementById('right').onclick = node.game.clickWrong;
+                        W.getElementById('left').onclick = this.clickDone;
+                        W.getElementById('right').onclick = this.clickWrong;
                     }
                     else if (tourChoices.BLUE === 'RIGHT') {
-                        W.getElementById('right').onclick = node.game.clickDone;
-                        W.getElementById('left').onclick = node.game.clickWrong;
+                        W.getElementById('right').onclick = this.clickDone;
+                        W.getElementById('left').onclick = this.clickWrong;
                     }
 
-                    W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTables.A);
-                    W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTables.B);
+                    W.getElementById('payoff-matrix-a')
+                    .appendChild(node.game.payoffTables.A);
+                    W.getElementById('payoff-matrix-b')
+                    .appendChild(node.game.payoffTables.B);
 
-                    W.setInnerHTML('payoff-stop-blue', node.game.payoffStopBlue + ' ' + node.game.runningTotalPayoff.currency);
+                    W.setInnerHTML('payoff-stop-blue', this.payoffStopBlue +
+                    ' ' + node.game.runningTotalPayoff.currency);
                 }
             },
             RED: {
                 cb: function() {
-                    W.setInnerHTML('tour-instructions', 'Click  <strong>"Done"</strong> to recieve Blue\'s choice and the results. In a normal game, you would wait for the other player to make a selection (the "Done" button will be disabled).');
+                    W.setInnerHTML('tour-instructions', 'Click ' +
+                    '<strong>"Done"</strong> to recieve Blue\'s choice and ' +
+                    'the results. In a normal game, you would wait for the ' +
+                    'other player to make a selection (the "Done" button ' +
+                    'will be disabled).');
                 }
             }
         }
@@ -227,7 +274,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var tourChoices;
             var payoffs;
             var otherPlayerRole;
-            var pay;
+            var payment;
+            var playerChoice;
+            var playerColorClass, otherPlayerColorClass;
+            var payoffsGo;
 
             roundNumber = node.game.getRound() - 1;
             tourChoices = node.game.settings.tour[roundNumber];
@@ -237,25 +287,35 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
 
+            payoffsGo = payoffs.GO[this.tourWorldState];
+
             if (tourChoices.RED === 'GO') {
-                console.log(payoffs);
-                pay = payoffs.GO[node.game.tourWorldState][tourChoices.BLUE][node.game.tourRole];
+                payment = payoffsGo[tourChoices.BLUE][this.tourRole];
             }
             else {
-                pay = payoffs.STOP[node.game.tourRole];
+                payment = payoffs.STOP[node.game.tourRole];
             }
 
-            console.log(pay, node.game);
-            node.game.tourPay += pay;
-            node.game.runningTotalPayoff.update(pay);
+            node.game.tourPay += payment;
+            node.game.runningTotalPayoff.update(payment);
+
+            playerChoice = tourChoices[node.game.tourRole].toUpperCase();
+            playerColorClass = node.game.tourRole.toLowerCase();
+            otherPlayerColorClass = otherPlayerRole.toLowerCase();
 
             W.setInnerHTML('player', node.game.tourRole);
-            W.setInnerHTML('player-choice', tourChoices[node.game.tourRole].toUpperCase());
-            W.addClass(W.getElementById('player'), node.game.tourRole === 'RED' ? 'red' : 'blue'); // just lowercase somehow later
+            W.setInnerHTML('player-choice', playerChoice);
+            W.addClass(W.getElementById('player'), playerColorClass);
+
             W.setInnerHTML('other-player', otherPlayerRole);
-            W.addClass(W.getElementById('other-player'), node.game.tourRole === 'RED' ? 'blue' : 'red'); // just lowercase somehow later
-            W.setInnerHTML('other-player-choice', tourChoices[otherPlayerRole]);
-            W.setInnerHTML('payoff', pay + ' ' + node.game.runningTotalPayoff.currency);
+            W.addClass(W.getElementById('other-player'),
+                       otherPlayerColorClass);
+
+            W.setInnerHTML('other-player-choice',
+                           tourChoices[otherPlayerRole]);
+
+            W.setInnerHTML('payoff', payment + ' ' +
+            node.game.runningTotalPayoff.currency);
             W.setInnerHTML('world-state', node.game.tourWorldState);
 
             // Sets the role again.
@@ -275,16 +335,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
-            W.setInnerHTML('total', node.game.tourPay + ' ' + node.game.runningTotalPayoff.currency);
+            W.setInnerHTML('total', node.game.tourPay + ' ' +
+            node.game.runningTotalPayoff.currency);
         }
     });
 
     stager.extendStep('instructions', {
         frame: 'instructions.htm',
         cb: function() {
-            W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
-            W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTables.A);
-            W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTables.B);
+            var payoffTables;
+            payoffTables = this.payoffTables;
+
+            W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' +
+            node.game.runningTotalPayoff.currency);
+            W.getElementById('payoff-matrix-a').appendChild(payoffTables.A);
+            W.getElementById('payoff-matrix-b').appendChild(payoffTables.B);
         }
     });
 
