@@ -158,7 +158,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.setInnerHTML('tour-instructions', 'Please choose ' +
                                    '<strong>' + tourChoices.RED + 
                                    '</strong> below. In a normal game you ' +
-                                   'could choose whatever you like.');
+                                   'may choose whatever you like.');
 
                     W.show('info');
                     W.show('tour-instructions');
@@ -232,7 +232,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.setInnerHTML('info', node.game.infoText);
                     W.setInnerHTML('tour-instructions', 'Please choose ' +
                     '<strong>' + tourChoices.BLUE + '</strong> below. ' +
-                    'In a normal game you could choose whatever you like.');
+                    'In a normal game you may choose whatever you like.');
 
                     W.show('make-blue-decision');
                     W.hide('awaiting-red-decision');
