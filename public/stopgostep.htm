@@ -34,8 +34,26 @@
         </p>
         <div id="make-blue-decision" style="display: none">
             <p>The other player, Red, chose <strong><span id="red-choice">__</span></strong>.</p>
-            <p>Remember: If Red chose <strong>STOP</strong>, you get <span id="payoff-stop-blue"> __ </span>, regardless of your choice.</p>
-            <p>Otherwise, if Red chose <strong>GO</strong>, the payoff table possiblities are shown below (there is a chance for either): </p>
+
+            <p>Choose wisely! Make your choice:
+              
+              <div id="left-right-buttons">
+                <button id="left" class="btn btn-lg btn-primary">Left</button>
+                <button id="right" class="btn btn-lg btn-primary">Right</button>
+              </div>
+            </p>
+
+            <em>Remember:</em>
+            <p id="red-chose-stop">
+              If Red choses <strong>STOP</strong>, you
+              get <span id="payoff-stop-blue"> __ </span>, regardless
+              of your choice.
+              <br/>
+              If Red choses <strong>GO</strong>, there
+              is an equal chance for either of the payoff tables shown
+              below:
+            </p>
+
             <div class="row">
                 <div id="payoff-matrix-a" class="panel panel-default half-size">
                     <div class="panel-heading">Payoff Table A</div>
@@ -47,11 +65,7 @@
                 </div>
             </div>
 
-            <p>Choose wisely! Make your choice:</p>
-            <div id="left-right-buttons">
-                <button id="left" class="btn btn-lg btn-primary">Left</button>
-                <button id="right" class="btn btn-lg btn-primary">Right</button>
-            </div>
+        
         </div>
     </div>
 

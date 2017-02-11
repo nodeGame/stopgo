@@ -92,7 +92,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
 
                     // validate selection
-                    // TODO: move validation to before node.game.redChoice is assigned
+                    // TODO: move validation to before node.game.redChoice
+                    // is assigned.
                     if (msg.data.GO || msg.data.STOP) {
                         node.say('RED-CHOICE', roles.BLUE, redChoice);
                     }
