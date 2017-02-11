@@ -31,10 +31,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.on.data('tour-over', function(msg) {
             var db;
 
-            // Move client to part2
+            // Move client to part2.
             // (async so that it finishes all current step operations).
             setTimeout(function() {
-                // console.log('moving client to stopgo interactive: ', msg.from);
+                // console.log('moving to stopgo interactive: ', msg.from);
                 channel.moveClientToGameLevel(msg.from, 'stopgo-interactive',
                                               gameRoom.name);
             }, 10);

@@ -156,8 +156,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     W.setInnerHTML('info', node.game.infoText);
                     W.setInnerHTML('tour-instructions', 'Please choose ' +
-                    '<strong>' + tourChoices.RED + '</strong> below. ' +
-                    'In a normal game you could choose whatever you like.');
+                                   '<strong>' + tourChoices.RED + 
+                                   '</strong> below. In a normal game you ' +
+                                   'could choose whatever you like.');
 
                     W.show('info');
                     W.show('tour-instructions');
@@ -166,7 +167,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.getElementById('payoff-table').appendChild(payoffTable);
                     W.setInnerHTML('world-state', node.game.tourWorldState);
                     W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
-                    ' ' + node.game.runningTotalPayoff.currency);
+                                   ' ' + node.game.runningTotalPayoff.currency);
 
                     stopGoButtons = W.getElementById('stop-go-buttons');
                     buttonOrder = {
