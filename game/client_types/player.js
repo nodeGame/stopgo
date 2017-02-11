@@ -201,10 +201,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     W.setInnerHTML('info', node.game.infoText);
                     W.setInnerHTML('tour-instructions', 'Click ' +
-                    '<strong>"Done"</strong> to recieve Red\'s choice and ' +
+                    '<strong>"Done"</strong> to receive Red\'s choice and ' +
                     'the results. In a normal game, you would wait for the ' +
                     'other player to make a selection (the "Done" button ' +
-                    'will be disabled).');
+                    'would be disabled).');
 
                     W.show('info');
                     W.show('tour-instructions');
@@ -269,10 +269,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             RED: {
                 cb: function() {
                     W.setInnerHTML('tour-instructions', 'Click ' +
-                    '<strong>"Done"</strong> to recieve Blue\'s choice and ' +
+                    '<strong>"Done"</strong> to receive Blue\'s choice and ' +
                     'the results. In a normal game, you would wait for the ' +
                     'other player to make a selection (the "Done" button ' +
-                    'will be disabled).');
+                    'would be disabled).');
                 }
             }
         }
