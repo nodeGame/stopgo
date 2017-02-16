@@ -41,6 +41,7 @@ module.exports = {
      * used to initialize the game timer for the step.
      */
     TIMER: {
+        'instructions-light': 20000
         // instructions: 60000
     },
 

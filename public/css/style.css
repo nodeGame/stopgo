@@ -84,3 +84,11 @@ h1 {
     font-size: 24px;
     font-weight: bold;
 }
+
+ul#summary-rules {
+    margin-top: 20px;
+}
+
+ul#summary-rules li {
+    margin-bottom: 10px;
+}

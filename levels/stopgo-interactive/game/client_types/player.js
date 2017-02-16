@@ -95,7 +95,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             // Display time left middle of page.
             s = node.game.settings;
             startsIn = W.getElementById('game-starts-in');
-            startsIn.innerHTML = Math.floor(s.TIMER.instructions_light/1000);
+            startsIn.innerHTML = Math.floor(s.TIMER['instructions-light']/1000);
             node.game.visualTimer.gameTimer.addHook({
                 hook: function() {
                     startsIn.innerHTML = Math.floor(this.timeLeft/1000);
@@ -108,8 +108,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             if (this.visualTimer) {
                 this.visualTimer.gameTimer.removeHook('extraTimer');
             }
-        }
-        
+        }        
     });
 
     stager.extendStep('red-choice', {
