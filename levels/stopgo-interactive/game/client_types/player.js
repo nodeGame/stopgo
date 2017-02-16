@@ -320,6 +320,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('results', {
         frame: 'results.htm',
+        timer: {
+            milliseconds: settings.bidTime,
+            timeup: function() {
+                node.done();
+            }
+        },
         cb: function() {
             var payoffs, payment;
             var choices;
