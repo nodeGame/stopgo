@@ -81,6 +81,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.redChoice = null;
         node.game.blueChoice = null;
         node.game.worldState = null;
+        node.game.totalPayment = 0;
 
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
@@ -338,7 +339,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 playerChoice = choices[node.game.playerRole];
                 otherPlayerChoice = choices[otherPlayerRole];
 
-                node.game.tourPay += payment;
+                node.game.totalPayment += payment;
                 node.game.runningTotalPayoff.update(payment);
 
                 playerColorClass = node.game.playerRole.toLowerCase();
@@ -368,8 +369,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             node.game.visualTimer.setToZero();
 
-            W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
-            node.game.totalPayoff = 0;
+            W.setInnerHTML('total', node.game.totalPayment+ ' ' + node.game.runningTotalPayoff.currency);
+            node.game.totalPayment = 0;
         },
         done: function() {
             node.game.runningTotalPayoff.money = 0;
