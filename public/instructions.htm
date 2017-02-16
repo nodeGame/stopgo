@@ -10,14 +10,15 @@
     <div id="instructions">
       <p>Welcome to Stop/Go!</p>
       <p>
-        This session will consist of 3 matches. At the end of the 3
-        separate matches, you will be paid the total amount you have
-        earned during the 3 matches.
+        This session will consist of <strong>3 matches</strong>. At
+        the end of the 3 separate matches, you will be paid the total
+        amount you have earned during the 3 matches.
       </p>
 
       <p>
         Each match goes as follows: You will be assigned to be either
-        Red or Blue player. You will be paired anonymously with
+        the
+        <strong>Red</strong> or <strong>Blue</strong> player. You will be paired anonymously with
         another player of the other color. Red moves first in the
         match, and has two choices: <strong>STOP</strong>
         or <strong>GO</strong>.
@@ -30,31 +31,36 @@
       </p>
 
       <p>
-        If the Red player chooses <strong>GO</strong>, it becomes the
-        Blue player's turn to choose either <strong>LEFT</strong>
-        or <strong>RIGHT</strong>. The payoff in this case depends on
-        what move the Blue player has made and the payoff table being
-        used. One of the two payoff tables, shown below, is randomly
-        chosen (there is a 50/50 chance that either table is chosen).
+        If the Red player chooses <strong>GO</strong>, it is the Blue
+        player's turn to choose either <strong>LEFT</strong>
+        or <strong>RIGHT</strong>. In this case, the payoff depends on
+        what move the Blue player has made and on the <strong>state of
+        the world</strong>, which is randomly chosen to
+        be <strong>A</strong> or <strong>B</strong> (there is a 50/50
+        chance for either). Each state of the world has a different
+        payoff table, as shown below:
       </p>
+      
+      <div class="row">
+        <div id="payoff-matrix-a" class="panel panel-default half-size">
+          <div class="panel-heading">Payoff Table A</div>
+          <!-- Payoff Table A added here on init-->
+        </div>
+        <div id="payoff-matrix-b" class="panel panel-default half-size">
+          <div class="panel-heading">Payoff Table B</div>
+          <!-- Payoff Table B added here on init -->
+        </div>
+      </div>
 
       <p>
-        <em>Only the Red player will see this payoff table.</em> The
-        Blue player will not see the payoff table. The payoff table
-        will be randomly reselected each match.
+        <em>Important!</em> Only the Red player knows the state of the
+        world <em>before</em> making the decision. The Blue player
+        will be informed only <em>after</em> making a decision. The
+        state of the world is randomly reselected each match.
       </p>
         <!-- NOTE: currently the stop/game doesn't actually rematch, nor does it keep you as a red or blue player throughout the 3 matches -->
     </div>
-    <div class="row">
-      <div id="payoff-matrix-a" class="panel panel-default half-size">
-        <div class="panel-heading">Payoff Table A</div>
-        <!-- Payoff Table A added here on init-->
-      </div>
-      <div id="payoff-matrix-b" class="panel panel-default half-size">
-        <div class="panel-heading">Payoff Table B</div>
-        <!-- Payoff Table B added here on init -->
-      </div>
-    </div>
+    
     <p>
       If you understood the instructions correctly press
       the <em>"Done"</em> button to proceed to the game.
