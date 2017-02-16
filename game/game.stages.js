@@ -12,43 +12,40 @@
 module.exports = function(stager, settings) {
 
     stager
-        .repeat('test', 3)
         .next('instructions')
-        .repeat('practice', settings.REPEAT_PRACTICE)
-        .next('practice-end')
-        .next('quiz')
-        .repeat('game', settings.REPEAT)
-        .next('end')
+        .next('choose-tour') // choose blue/red
+        .repeat('tour', settings.tour.length) //
+        .next('tour-end') // remind players that they are randomly assigned to blue/red
+        // .repeat('practice', settings.REPEAT_PRACTICE)
+        // .next('practice-end')
         .gameover();
 
-    stager.extendStage('test', {
+    stager.extendStage('tour', {
     	steps: [
-    	    'step1',
-    	    'step2',
-          'step3'
+    	    'red-choice-tour',
+    	    'blue-choice-tour',
+            'results-tour'
     	]
     });
 
-    stager.extendStage('game', {
-    	steps: [
-    	    'red-choice',
-    	    'blue-choice',
-    	    'results'
-    	]
-    });
 
-    stager.extendStage('practice', {
-    	steps: [
-    	    'red-choice',
-    	    'blue-choice',
-    	    'results'
-    	]
-    });
+    // stager.extendStage('practice', {
+    // 	steps: [
+    // 	    'red-choice',
+    // 	    'blue-choice',
+    // 	    'results'
+    // 	]
+    // });
 
     // Modify the stager to skip one stage.
-    // stager.skip('instructions')
-    stager.skip('quiz');
-    stager.skip('test');
+    // stager.skip('instructions');
+    // stager.skip('quiz');
+    // stager.skip('practice');
+    // stager.skip('practice-end');
+    stager.skip('choose-tour');
+    stager.skip('tour');
+    // stager.skip('tour-end');
+    // stager.skip('test');
 
     return stager.getState();
 };

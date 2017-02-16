@@ -1,15 +1,15 @@
 /**
-* # Player type implementation of the game stages
-* Copyright(c) 2016 brenste <myemail>
-* MIT Licensed
-*
-* Each client type must extend / implement the stages defined in `game.stages`.
-* Upon connection each client is assigned a client type and it is automatically
-* setup with it.
-*
-* http://www.nodegame.org
-* ---
-*/
+ * # Player type implementation of the game stages (Tour)
+ * Copyright(c) 2016
+ * MIT Licensed
+ *
+ * Each client type must extend / implement the stages defined in `game.stages`.
+ * Upon connection each client is assigned a client type and it is automatically
+ * setup with it.
+ *
+ * http://www.nodegame.org
+ * ---
+ */
 
 'use strict';
 
@@ -22,6 +22,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     var game;
 
+    stager.setDefaultStepRule(stepRules.SOLO);
+
     stager.setOnInit(function() {
         // Initialize the client.
         // Setup page: header + frame.
@@ -29,390 +31,328 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var frame = W.generateFrame();
         W.setHeaderPosition('top');
 
+        var payoffs;
         var payoffTableA, payoffTableB;
+        var redRowA, redRowB;
+        var blueRowA, blueRowB;
+        var tableClasses;
+
+        var payoffStopRed, payoffStopBlue;
 
         // Add widgets.
         this.visualRound = node.widgets.append('VisualRound', header);
-        node.game.visualTimer = node.widgets.append('VisualTimer', header);
-        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header);
-        this.runningTotalPayoff.init({currency: 'USD'});
-        this.doneButton = node.widgets.append('DoneButton', header, {text: 'Done'});
+        this.visualTimer = node.widgets.append('VisualTimer', header);
+        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header,
+                                                      {currency: 'USD'});
+        this.doneButton = node.widgets.append('DoneButton', header,
+                                              {text: 'Done'});
 
-        node.game.visualTimer.setToZero();
+        // node.player.stage.round
 
         // Add payoff tables
         node.game.totalPayoff = 0;
-        var payoffs = node.game.settings.payoffs;
+        payoffs = node.game.settings.payoffs;
+
+        redRowA = ['Red', payoffs.GO.A.LEFT.RED, payoffs.GO.A.RIGHT.RED];
+        blueRowA = ['Blue', payoffs.GO.A.LEFT.BLUE, payoffs.GO.A.RIGHT.BLUE];
 
         payoffTableA = new W.Table();
         payoffTableA.addRow(['', 'Left', 'Right']);
-        payoffTableA.addRow(['Red', payoffs.GO.A.LEFT.RED, payoffs.GO.A.RIGHT.RED]);
-        payoffTableA.addRow(['Blue', payoffs.GO.A.LEFT.BLUE, payoffs.GO.A.RIGHT.BLUE]);
+        payoffTableA.addRow(redRowA);
+        payoffTableA.addRow(blueRowA);
 
+        redRowB = ['Red', payoffs.GO.B.LEFT.RED, payoffs.GO.B.RIGHT.RED];
+        blueRowB = ['Blue', payoffs.GO.B.LEFT.BLUE, payoffs.GO.B.RIGHT.BLUE];
         payoffTableB = new W.Table();
         payoffTableB.addRow(['', 'Left', 'Right']);
-        payoffTableB.addRow(['Red', payoffs.GO.B.LEFT.RED, payoffs.GO.B.RIGHT.RED]);
-        payoffTableB.addRow(['Blue', payoffs.GO.B.LEFT.BLUE, payoffs.GO.B.RIGHT.BLUE]);
+        payoffTableB.addRow(redRowB);
+        payoffTableB.addRow(blueRowB);
 
-        var payoffStopRed = payoffs.STOP.RED;
-        var payoffStopBlue = payoffs.STOP.BLUE;
+        payoffStopRed = payoffs.STOP.RED;
+        payoffStopBlue = payoffs.STOP.BLUE;
 
-        node.game.payoffTables = {};
-        node.game.payoffTables.A = W.addClass(payoffTableA.parse(), 'table table-bordered');
-        node.game.payoffTables.B = W.addClass(payoffTableB.parse(), 'table table-bordered');
-        node.game.payoffStopRed = payoffStopRed;
-        node.game.payoffStopBlue = payoffStopBlue;
+        tableClasses = 'table table-bordered';
+
+        this.payoffTables = {};
+        this.payoffTables.A = W.addClass(payoffTableA.parse(), tableClasses);
+        this.payoffTables.B = W.addClass(payoffTableB.parse(), tableClasses);
+        this.payoffStopRed = payoffStopRed;
+        this.payoffStopBlue = payoffStopBlue;
 
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
 
-        node.game.practiceStageNumber = node.game.plot.normalizeGameStage('practice').stage;
+        this.tourRole = '';
+        this.tourPay = 0;
+        this.tourWorldState = '';
 
-        node.game.checkIsPracticeStage = function() {
-            return node.game.getCurrentGameStage().stage === node.game.practiceStageNumber;
+        this.infoText = 'This is only a tour of the game, ' +
+                        'not the actual game.';
+
+        this.selectTourRole = function(role) {
+            node.game.tourRole = role;
+            // node.game.setRole(role, true);
+            node.game.plot.setStepProperty(node.game.getNextStep(),
+                                           'role', role);
+            node.done({tourRole: role});
         };
 
+        this.clickDone = function(obj) {
+            var response;
+            response = {
+                world: node.game.tourWorldState
+            };
+            node.JSUS.mixin(response, obj);
+            node.done(response);
+        };
+
+        node.game.node.game.clickWrong = function() {
+            alert('Please follow the instructions! ' +
+                  'Choose the specified selection.');
+        };
+    });
+
+    stager.extendStep('choose-tour', { // why extend step not stage?
+        donebutton: false,
+        frame: 'choose-tour.htm',
+        cb: function() {
+            var redSelectButton;
+            var blueSelectButton;
+
+            redSelectButton = W.getElementById('tour-red-selection');
+            blueSelectButton = W.getElementById('tour-blue-selection');
+
+            redSelectButton.onclick = function() {
+                node.game.selectTourRole('RED');
+            };
+            blueSelectButton.onclick = function() {
+                node.game.selectTourRole('BLUE');
+            };
+        }
+    });
+
+    stager.extendStep('red-choice-tour', {
+        frame: 'stopgostep.htm',
+        init: function() {
+            // save this value
+            this.tourWorldState = Math.floor(Math.random() * 2) ? 'A' : 'B';
+        },
+        roles: {
+            RED: {
+                donebutton: false,
+                done: function() {
+                    W.show('waiting_for_blue');
+                },
+                cb: function() {
+                    var roundNumber;
+                    var tourChoices;
+                    var correctButton, wrongButton, stopGoButtons;
+                    var payoffTable;
+
+                    roundNumber = this.getRound() - 1;
+                    tourChoices = this.settings.tour[roundNumber];
+                    payoffTable = this.payoffTables[node.game.tourWorldState];
+
+                    W.setInnerHTML('info', node.game.infoText);
+                    W.setInnerHTML('tour-instructions', 'Please choose ' +
+                                   '<strong>' + tourChoices.RED +
+                                   '</strong> below. In a normal game you ' +
+                                   'may choose whatever you like.');
+
+                    W.show('info');
+                    W.show('tour-instructions');
+
+                    W.show('red');
+                    W.getElementById('payoff-table').appendChild(payoffTable);
+                    W.setInnerHTML('world-state', node.game.tourWorldState);
+                    W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
+                                   ' ' + node.game.runningTotalPayoff.currency);
+
+                    stopGoButtons = W.getElementById('stop-go-buttons');
+
+                    if (tourChoices.RED === 'STOP') {
+                        correctButton = W.getElementById('stop');
+                        wrongButton = W.getElementById('go');
+                    }
+                    else {
+                        correctButton = W.getElementById('go');
+                        wrongButton = W.getElementById('stop');
+                    }
+                    correctButton.onclick = function() {
+                        // Disable buttons.
+                        correctButton.disabled = true;
+                        wrongButton.disabled = true;
+
+                        node.game.clickDone();
+                        W.setInnerHTML('red-decision',
+                                       'Your choice: ' + tourChoices.RED);
+                    };
+                    wrongButton.onclick = node.game.clickWrong;
+
+                    correctButton.disabled = false;
+                    wrongButton.disabled = false;
+                }
+            },
+            BLUE: {
+                cb: function() {
+                    W.setInnerHTML('info', node.game.infoText);
+                    W.setInnerHTML('tour-instructions', 'Click ' +
+                    '<strong>"Done"</strong> to receive Red\'s choice and ' +
+                    'the results. In a normal game, you would wait for the ' +
+                    'other player to make a selection (the "Done" button ' +
+                    'would be disabled).');
+
+                    W.show('info');
+                    W.show('tour-instructions');
+
+                    W.show('blue');
+                }
+            }
+        }
+    });
+
+    stager.extendStep('blue-choice-tour', {
+        role: true,
+        roles: {
+            BLUE: {
+                donebutton: false,
+                cb: function() {
+                    var roundNumber;
+                    var tourChoices;
+                    var leftRightButtons;
+
+                    roundNumber = node.game.getRound() - 1;
+                    tourChoices = node.game.settings.tour[roundNumber];
+
+                    W.setInnerHTML('info', node.game.infoText);
+                    W.setInnerHTML('tour-instructions', 'Please choose ' +
+                    '<strong>' + tourChoices.BLUE + '</strong> below. ' +
+                    'In a normal game you may choose whatever you like.');
+
+                    W.show('make-blue-decision');
+                    W.hide('awaiting-red-decision');
+
+                    W.setInnerHTML('red-choice', tourChoices.RED);
+
+                    leftRightButtons = W.getElementById('left-right-buttons');
+
+                    if (tourChoices.BLUE === 'LEFT') {
+                        W.getElementById('left').onclick = function() {
+                            node.game.clickDone();
+                        };
+                        W.getElementById('right').onclick = this.clickWrong;
+                    }
+                    else if (tourChoices.BLUE === 'RIGHT') {
+                        W.getElementById('right').onclick = function() {
+                            node.game.clickDone();
+                        };
+                        W.getElementById('left').onclick = this.clickWrong;
+                    }
+
+                    W.getElementById('payoff-matrix-a')
+                    .appendChild(node.game.payoffTables.A);
+                    W.getElementById('payoff-matrix-b')
+                    .appendChild(node.game.payoffTables.B);
+
+                    W.setInnerHTML('payoff-stop-blue', this.payoffStopBlue +
+                    ' ' + node.game.runningTotalPayoff.currency);
+                }
+            },
+            RED: {
+                cb: function() {
+                    W.setInnerHTML('tour-instructions', 'Click ' +
+                    '<strong>"Done"</strong> to receive Blue\'s choice and ' +
+                    'the results. In a normal game, you would wait for the ' +
+                    'other player to make a selection (the "Done" button ' +
+                    'would be disabled).');
+                }
+            }
+        }
+    });
+
+    stager.extendStep('results-tour', {
+        frame: 'results.htm',
+        cb: function() {
+            var roundNumber;
+            var tourChoices;
+            var payoffs;
+            var otherPlayerRole;
+            var payment;
+            var playerChoice;
+            var playerColorClass, otherPlayerColorClass;
+            var payoffsGo;
+
+            roundNumber = node.game.getRound() - 1;
+            tourChoices = node.game.settings.tour[roundNumber];
+            payoffs = node.game.settings.payoffs;
+            otherPlayerRole = node.game.tourRole === 'RED' ? 'BLUE' : 'RED';
+
+            W.setInnerHTML('info', node.game.infoText);
+            W.show('info');
+
+            payoffsGo = payoffs.GO[this.tourWorldState];
+
+            if (tourChoices.RED === 'GO') {
+                payment = payoffsGo[tourChoices.BLUE][this.tourRole];
+            }
+            else {
+                payment = payoffs.STOP[node.game.tourRole];
+            }
+
+            node.game.tourPay += payment;
+            node.game.runningTotalPayoff.update(payment);
+
+            playerChoice = tourChoices[node.game.tourRole].toUpperCase();
+            playerColorClass = node.game.tourRole.toLowerCase();
+            otherPlayerColorClass = otherPlayerRole.toLowerCase();
+
+            W.setInnerHTML('player', node.game.tourRole);
+            W.setInnerHTML('player-choice', playerChoice);
+            W.addClass(W.getElementById('player'), playerColorClass);
+
+            W.setInnerHTML('other-player', otherPlayerRole);
+            W.addClass(W.getElementById('other-player'),
+                       otherPlayerColorClass);
+
+            W.setInnerHTML('other-player-choice',
+                           tourChoices[otherPlayerRole]);
+
+            W.setInnerHTML('payoff', payment + ' ' +
+            node.game.runningTotalPayoff.currency);
+            W.setInnerHTML('world-state', node.game.tourWorldState);
+
+            // Sets the role again.
+            node.game.plot.updateProperty(node.game.getNextStep(),
+                                          'role', node.game.tourRole);
+        }
+    });
+
+    stager.extendStep('tour-end', {
+        frame: 'end.htm',
+        done: function() {
+            node.game.runningTotalPayoff.money = 0;
+            node.game.runningTotalPayoff.update(0);
+
+            node.say('tour-over');
+        },
+        cb: function() {
+            W.setInnerHTML('info', node.game.infoText);
+            W.show('info');
+            W.setInnerHTML('total', node.game.tourPay + ' ' +
+            node.game.runningTotalPayoff.currency);
+        }
     });
 
     stager.extendStep('instructions', {
         frame: 'instructions.htm',
         cb: function() {
-            W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
-            W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTables.A);
-            W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTables.B);
-        }
-    });
+            var payoffTables;
+            payoffTables = this.payoffTables;
 
-    stager.extendStage('test', {
-        stepRule: stepRules.SOLO_STEP
-    });
-
-    stager.extendStep('step1', {
-        frame: 'practice-end.htm',
-    });
-
-    stager.extendStep('step2', {
-        frame: 'end.htm',
-    });
-
-    stager.extendStep('step3', {
-        frame: 'results.htm',
-    });
-
-    stager.extendStep('red-choice', {
-        donebutton: false,
-        frame: 'stopgostep.htm', // change this name
-        // role: function() { return this.role; },
-        // partner: function() { return this.partner; },
-        init: function() {
-            node.game.redChoice = null;
-        },
-        roles: {
-            RED: {
-// Timer can be specified here.
-//                 timer: {
-//                     milliseconds: settings.bidTime,
-//                     timeup: function() {
-//                         node.done(Math.floor(Math.random() * 2) ? 'STOP':'GO');
-//                     }
-//                 },
-                done: function(choice) {
-                    var button;
-
-                    button = W.getElementById('stop');
-                    button.disabled = true;
-
-                    button = W.getElementById('go');
-                    button.disabled = true;
-
-                    W.show('waiting_for_blue');
-                    W.setInnerHTML('red-decision', 'Your choice: ' + choice);
-                },
-                cb: function() {
-                    var buttonStop, buttonGo, payoffTableDiv1;
-                    var startTimer;
-
-                    if (node.game.checkIsPracticeStage()) {
-                        W.setInnerHTML('info', 'This is a practice stage.');
-                        W.show('info');
-                    }
-
-                    node.on.data('TABLE', function(message) {
-                        node.game.worldState = message.data;
-
-                        W.getElementById('payoff-table').appendChild(node.game.payoffTables[node.game.worldState]);
-                        W.show('red');
-                        // Write state of the world.
-                        W.setInnerHTML('state_of_world', node.game.worldState);
-
-                        // assumes same Stop payoff
-                        W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
-
-                        buttonStop = W.getElementById('stop');
-                        buttonStop.disabled = false;
-                        buttonGo = W.getElementById('go');
-                        buttonGo.disabled = false;
-
-                        buttonStop.onclick = function() {
-                            node.done('STOP');
-                        };
-
-                        buttonGo.onclick = function() {
-                            node.done('GO');
-                        };
-
-                        // Keep this comments for the moment!
-
-                        // ISSUE.
-                        //
-                        // Loading the frame for the step is async.
-                        // Then the step cb (this function) is executed.
-                        //
-                        // The TABLE message might arrive BEFORE or AFTER
-                        // the frame has finished loading.
-                        //
-                        // CASE A:
-                        // If it arrives BEFORE, it is actually unbuffered
-                        // and emitted right before emitting PLAYING.
-                        //
-                        // When playing is emitted VisualTimer reads the options
-                        // from the step and tries to configure itself.
-                        //
-                        // With the version of VisualTimer in the last git pull,
-                        // if there are no options, VisualTimer sets itself to 0
-                        // (regardless of the state of the timer), so it was
-                        // killing the timer started in the TABLE cb (here).
-                        // Now this is fixed, and if a timer is running is not
-                        // stopped.
-                        //
-                        // CASE B:
-                        // If it arrives AFTER the frame is loaded,
-                        // PLAYING has already been emitted. In this
-                        // case the code would have worked fine. BUT the
-                        // measurament of the time spent on the step is not
-                        // precise. Time passed starts from PLAYING until DONE,
-                        // however here PLAYING is called before the full
-                        // interface is loaded (after TABLE is emitted).
-
-                        // Alternative solution for timer issue.
-                        // Instead of adding a timer property to step.
-
-                        // return;
-                        // Setup the timer.
-
-                        startTimer = function() {
-                            node.game.visualTimer.init({
-                                milliseconds: node.game.settings.bidTime,
-                                timeup: function() {
-                                    node.done(Math.floor(Math.random() * 2) ? 'STOP':'GO');
-                                }
-                            });
-                            node.game.visualTimer.start();
-                        };
-
-                        if (node.game.getStageLevel() ===
-                            node.constants.stageLevels.PLAYING) {
-
-                            startTimer();
-                        }
-                        else {
-                            node.once('PLAYING', function() {
-                                startTimer();
-                            });
-                        }
-
-                    });
-                }
-            },
-            BLUE: {
-                // done: function() {
-                //     W.hide('you_are_blue');
-                // },
-                cb: function() {
-                    if (node.game.checkIsPracticeStage()) {
-                        W.setInnerHTML('info', 'This is a practice stage.');
-                        W.show('info');
-                    }
-
-                    var span;
-
-                    W.show('blue');
-
-                    // Make the observer display visible.
-
-                    node.on.data('RED-CHOICE', function(msg) {
-                        node.game.redChoice = msg.data;
-
-                        W.show('make-blue-decision');
-                        W.hide('awaiting-red-decision');
-                        node.done();
-                    });
-                }
-            }
-        }
-    });
-
-    stager.extendStep('blue-choice', {
-        donebutton: false,
-        role: function() { return this.role; },
-        partner: function() { return this.partner; },
-        roles: {
-            RED: {
-                cb: function() {
-                    node.game.visualTimer.setToZero();
-
-                    node.on.data('BLUE-CHOICE', function(message) {
-                        node.done();
-                    });
-                }
-            },
-            BLUE: {
-                timer: {
-                    milliseconds: settings.bidTime,
-                    timeup: function() {
-                        node.done(Math.floor(Math.random() * 2) ? 'LEFT' : 'RIGHT');
-                    }
-                },
-                done: function() {
-                    var button;
-                    button = W.getElementById('left');
-                    button.disabled = true;
-                    button = W.getElementById('right');
-                    button.disabled = true;
-                },
-                cb: function() {
-                    var buttonLeft, buttonRight;
-                    var startTimer;
-
-                    W.show('make-blue-decision');
-                    W.setInnerHTML('red-choice', node.game.redChoice === 'STOP' ? 'STOP' : 'GO');
-                    W.show('red-choice');
-
-                    buttonLeft = W.getElementById('left');
-                    buttonLeft.disabled = false;
-
-                    buttonRight = W.getElementById('right');
-                    buttonRight.disabled = false;
-
-                    W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTables.A);
-                    W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTables.B);
-
-                    W.setInnerHTML('payoff-stop-blue', node.game.payoffStopBlue + ' ' + node.game.runningTotalPayoff.currency);
-
-                    buttonLeft.onclick = function() {
-                        node.done('LEFT');
-                    };
-
-                    buttonRight.onclick = function() {
-                        node.done('RIGHT');
-                    };
-                }
-            }
-        }
-    });
-
-    stager.extendStep('results', {
-        frame: 'results.htm',
-        role: function() { return this.role; },
-        partner: function() { return this.partner; },
-        roles: {
-            RED: {
-                timer: {
-                    milliseconds: settings.bidTime,
-                    timeup: function() {
-                        node.done();
-                    }
-                },
-                cb: function() {
-                    if (node.game.checkIsPracticeStage()) {
-                        W.setInnerHTML('info', 'This is a practice stage.');
-                        W.show('info');
-                    }
-
-                    node.on.data('RESULTS', function(message) {
-                        var otherPlayer;
-                        var otherPlayerChoice;
-
-                        otherPlayer = 'BLUE';
-                        otherPlayerChoice = message.data.choices.BLUE;
-
-                        node.game.runningTotalPayoff.update(message.data.payoffs.RED);
-                        node.game.totalPayoff += message.data.payoffs.RED;
-
-                        W.setInnerHTML('payoff', message.data.payoffs.RED + ' ' + node.game.runningTotalPayoff.currency);
-
-                        W.setInnerHTML('player', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
-                        W.addClass(W.getElementById('player'), 'red');
-                        W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
-                        W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
-                    });
-                }
-            },
-            BLUE: {
-                timer: {
-                    milliseconds: settings.bidTime,
-                    timeup: function() {
-                        node.done();
-                    }
-                },
-                cb: function() {
-                    if (node.game.checkIsPracticeStage()) {
-                        W.setInnerHTML('info', 'This is a practice stage.');
-                        W.show('info');
-                    }
-
-                    node.once.data('RESULTS', function(message) {
-                        var otherPlayer;
-                        var otherPlayerChoice;
-
-                        otherPlayer = 'RED';
-                        otherPlayerChoice = message.data.choices.RED;
-
-                        node.game.runningTotalPayoff.update(message.data.payoffs.BLUE);
-                        node.game.totalPayoff += message.data.payoffs.BLUE;
-
-                        W.setInnerHTML('payoff', message.data.payoffs.BLUE + ' ' + node.game.runningTotalPayoff.currency);
-
-                        W.setInnerHTML('player', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
-                        W.addClass(W.getElementById('player'), 'blue');
-                        W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
-                        W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
-                    });
-                }
-            }
-        }
-    });
-
-    stager.extendStep('end', {
-        donebutton: false,
-        frame: 'end.htm',
-        cb: function() {
-            node.game.visualTimer.setToZero();
-
-            W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
-            node.game.totalPayoff = 0;
-        },
-        done: function() {
-            node.game.runningTotalPayoff.money = 0;
-            node.game.runningTotalPayoff.update(0);
-        }
-    });
-
-    stager.extendStep('practice-end', {
-        frame: 'practice-end.htm',
-        timer: {
-            milliseconds: settings.bidTime,
-            timeup: function() {
-                node.done();
-            }
-        },
-        cb: function() {
-            W.setInnerHTML('total', node.game.totalPayoff + ' ' + node.game.runningTotalPayoff.currency);
-            node.game.totalPayoff = 0;
-        },
-        done: function() {
-            node.game.runningTotalPayoff.money = 0;
-            node.game.runningTotalPayoff.update(0);
+            W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' +
+            node.game.runningTotalPayoff.currency);
+            W.getElementById('payoff-matrix-a').appendChild(payoffTables.A);
+            W.getElementById('payoff-matrix-b').appendChild(payoffTables.B);
         }
     });
 

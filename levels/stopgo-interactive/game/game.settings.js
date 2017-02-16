@@ -62,7 +62,7 @@ module.exports = {
         },
         {
             RED: 'STOP',
-            BLUE: 'RIGHT' // eventually make it use RANDOM as a keyword
+            BLUE: 'RANDOM'
         }
     ],
 
