@@ -1,6 +1,6 @@
 /**
  * # Player type implementation of the game stages
- * Copyright(c) 2016 brenste <myemail>
+ * Copyright(c) 2016
  * MIT Licensed
  *
  * Each client type must extend / implement the stages defined in `game.stages`.
@@ -147,7 +147,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var roundNumber;
                     var tourChoices;
                     var correctButton, wrongButton, stopGoButtons;
-                    var buttonOrder;
                     var payoffTable;
 
                     roundNumber = this.getRound() - 1;
@@ -156,7 +155,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     W.setInnerHTML('info', node.game.infoText);
                     W.setInnerHTML('tour-instructions', 'Please choose ' +
-                                   '<strong>' + tourChoices.RED + 
+                                   '<strong>' + tourChoices.RED +
                                    '</strong> below. In a normal game you ' +
                                    'may choose whatever you like.');
 
@@ -170,9 +169,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                    ' ' + node.game.runningTotalPayoff.currency);
 
                     stopGoButtons = W.getElementById('stop-go-buttons');
-                    buttonOrder = {
-                        buttons: node.JSUS.shuffleElements(stopGoButtons)
-                    };
 
                     if (tourChoices.RED === 'STOP') {
                         correctButton = W.getElementById('stop');
@@ -187,7 +183,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         correctButton.disabled = true;
                         wrongButton.disabled = true;
 
-                        node.game.clickDone(buttonOrder);
+                        node.game.clickDone();
                         W.setInnerHTML('red-decision',
                                        'Your choice: ' + tourChoices.RED);
                     };
@@ -224,7 +220,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var roundNumber;
                     var tourChoices;
                     var leftRightButtons;
-                    var buttonOrder;
 
                     roundNumber = node.game.getRound() - 1;
                     tourChoices = node.game.settings.tour[roundNumber];
@@ -240,19 +235,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.setInnerHTML('red-choice', tourChoices.RED);
 
                     leftRightButtons = W.getElementById('left-right-buttons');
-                    buttonOrder = {
-                        buttons: node.JSUS.shuffleElements(leftRightButtons)
-                    };
 
                     if (tourChoices.BLUE === 'LEFT') {
                         W.getElementById('left').onclick = function() {
-                            node.game.clickDone(buttonOrder);
+                            node.game.clickDone();
                         };
                         W.getElementById('right').onclick = this.clickWrong;
                     }
                     else if (tourChoices.BLUE === 'RIGHT') {
                         W.getElementById('right').onclick = function() {
-                            node.game.clickDone(buttonOrder);
+                            node.game.clickDone();
                         };
                         W.getElementById('left').onclick = this.clickWrong;
                     }
