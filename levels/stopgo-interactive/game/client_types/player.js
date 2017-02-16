@@ -1,6 +1,6 @@
 /**
 * # Player type implementation of the game stages
-* Copyright(c) 2016 brenste <myemail>
+* Copyright(c) 2016
 * MIT Licensed
 *
 * Each client type must extend / implement the stages defined in `game.stages`.
@@ -29,53 +29,79 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var frame = W.generateFrame();
         W.setHeaderPosition('top');
 
+        var payoffs;
         var payoffTableA, payoffTableB;
+        var redRowA, redRowB;
+        var blueRowA, blueRowB;
+        var tableClasses;
+
+        var payoffStopRed, payoffStopBlue;
 
         // Add widgets.
         this.visualRound = node.widgets.append('VisualRound', header);
-        node.game.visualTimer = node.widgets.append('VisualTimer', header);
-        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header);
-        this.runningTotalPayoff.init({currency: 'USD'});
-        this.doneButton = node.widgets.append('DoneButton', header, {text: 'Done'});
-
-        node.game.visualTimer.setToZero();
+        this.visualTimer = node.widgets.append('VisualTimer', header);
+        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header,
+                                                      {currency: 'USD'});
+        this.doneButton = node.widgets.append('DoneButton', header,
+                                              {text: 'Done'});
 
         // node.player.stage.round
 
         // Add payoff tables
         node.game.totalPayoff = 0;
-        var payoffs = node.game.settings.payoffs;
+        payoffs = node.game.settings.payoffs;
+
+        redRowA = ['Red', payoffs.GO.A.LEFT.RED, payoffs.GO.A.RIGHT.RED];
+        blueRowA = ['Blue', payoffs.GO.A.LEFT.BLUE, payoffs.GO.A.RIGHT.BLUE];
 
         payoffTableA = new W.Table();
         payoffTableA.addRow(['', 'Left', 'Right']);
-        payoffTableA.addRow(['Red', payoffs.GO.A.LEFT.RED, payoffs.GO.A.RIGHT.RED]);
-        payoffTableA.addRow(['Blue', payoffs.GO.A.LEFT.BLUE, payoffs.GO.A.RIGHT.BLUE]);
+        payoffTableA.addRow(redRowA);
+        payoffTableA.addRow(blueRowA);
 
+        redRowB = ['Red', payoffs.GO.B.LEFT.RED, payoffs.GO.B.RIGHT.RED];
+        blueRowB = ['Blue', payoffs.GO.B.LEFT.BLUE, payoffs.GO.B.RIGHT.BLUE];
         payoffTableB = new W.Table();
         payoffTableB.addRow(['', 'Left', 'Right']);
-        payoffTableB.addRow(['Red', payoffs.GO.B.LEFT.RED, payoffs.GO.B.RIGHT.RED]);
-        payoffTableB.addRow(['Blue', payoffs.GO.B.LEFT.BLUE, payoffs.GO.B.RIGHT.BLUE]);
+        payoffTableB.addRow(redRowB);
+        payoffTableB.addRow(blueRowB);
 
-        var payoffStopRed = payoffs.STOP.RED;
-        var payoffStopBlue = payoffs.STOP.BLUE;
+        payoffStopRed = payoffs.STOP.RED;
+        payoffStopBlue = payoffs.STOP.BLUE;
 
-        node.game.payoffTables = {};
-        node.game.payoffTables.A = W.addClass(payoffTableA.parse(), 'table table-bordered');
-        node.game.payoffTables.B = W.addClass(payoffTableB.parse(), 'table table-bordered');
-        node.game.payoffStopRed = payoffStopRed;
-        node.game.payoffStopBlue = payoffStopBlue;
+        tableClasses = 'table table-bordered';
+
+        this.payoffTables = {};
+        this.payoffTables.A = W.addClass(payoffTableA.parse(), tableClasses);
+        this.payoffTables.B = W.addClass(payoffTableB.parse(), tableClasses);
+        this.payoffStopRed = payoffStopRed;
+        this.payoffStopBlue = payoffStopBlue;
+
+        node.game.playerRole = null;
+        node.game.redChoice = null;
+        node.game.blueChoice = null;
+        node.game.worldState = null;
 
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
-
     });
 
     stager.extendStep('instructions', {
         frame: 'instructions.htm',
+        timer: {
+            milliseconds: settings.bidTime,
+            timeup: function() {
+                node.done();
+            }
+        },
         cb: function() {
-            W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
-            W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTables.A);
-            W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTables.B);
+            var payoffTables;
+            payoffTables = node.game.payoffTables;
+
+            W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' +
+            node.game.runningTotalPayoff.currency);
+            W.getElementById('payoff-matrix-a').appendChild(payoffTables.A);
+            W.getElementById('payoff-matrix-b').appendChild(payoffTables.B);
         }
     });
 
@@ -89,7 +115,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         },
         roles: {
             RED: {
-                done: function(choice) {
+                init: function() {
+                    node.game.playerRole = 'RED';
+                },
+                done: function() {
                     var button;
 
                     button = W.getElementById('stop');
@@ -97,36 +126,36 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     button = W.getElementById('go');
                     button.disabled = true;
-
-                    W.show('waiting_for_blue');
-                    W.setInnerHTML('red-decision', 'Your choice: ' + choice);
                 },
                 cb: function() {
                     var buttonStop, buttonGo, payoffTableDiv1;
                     var startTimer;
+                    var payoffTable;
 
                     node.on.data('TABLE', function(message) {
                         node.game.worldState = message.data;
+                        payoffTable = node.game.payoffTables[node.game.worldState];
 
-                        W.getElementById('payoff-table').appendChild(node.game.payoffTables[node.game.worldState]);
                         W.show('red');
-                        // Write state of the world.
-                        W.setInnerHTML('state_of_world', node.game.worldState);
-
-                        // assumes same Stop payoff
-                        W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' + node.game.runningTotalPayoff.currency);
+                        W.getElementById('payoff-table').appendChild(payoffTable);
+                        W.setInnerHTML('world-state', node.game.worldState);
+                        W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
+                                       ' ' + node.game.runningTotalPayoff.currency);
 
                         buttonStop = W.getElementById('stop');
                         buttonStop.disabled = false;
+
                         buttonGo = W.getElementById('go');
                         buttonGo.disabled = false;
 
                         buttonStop.onclick = function() {
-                            node.done('STOP');
+                            node.game.redChoice = 'STOP';
+                            node.done({redChoice: node.game.redChoice});
                         };
 
                         buttonGo.onclick = function() {
-                            node.done('GO');
+                            node.game.redChoice = 'GO';
+                            node.done({redChoice: node.game.redChoice});
                         };
 
                         // Keep this comments for the moment!
@@ -172,7 +201,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                             node.game.visualTimer.init({
                                 milliseconds: node.game.settings.bidTime,
                                 timeup: function() {
-                                    node.done(Math.floor(Math.random() * 2) ? 'STOP':'GO');
+                                    node.game.redChoice = Math.floor(Math.random() * 2) ? 'STOP':'GO';
+                                    node.done({redChoice: node.game.redChoice});
                                 }
                             });
                             node.game.visualTimer.start();
@@ -180,7 +210,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         if (node.game.getStageLevel() ===
                             node.constants.stageLevels.PLAYING) {
-
                             startTimer();
                         }
                         else {
@@ -188,23 +217,24 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                 startTimer();
                             });
                         }
-
                     });
                 }
             },
             BLUE: {
+                init: function() {
+                    node.game.playerRole = 'BLUE';
+                },
                 cb: function() {
                     var span;
 
                     W.show('blue');
-
                     // Make the observer display visible.
 
-                    node.on.data('RED-CHOICE', function(msg) {
-                        node.game.redChoice = msg.data;
+                    node.on.data('RED-CHOICE', function(message) {
+                        node.game.redChoice = message.data;
 
-                        W.show('make-blue-decision');
-                        W.hide('awaiting-red-decision');
+                        // W.show('make-blue-decision');
+                        // W.hide('awaiting-red-decision');
                         node.done();
                     });
                 }
@@ -216,12 +246,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         donebutton: false,
         role: function() { return this.role; },
         partner: function() { return this.partner; },
+        init: function() {
+            node.game.blueChoice = null;
+        },
         roles: {
             RED: {
                 cb: function() {
+                    W.show('waiting_for_blue');
+                    W.setInnerHTML('red-decision', 'Your choice: ' + node.game.redChoice);
+
                     node.game.visualTimer.setToZero();
 
                     node.on.data('BLUE-CHOICE', function(message) {
+                        node.game.blueChoice = message.data;
                         node.done();
                     });
                 }
@@ -230,13 +267,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 timer: {
                     milliseconds: settings.bidTime,
                     timeup: function() {
-                        node.done(Math.floor(Math.random() * 2) ? 'LEFT' : 'RIGHT');
+                        node.game.blueChoice = Math.floor(Math.random() * 2) ? 'LEFT' : 'RIGHT';
+                        node.done({blueChoice: node.game.blueChoice});
                     }
                 },
                 done: function() {
                     var button;
+
                     button = W.getElementById('left');
                     button.disabled = true;
+
                     button = W.getElementById('right');
                     button.disabled = true;
                 },
@@ -245,6 +285,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var startTimer;
 
                     W.show('make-blue-decision');
+                    W.hide('awaiting-red-decision');
+
                     W.setInnerHTML('red-choice', node.game.redChoice === 'STOP' ? 'STOP' : 'GO');
                     W.show('red-choice');
 
@@ -254,17 +296,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     buttonRight = W.getElementById('right');
                     buttonRight.disabled = false;
 
-                    W.getElementById('payoff-matrix-a').appendChild(node.game.payoffTables.A);
-                    W.getElementById('payoff-matrix-b').appendChild(node.game.payoffTables.B);
+                    W.getElementById('payoff-matrix-a')
+                    .appendChild(node.game.payoffTables.A);
+                    W.getElementById('payoff-matrix-b')
+                    .appendChild(node.game.payoffTables.B);
 
-                    W.setInnerHTML('payoff-stop-blue', node.game.payoffStopBlue + ' ' + node.game.runningTotalPayoff.currency);
+                    W.setInnerHTML('payoff-stop-blue', this.payoffStopBlue + ' ' + node.game.runningTotalPayoff.currency);
 
                     buttonLeft.onclick = function() {
-                        node.done('LEFT');
+                        node.game.blueChoice = 'LEFT';
+                        node.done({blueChoice: node.game.blueChoice});
                     };
 
                     buttonRight.onclick = function() {
-                        node.done('RIGHT');
+                        node.game.blueChoice = 'RIGHT';
+                        node.done({blueChoice: node.game.blueChoice});
                     };
                 }
             }
@@ -273,64 +319,46 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('results', {
         frame: 'results.htm',
-        role: function() { return this.role; },
-        partner: function() { return this.partner; },
-        roles: {
-            RED: {
-                timer: {
-                    milliseconds: settings.bidTime,
-                    timeup: function() {
-                        node.done();
-                    }
-                },
-                cb: function() {
-                    node.on.data('RESULTS', function(message) {
-                        var otherPlayer;
-                        var otherPlayerChoice;
+        cb: function() {
+            var payoffs, payment;
+            var choices;
+            var otherPlayerRole, otherPlayerChoice;
+            var playerChoice;
+            var playerColorClass, otherPlayerColorClass;
+            var worldState;
 
-                        otherPlayer = 'BLUE';
-                        otherPlayerChoice = message.data.choices.BLUE;
+            node.on.data('RESULTS', function(message) {
+                payoffs = message.data.payoffs;
+                choices = message.data.choices;
+                worldState = message.data.world;
 
-                        node.game.runningTotalPayoff.update(message.data.payoffs.RED);
-                        node.game.totalPayoff += message.data.payoffs.RED;
+                otherPlayerRole = node.game.playerRole === 'RED' ? 'BLUE' : 'RED';
 
-                        W.setInnerHTML('payoff', message.data.payoffs.RED + ' ' + node.game.runningTotalPayoff.currency);
+                payment = payoffs[node.game.playerRole];
+                playerChoice = choices[node.game.playerRole];
+                otherPlayerChoice = choices[otherPlayerRole];
 
-                        W.setInnerHTML('player', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
-                        W.setInnerHTML('player-choice', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
-                        W.addClass(W.getElementById('player'), 'red');
-                        W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
-                        W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
-                    });
-                }
-            },
-            BLUE: {
-                timer: {
-                    milliseconds: settings.bidTime,
-                    timeup: function() {
-                        node.done();
-                    }
-                },
-                cb: function() {
-                    node.once.data('RESULTS', function(message) {
-                        var otherPlayer;
-                        var otherPlayerChoice;
+                node.game.tourPay += payment;
+                node.game.runningTotalPayoff.update(payment);
 
-                        otherPlayer = 'RED';
-                        otherPlayerChoice = message.data.choices.RED;
+                playerColorClass = node.game.playerRole.toLowerCase();
+                otherPlayerColorClass = otherPlayerRole.toLowerCase();
 
-                        node.game.runningTotalPayoff.update(message.data.payoffs.BLUE);
-                        node.game.totalPayoff += message.data.payoffs.BLUE;
+                W.setInnerHTML('player', node.game.playerRole);
+                W.setInnerHTML('player-choice', playerChoice);
+                W.addClass(W.getElementById('player'), playerColorClass);
 
-                        W.setInnerHTML('payoff', message.data.payoffs.BLUE + ' ' + node.game.runningTotalPayoff.currency);
+                W.setInnerHTML('other-player', otherPlayerRole);
+                W.addClass(W.getElementById('other-player'),
+                           otherPlayerColorClass);
 
-                        W.setInnerHTML('player', node.game.role.charAt(0).toUpperCase() + node.game.role.slice(1));
-                        W.addClass(W.getElementById('player'), 'blue');
-                        W.setInnerHTML('other-player', otherPlayer.charAt(0).toUpperCase() + otherPlayer.slice(1));
-                        W.setInnerHTML('other-player-choice', otherPlayerChoice.toUpperCase());
-                    });
-                }
-            }
+                W.setInnerHTML('other-player-choice',
+                               otherPlayerChoice);
+
+                W.setInnerHTML('payoff', payment + ' ' +
+                node.game.runningTotalPayoff.currency);
+                W.setInnerHTML('world-state', worldState);
+            });
         }
     });
 

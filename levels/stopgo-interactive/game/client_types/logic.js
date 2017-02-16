@@ -81,7 +81,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 console.log('DONE: '+id);
 
                 if (id === roles.RED) {
-                    redChoice = msg.data.GO ? 'GO' : 'STOP';
+                    redChoice = msg.data.redChoice;
                     node.game.choices[roles.RED] = { redChoice: redChoice };
 
                     if (playerObj.clientType !== 'bot') {
@@ -94,16 +94,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     // validate selection
                     // TODO: move validation to before node.game.redChoice
                     // is assigned.
-                    if (msg.data.GO || msg.data.STOP) {
+                    if (msg.data.redChoice) {
                         node.say('RED-CHOICE', roles.BLUE, redChoice);
                     }
                     else {
                         node.err('Error: Invalid Red choice. ID of sender: '+id);
                     }
                 }
-                // else {
-                // node.err('Error: Sender not Red player. ID of sender: '+id);
-                // }
             });
         }
     });
@@ -121,7 +118,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 roles = getRoles(id, otherId);
 
                 if (id === roles.BLUE) {
-                    blueChoice = msg.data.LEFT ? 'LEFT' : 'RIGHT';
+                    blueChoice = msg.data.blueChoice;
 
                     node.game.choices[roles.RED].blueChoice = blueChoice;
 
@@ -129,35 +126,23 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     if (playerObj.clientType !== 'bot') {
                         if (node.game.choices[roles.RED].blueChoice === 'RIGHT') {
-                            channel.numChooseRight += 1;
+                            channel.numChooseRight += 1;8
                         }
                         channel.numRightLeftDecisions += 1;
                         // console.log('RIGHT/LEFT: ' + channel.numChooseRight / channel.numRightLeftDecisions);
                     }
 
                     // TODO: move validation to before node.game.choices[roles.RED].blueChoice is assigned
-                    if (msg.data.LEFT || msg.data.RIGHT) {
+                    if (msg.data.blueChoice) {
                         node.say('BLUE-CHOICE', roles.RED, blueChoice);
                     }
                     else {
                         node.err('Error: Invalid Blue choice. ID of sender: '+id);
                     }
                 }
-                // else {
-                // node.err('Error: Sender not Blue player. ID of sender: '+id);
-                // }
             });
         }
     });
-
-    // stager.extendStage('test', {
-    //     stepRule: function(stage, myStageLevel, pl, game) {
-    //         if (pl.isStepDone('1.3.3')) {
-    //             game.breakStage(true);
-    //             return true;
-    //         };
-    //     }
-    // });
 
     stager.extendStep('results', {
         cb: function() {
@@ -175,7 +160,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 // roles = getRoles(match[0], match[1]);
 
                 roles = allMatchesInRound[i];
-                // debugger
+
                 payoffs = calculatePayoffs(node.game.choices[roles.RED], node.game.tables[roles.RED]);
 
                 addData(roles.RED, payoffs.RED);
@@ -187,7 +172,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     choices: {
                         RED: node.game.choices[roles.RED].redChoice,
                         BLUE: node.game.choices[roles.RED].blueChoice
-                    }
+                    },
+
+                    world: node.game.tables[roles.RED]
                 };
 
                 node.say('RESULTS', roles.RED, results);

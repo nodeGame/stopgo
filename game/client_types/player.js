@@ -1,5 +1,5 @@
 /**
- * # Player type implementation of the game stages
+ * # Player type implementation of the game stages (Tour)
  * Copyright(c) 2016
  * MIT Licensed
  *
