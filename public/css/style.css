@@ -79,3 +79,8 @@ p {
 h1 {
     margin-bottom: 0.8em;
 }
+
+#game-starts-in {
+    font-size: 24px;
+    font-weight: bold;
+}

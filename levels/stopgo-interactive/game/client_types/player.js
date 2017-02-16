@@ -87,23 +87,29 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // this.debugInfo = node.widgets.append('DebugInfo', header)
     });
 
-    stager.extendStep('instructions', {
-        frame: 'instructions.htm',
-        timer: {
-            milliseconds: settings.bidTime,
-            timeup: function() {
-                node.done();
-            }
-        },
+    stager.extendStep('instructions-light', {
+        frame: 'instructions-light.htm',
         cb: function() {
-            var payoffTables;
-            payoffTables = node.game.payoffTables;
+            var startsIn, s;
 
-            W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' +
-            node.game.runningTotalPayoff.currency);
-            W.getElementById('payoff-matrix-a').appendChild(payoffTables.A);
-            W.getElementById('payoff-matrix-b').appendChild(payoffTables.B);
+            // Display time left middle of page.
+            s = node.game.settings;
+            startsIn = W.getElementById('game-starts-in');
+            startsIn.innerHTML = Math.floor(s.TIMER.instructions_light/1000);
+            node.game.visualTimer.gameTimer.addHook({
+                hook: function() {
+                    startsIn.innerHTML = Math.floor(this.timeLeft/1000);
+                },
+                ctx: node.game.visualTimer.gameTimer,
+                name: 'extraTimer'
+            });
+        },
+        exit: function() {
+            if (this.visualTimer) {
+                this.visualTimer.gameTimer.removeHook('extraTimer');
+            }
         }
+        
     });
 
     stager.extendStep('red-choice', {

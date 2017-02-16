@@ -42,8 +42,8 @@ module.exports = function(stager, settings) {
     // stager.skip('quiz');
     // stager.skip('practice');
     // stager.skip('practice-end');
-    // stager.skip('choose-tour');
-    // stager.skip('tour');
+    stager.skip('choose-tour');
+    stager.skip('tour');
     // stager.skip('tour-end');
     // stager.skip('test');
 
