@@ -12,7 +12,7 @@
 module.exports = function(stager, settings) {
 
     stager
-        .next('instructions')
+        .next('instructions-light')
         .repeat('game', settings.REPEAT)
         .next('end')
         .gameover();

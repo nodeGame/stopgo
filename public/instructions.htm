@@ -8,25 +8,67 @@
       Please read the following instructions carefully.
     </div>
     <div id="instructions">
-      <p>Welcome to Stop/Go!</p>
-      <p>This session will consist of 3 matches. At the end of the 3 separate rounds, you will be paid the total amount you have earned during the 3 matches.</p>
-      <p>Each match goes as follows: You will be assigned to be either Red or Blue player. You will be paired anonymously with another player of the other color. Red moves first in the match, and has two choices: <strong>STOP</strong> or <strong>GO</strong>.</p>
-      <p>If the Red player chooses <strong>STOP</strong>, the match stops and both players receive a payoff of <span id="payoff-stop"> __ </span>.</p>
+      <h3>Welcome to Stop/Go!</h3>
+      <p>
+        The experiment consists of <strong>3 matches</strong>. At the
+        end of the 3 separate matches, you will be paid the total
+        amount you have earned [TODO update with USD].
+      </p>
 
-      <p>If the Red player chooses <strong>GO</strong>, it becomes the Blue player's turn to choose either <strong>LEFT</strong> or <strong>RIGHT</strong>. The payoff in this case depends on what move the Blue player has made and the payoff table being used. One of the two payoff tables, shown below, is randomly chosen (there is a 50/50 chance that either table is chosen).</p>
+      <p>
+        You will be assigned to be either
+        the
+        <strong>Red</strong> or the <strong>Blue</strong> player, and
+        you will keep your role for all 3 matches.
+      </p>
+      
+      <p>
+        Each match, you will be anonymously paired with a different
+        player of the other role. You will never play again with the
+        same player. Red moves first in the match, and has two
+        choices: <strong>STOP</strong> or <strong>GO</strong>.
+      </p>
 
-      <p><em>Only the Red player will see this payoff table.</em> The Blue player will not see the payoff table. The payoff table will be randomly reselected each match.</p>
+      <p>
+        If the Red player chooses <strong>STOP</strong>, the match
+        stops and both players receive a payoff
+        of <span id="payoff-stop"> __ </span>.
+      </p>
+
+      <p>
+        If the Red player chooses <strong>GO</strong>, it is the Blue
+        player's turn to choose either <strong>LEFT</strong>
+        or <strong>RIGHT</strong>. In this case, the payoff depends on
+        what move the Blue player has made and on the <strong>state of
+        the world</strong>, which is randomly chosen to
+        be <strong>A</strong> or <strong>B</strong> (there is a 50/50
+        chance for either). Each state of the world has a different
+        payoff table, as shown below:
+      </p>
+      
+      <div class="row">
+        <div id="payoff-matrix-a" class="panel panel-default half-size">
+          <div class="panel-heading">Payoff Table A</div>
+          <!-- Payoff Table A added here on init-->
+        </div>
+        <div id="payoff-matrix-b" class="panel panel-default half-size">
+          <div class="panel-heading">Payoff Table B</div>
+          <!-- Payoff Table B added here on init -->
+        </div>
+      </div>
+
+      <p>
+        <em>Important!</em> Only the Red player knows the state of the
+        world <em>before</em> making the decision. The Blue player
+        will be informed only <em>after</em> making a decision. The
+        state of the world is randomly reselected each match.
+      </p>
         <!-- NOTE: currently the stop/game doesn't actually rematch, nor does it keep you as a red or blue player throughout the 3 matches -->
     </div>
-    <div class="row">
-      <div id="payoff-matrix-a" class="panel panel-default half-size">
-        <div class="panel-heading">Payoff Table A</div>
-        <!-- Payoff Table A added here on init-->
-      </div>
-      <div id="payoff-matrix-b" class="panel panel-default half-size">
-        <div class="panel-heading">Payoff Table B</div>
-        <!-- Payoff Table B added here on init -->
-      </div>
-    </div>
-    <p>If you understood the instructions correctly press the <em>"Done"</em> button to proceed to the game.</p>
+    
+    <p>
+      If you understood the instructions correctly press
+      the <em>"Done"</em> button to start a short tutorial of the
+      game.
+    </p>
 </body>

@@ -338,6 +338,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
+            W.setInnerHTML('tour-instructions', 'Click <strong>"Done"' +
+                           '</strong> to be moved into the waiting room.');
+            W.show('tour-instructions');
             W.setInnerHTML('total', node.game.tourPay + ' ' +
             node.game.runningTotalPayoff.currency);
         }
