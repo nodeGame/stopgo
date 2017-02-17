@@ -41,11 +41,15 @@ module.exports = {
      * used to initialize the game timer for the step.
      */
     TIMER: {
-        'instructions-light': 20000
+        'instructions-light': 20000,
+        'blue-choice': 2000,
+        'red-choice': 2000,
+        'results':3000
         // instructions: 60000
     },
 
-    bidTime: 60000,
+    // bidTime: 60000,
+    bidTime: 2000,
 
     // # Game specific properties
 

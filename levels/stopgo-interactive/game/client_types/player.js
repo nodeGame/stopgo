@@ -108,7 +108,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             if (this.visualTimer) {
                 this.visualTimer.gameTimer.removeHook('extraTimer');
             }
-        }        
+        }
     });
 
     stager.extendStep('red-choice', {
@@ -121,6 +121,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         },
         roles: {
             RED: {
+                timer: {
+                    milliseconds: settings.TIMER['red-choice'],
+                    timeup: function() {
+                        var redChoice;
+
+                        redChoice = Math.floor(Math.random() * 2) ?
+                        'STOP':'GO';
+
+                        node.game.redChoice = redChoice;
+
+                        node.done({redChoice: redChoice});
+                    }
+                },
                 init: function() {
                     node.game.playerRole = 'RED';
                 },
@@ -203,12 +216,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         // Alternative solution for timer issue.
                         // Instead of adding a timer property to step.
 
-                        // return;
+                        return;
                         // Setup the timer.
 
                         startTimer = function() {
                             node.game.visualTimer.init({
-                                milliseconds: node.game.settings.bidTime,
+                                milliseconds: node.game.settings['red-choice'],
                                 timeup: function() {
                                     var redChoice;
 
@@ -236,6 +249,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             },
             BLUE: {
+                timer: null,
                 init: function() {
                     node.game.playerRole = 'BLUE';
                 },
@@ -266,6 +280,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         },
         roles: {
             RED: {
+                timer: null,
                 cb: function() {
                     W.show('waiting_for_blue');
                     W.setInnerHTML('red-decision', 'Your choice: ' +
@@ -281,7 +296,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             },
             BLUE: {
                 timer: {
-                    milliseconds: settings.bidTime,
+                    milliseconds: settings.TIMER['blue-choice'],
                     timeup: function() {
                         node.game.blueChoice = Math.floor(Math.random() * 2) ?
                          'LEFT' : 'RIGHT';
@@ -337,12 +352,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('results', {
         frame: 'results.htm',
-        timer: {
-            milliseconds: settings.bidTime,
-            timeup: function() {
-                node.done();
-            }
-        },
         cb: function() {
             var payoffs, payment;
             var choices;
