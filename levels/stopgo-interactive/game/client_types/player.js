@@ -284,9 +284,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     W.show('waiting_for_blue');
                     W.setInnerHTML('red-decision', 'Your choice: ' +
-                    node.game.redChoice);
-
-                    node.game.visualTimer.setToZero();
+                                   node.game.redChoice);
 
                     node.on.data('BLUE-CHOICE', function(message) {
                         node.game.blueChoice = message.data;
