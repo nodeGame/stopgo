@@ -42,9 +42,9 @@ module.exports = {
      */
     TIMER: {
         'instructions-light': 20000,
-        'blue-choice': 2000,
-        'red-choice': 2000,
-        'results':3000
+        'blue-choice': 20000,
+        'red-choice': 20000,
+        'results': 10000
         // instructions: 60000
     },
 

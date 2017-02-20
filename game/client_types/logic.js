@@ -28,6 +28,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.setDefaultStepRule(stepRules.SOLO);
 
     stager.setOnInit(function() {
+
         node.on.data('tour-over', function(msg) {
             var db;
 

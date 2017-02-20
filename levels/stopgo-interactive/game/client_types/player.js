@@ -1,6 +1,6 @@
 /**
 * # Player type implementation of the game stages
-* Copyright(c) 2016
+* Copyright(c) 2017
 * MIT Licensed
 *
 * Each client type must extend / implement the stages defined in `game.stages`.
@@ -121,18 +121,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         },
         roles: {
             RED: {
-                timer: {
-                    milliseconds: settings.TIMER['red-choice'],
-                    timeup: function() {
-                        var redChoice;
-
-                        redChoice = Math.floor(Math.random() * 2) ?
-                        'STOP':'GO';
-
-                        node.game.redChoice = redChoice;
-
-                        node.done({redChoice: redChoice});
-                    }
+                timeup: function() {
+                    var redChoice;
+                    redChoice = Math.floor(Math.random() * 2) ? 'STOP':'GO';
+                    node.game.redChoice = redChoice;
+                    node.done({ redChoice: redChoice });
                 },
                 init: function() {
                     node.game.playerRole = 'RED';
@@ -293,13 +286,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             },
             BLUE: {
-                timer: {
-                    milliseconds: settings.TIMER['blue-choice'],
-                    timeup: function() {
-                        node.game.blueChoice = Math.floor(Math.random() * 2) ?
-                         'LEFT' : 'RIGHT';
-                        node.done({blueChoice: node.game.blueChoice});
-                    }
+                timeup: function() {
+                    node.game.blueChoice = Math.floor(Math.random() * 2) ?
+                        'LEFT' : 'RIGHT';
+                    node.done({blueChoice: node.game.blueChoice});
                 },
                 done: function() {
                     var button;
