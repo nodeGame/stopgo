@@ -122,10 +122,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         roles: {
             RED: {
                 timeup: function() {
-                    var redChoice;
-                    redChoice = Math.floor(Math.random() * 2) ? 'STOP':'GO';
-                    node.game.redChoice = redChoice;
-                    node.done({ redChoice: redChoice });
+                    var buttonId;
+                    buttonId = Math.floor(Math.random() * 2) ? 'stop':'go';
+                    W.getElementById(buttonId).click();
                 },
                 init: function() {
                     node.game.playerRole = 'RED';
@@ -165,12 +164,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         buttonStop.onclick = function() {
                             node.game.redChoice = 'STOP';
-                            node.done({redChoice: node.game.redChoice});
+                            node.done({ redChoice: node.game.redChoice });
                         };
 
                         buttonGo.onclick = function() {
                             node.game.redChoice = 'GO';
-                            node.done({redChoice: node.game.redChoice});
+                            node.done({ redChoice: node.game.redChoice });
                         };
 
                         // Keep this comments for the moment!
@@ -286,10 +285,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             },
             BLUE: {
-                timeup: function() {
-                    node.game.blueChoice = Math.floor(Math.random() * 2) ?
-                        'LEFT' : 'RIGHT';
-                    node.done({blueChoice: node.game.blueChoice});
+                timeup: function() {                    
+                    var buttonId;
+                    buttonId = Math.floor(Math.random() * 2) ? 'left' : 'right';
+                    W.getElementById(buttonId).click();
                 },
                 done: function() {
                     var button;

@@ -41,8 +41,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         _cb = stepObj._roles[this.role];
                         _cb.call(this);
 
-                        console.log('HHHHHHHHHHHere ', stepId, node.game.role);
-
                         if (stepId === 'red-choice') {
                             if (node.game.role === 'RED') {
 
