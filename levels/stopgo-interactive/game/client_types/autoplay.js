@@ -1,6 +1,6 @@
 /**
- * # Bot type implementation of the game stages
- * Copyright(c) {YEAR} {AUTHOR} <{AUTHOR_EMAIL}>
+ * # Autoplay implementation of the game stages
+ * Copyright(c) Stefano Balietti 2017
  * MIT Licensed
  *
  * Handles automatic play.
@@ -8,12 +8,11 @@
  * http://www.nodegame.org
  */
 
- var ngc =  require('nodegame-client');
-
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     var channel = gameRoom.channel;
     var node = gameRoom.node;
+    var ngc =  require('nodegame-client');
 
     var game, stager;
 
@@ -24,33 +23,69 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager = ngc.getStager(game.plot);
 
     stager.extendAllSteps(function(o) {
-        o._cb = o.cb;
-        o.cb = function() {
-            var _cb, stepObj, id;
-            stepObj = this.getCurrentStepObj();
-            // Invoking original callback.
-            _cb = stepObj._cb;
-            _cb.call(this);
+        var role;
+        if (o.roles) {
+            o._roles = {};
+            for (role in o.roles) {
+                if (o.roles.hasOwnProperty(role)) {
+                    // Copy only cb property.
+                    o._roles[role] = o.roles[role].cb;
+                    // Make a new one.
+                    o.roles[role].cb = function() {
+                        var _cb, stepObj, stepId;
+                        var rndButtonId;
 
-            id = stepObj.id
+                        stepObj = this.getCurrentStepObj();
+                        stepId = stepObj.id
 
-            // TODO: Adapt to specific steps.
-            if (id === 'stoporgo') {
-              node.on.data('ROLE_RED', function() {
-                var randomButtonId = Math.floor(Math.random() * 2) ? 'stop':'go';
-                W.getElementById(randomButtonId).click();
-              });
+                        _cb = stepObj._roles[this.role];
+                        _cb.call(this);
+
+                        console.log('HHHHHHHHHHHere ', stepId, node.game.role);
+
+                        if (stepId === 'red-choice') {
+                            if (node.game.role === 'RED') {
+
+                                // Wait a bit, the button is still hidden.
+                                setTimeout(function() {
+                                    rndButtonId = Math.floor(Math.random()*2) ? 
+                                        'stop':'go';
+                                    W.getElementById(rndButtonId).click();
+                                }, 2000);
+                            }
+                        }
+                        else if (stepId === 'blue-choice') {
+                            if (node.game.role === 'BLUE') {
+
+                                // Wait a bit, the button is still hidden.
+                                setTimeout(function() {
+                                    rndButtonId = Math.floor(Math.random()*2) ?
+                                        'left':'right';
+                                    W.getElementById(rndButtonId).click();
+                                }, 2000);
+                            }
+                        }
+                        else {
+                            node.timer.randomDone(2000);
+                        }
+                      
+                    }
+                }
             }
-            else if (id === 'leftorright') {
-              if (node.game.role === 'blue') {
-                var randomButtonId = Math.floor(Math.random() * 2) ? 'left':'right';
-                W.getElementById(randomButtonId).click();
-              }
-            }
-            else {
-              node.timer.randomDone(2000);
-            }
-        };
+        }
+        else {
+            o._cb = o.cb;
+            o.cb = function() {
+                var _cb, stepObj, stepId;
+                stepObj = this.getCurrentStepObj();
+                stepId = stepObj.id
+
+                _cb = stepObj._cb;
+                _cb.call(this);
+                             
+                node.timer.randomDone(2000);                
+            };
+        }
         return o;
     });
 
