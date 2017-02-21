@@ -249,6 +249,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var span;
 
                     W.show('blue');
+                    W.addLoadingDots(W.getElementById('awaiting-red-decision'), 5);
                     // Make the observer display visible.
 
                     node.on.data('RED-CHOICE', function(message) {
@@ -274,7 +275,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             RED: {
                 timer: null,
                 cb: function() {
-                    W.show('waiting_for_blue');
+                    W.show('awaiting-blue-decision');
+                    W.addLoadingDots(W.getElementById('awaiting-blue-decision'), 5);
+
                     W.setInnerHTML('red-decision', 'Your choice: ' +
                                    node.game.redChoice);
 
@@ -285,7 +288,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             },
             BLUE: {
-                timeup: function() {                    
+                timeup: function() {
                     var buttonId;
                     buttonId = Math.floor(Math.random() * 2) ? 'left' : 'right';
                     W.getElementById(buttonId).click();

@@ -44,6 +44,10 @@ button {
     color: white;
 }
 
+#stop-go-buttons {
+    margin: 1em 0;
+}
+
 .red {
     color: rgb(203, 2, 2);
     text-decoration: underline;
