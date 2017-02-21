@@ -1,6 +1,6 @@
 /**
 * # Player type implementation of the game stages
-* Copyright(c) 2016
+* Copyright(c) 2017
 * MIT Licensed
 *
 * Each client type must extend / implement the stages defined in `game.stages`.
@@ -121,18 +121,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         },
         roles: {
             RED: {
-                timer: {
-                    milliseconds: settings.TIMER['red-choice'],
-                    timeup: function() {
-                        var redChoice;
-
-                        redChoice = Math.floor(Math.random() * 2) ?
-                        'STOP':'GO';
-
-                        node.game.redChoice = redChoice;
-
-                        node.done({redChoice: redChoice});
-                    }
+                timeup: function() {
+                    var buttonId;
+                    buttonId = Math.floor(Math.random() * 2) ? 'stop':'go';
+                    W.getElementById(buttonId).click();
                 },
                 init: function() {
                     node.game.playerRole = 'RED';
@@ -172,12 +164,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         buttonStop.onclick = function() {
                             node.game.redChoice = 'STOP';
-                            node.done({redChoice: node.game.redChoice});
+                            node.done({ redChoice: node.game.redChoice });
                         };
 
                         buttonGo.onclick = function() {
                             node.game.redChoice = 'GO';
-                            node.done({redChoice: node.game.redChoice});
+                            node.done({ redChoice: node.game.redChoice });
                         };
 
                         // Keep this comments for the moment!
@@ -284,9 +276,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     W.show('waiting_for_blue');
                     W.setInnerHTML('red-decision', 'Your choice: ' +
-                    node.game.redChoice);
-
-                    node.game.visualTimer.setToZero();
+                                   node.game.redChoice);
 
                     node.on.data('BLUE-CHOICE', function(message) {
                         node.game.blueChoice = message.data;
@@ -295,13 +285,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             },
             BLUE: {
-                timer: {
-                    milliseconds: settings.TIMER['blue-choice'],
-                    timeup: function() {
-                        node.game.blueChoice = Math.floor(Math.random() * 2) ?
-                         'LEFT' : 'RIGHT';
-                        node.done({blueChoice: node.game.blueChoice});
-                    }
+                timeup: function() {                    
+                    var buttonId;
+                    buttonId = Math.floor(Math.random() * 2) ? 'left' : 'right';
+                    W.getElementById(buttonId).click();
                 },
                 done: function() {
                     var button;

@@ -38,7 +38,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('red-choice', {
         matcher: {
-            roles: ['RED', 'BLUE'],
+            roles: [ 'RED', 'BLUE' ],
+            fixedRoles: true,
+            canMatchSameRole: false,
             match: 'roundrobin',
             cycle: 'repeat'//,
             // skipBye: false,
