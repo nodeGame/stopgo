@@ -1,9 +1,15 @@
 body {
+    font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 20px;
     max-width: 42em;
     width: 90%;
     margin: 0 auto;
     margin-top: 30px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: normal;
 }
 
 #stop, #go, #right, #left {
