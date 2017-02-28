@@ -12,75 +12,76 @@
     </div>
     <div id="red" style="display:none">
         <p>
-          You are <strong class="red">Red</strong>, and the state of
-          the world is: <strong><span id="world-state">
-              __ </span></strong><em> (Blue does not know this)</em>
-        </p>
-
-        Make your choice:
-        <div id="stop-go-buttons">
-            <button id="stop" class="btn btn-lg btn-primary">Stop</button>
-            <button id="go" class="btn btn-lg btn-primary">Go</button>
-        </div>
-        <p id="red-decision"></p>
-        <p id="awaiting-blue-decision" style="display:none">
-            Waiting for Blue to make a decision
-        </p>
-
-        <em>Remember:</em>
-        <p>
-          If you choose <strong>STOP</strong>, both you and Blue
-          receive <span id="payoff-stop"> __ </span>.
-
-          <br/> If you choose <strong>GO</strong>, then Blue choses
-          Left or Right and the payoff table is as follows:
-        </p>
-        <div id="payoff-table" class="panel panel-default">
-            <div class="panel-heading">
-              Payoff Table
+            You are <strong class="red">Red</strong>, and the state of
+            the world is: <strong><span id="world-state">
+                __ </span></strong><em> (Blue does not know this)</em>
+            </p>
+            <p id="make-your-choice">
+                Make your choice:
+            </p>
+            <div id="stop-go-buttons">
+                <button id="stop" class="btn btn-lg btn-primary">Stop</button>
+                <button id="go" class="btn btn-lg btn-primary">Go</button>
             </div>
-        </div>
-    </div>
-
-    <div id="blue" style="display:none">
-        <p>You are <strong class="blue">Blue</strong>.</p>
-        <p id="awaiting-red-decision">
-            Waiting for Red to make a decision
-        </p>
-        <div id="make-blue-decision" style="display: none">
-            <p>The other player, Red, chose <strong><span id="red-choice">__</span></strong>.</p>
-
-            <p>Choose wisely! Make your choice:
-
-              <div id="left-right-buttons">
-                <button id="left" class="btn btn-lg btn-primary">Left</button>
-                <button id="right" class="btn btn-lg btn-primary">Right</button>
-              </div>
+            <p id="red-decision"></p>
+            <p id="awaiting-blue-decision" style="display:none">
+                Waiting for Blue to make a decision
             </p>
 
             <em>Remember:</em>
-            <p id="red-chose-stop">
-              If Red choses <strong>STOP</strong>, you
-              get <span id="payoff-stop-blue"> __ </span>, regardless
-              of your choice.
-              <br/>
-              If Red choses <strong>GO</strong>, there
-              is an equal chance for either of the payoff tables below:
-            </p>
+            <p>
+                If you choose <strong>STOP</strong>, both you and Blue
+                receive <span id="payoff-stop"> __ </span>.
 
-            <div class="row">
-                <div id="payoff-matrix-a" class="panel panel-default half-size">
-                    <div class="panel-heading">Payoff Table A</div>
-                    <!-- Payoff Table A added here on init-->
-                </div>
-                <div id="payoff-matrix-b" class="panel panel-default half-size">
-                    <div class="panel-heading">Payoff Table B</div>
-                    <!-- Payoff Table B added here on init -->
+                <br/> If you choose <strong>GO</strong>, then Blue choses
+                Left or Right and the payoff table is as follows:
+            </p>
+            <div id="payoff-table" class="panel panel-default">
+                <div class="panel-heading">
+                    Payoff Table
                 </div>
             </div>
-
-
         </div>
-    </div>
 
-</body>
+        <div id="blue" style="display:none">
+            <p>You are <strong class="blue">Blue</strong>.</p>
+            <p id="awaiting-red-decision">
+                Waiting for Red to make a decision
+            </p>
+            <div id="make-blue-decision" style="display: none">
+                <p>The other player, Red, chose <strong><span id="red-choice">__</span></strong>.</p>
+
+                <p>Choose wisely! Make your choice:
+
+                    <div id="left-right-buttons">
+                        <button id="left" class="btn btn-lg btn-primary">Left</button>
+                        <button id="right" class="btn btn-lg btn-primary">Right</button>
+                    </div>
+                </p>
+
+                <em>Remember:</em>
+                <p id="red-chose-stop">
+                    If Red choses <strong>STOP</strong>, you
+                    get <span id="payoff-stop-blue"> __ </span>, regardless
+                    of your choice.
+                    <br/>
+                    If Red choses <strong>GO</strong>, there
+                    is an equal chance for either of the payoff tables below:
+                </p>
+
+                <div class="row">
+                    <div id="payoff-matrix-a" class="panel panel-default half-size">
+                        <div class="panel-heading">Payoff Table A</div>
+                        <!-- Payoff Table A added here on init-->
+                    </div>
+                    <div id="payoff-matrix-b" class="panel panel-default half-size">
+                        <div class="panel-heading">Payoff Table B</div>
+                        <!-- Payoff Table B added here on init -->
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </body>

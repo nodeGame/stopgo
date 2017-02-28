@@ -277,9 +277,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     W.show('awaiting-blue-decision');
                     W.addLoadingDots(W.getElementById('awaiting-blue-decision'), 5);
+                    W.hide('stop-go-buttons');
+                    W.hide('make-your-choice');
 
-                    W.setInnerHTML('red-decision', 'Your choice: ' +
-                                   node.game.redChoice);
+                    W.setInnerHTML('red-decision', '<strong>Your choice: ' +
+                                   node.game.redChoice + '.</strong>');
 
                     node.on.data('BLUE-CHOICE', function(message) {
                         node.game.blueChoice = message.data;
@@ -385,20 +387,30 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             });
         }
     });
+    //
+    // stager.extendStep('end', {
+    //     donebutton: false,
+    //     frame: 'end.htm',
+    //     cb: function() {
+    //         node.game.visualTimer.setToZero();
+    //
+    //         W.setInnerHTML('total', node.game.totalPayment+
+    //                        ' ' + node.game.runningTotalPayoff.currency);
+    //         node.game.totalPayment = 0;
+    //     },
+    //     done: function() {
+    //         node.game.runningTotalPayoff.money = 0;
+    //         node.game.runningTotalPayoff.update(0);
+    //     }
+    // });
 
     stager.extendStep('end', {
         donebutton: false,
-        frame: 'end.htm',
-        cb: function() {
-            node.game.visualTimer.setToZero();
-
-            W.setInnerHTML('total', node.game.totalPayment+
-                           ' ' + node.game.runningTotalPayoff.currency);
-            node.game.totalPayment = 0;
-        },
-        done: function() {
-            node.game.runningTotalPayoff.money = 0;
-            node.game.runningTotalPayoff.update(0);
+        widget: {
+            name: 'EndScreen',
+            options: {
+                showEmailForm: true
+            }
         }
     });
 
