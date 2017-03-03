@@ -30,13 +30,16 @@
         this.bodyDiv.appendChild(this.endScreen);
 
         var errStr;
-        var button, input;
+        var button, input, form;
 
         button = W.getElementById('submit-email');
+        form = W.getElementById('email-form');
         input = W.getElementById('email');
         errStr = 'Check your email and click here again';
 
-        button.onclick = function() {
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+
             var email, indexAt, indexDot;
             email = input.value;
             if (email.trim().length > 5) {
@@ -66,7 +69,7 @@
             else {
                 counter++;
             }
-        };
+        }, true);
     };
 
     EndScreen.prototype.createHTML = function(totalWin, exitCode) {
@@ -94,24 +97,26 @@
         if (totalWin) {
             // totalWinHTML = '<p>Your total win: ' + totalWin + '</p>';
             totalWinHTML = '<p>Your total win: ' +
-                           '<span id="total"></span>' +
+                           '<input id="total" class="form-control" disabled></input>' +
                            '</p>';
             endScreenHTML += totalWinHTML;
         }
         if (exitCode) {
             // exitCodeHTML = '<p>Your Exit code: ' + exitCode + '</p>';
             exitCodeHTML = '<p>Your exit code: ' +
-                           '<span id="exit-code"></span>' +
+                           '<input id="exit-code" class="form-control" disabled></input>' +
                            '</p>';
             endScreenHTML += exitCodeHTML;
         }
         if (showEmailForm) {
-            emailHTML = '<label for="Email">' +
+            emailHTML = '<form id="email-form">' +
+            '<label for="email">' +
             '<p>Would you like to be contacted again for future experiments?</p>' +
             '<p>If so, leave your email here and press submit:</p>' +
             '</label>' +
             '<input id="email" type="text" placeholder="Email" class="form-control"/>' +
-            '<button class="btn btn-info" id="submit-email" type="submit">Submit</button>';
+            '<input class="btn btn-info" id="submit-email" type="submit"></input>' +
+            '</form>';
             endScreenHTML += emailHTML;
         }
 
@@ -140,8 +145,8 @@
             totalWin = data.total;
             exitCode = data.exit;
 
-            W.setInnerHTML('total', totalWin);
-            W.setInnerHTML('exit-code', exitCode);
+            W.getElementById('total').value = totalWin;
+            W.getElementById('exit-code').value = exitCode;
         });
     };
 })(node);

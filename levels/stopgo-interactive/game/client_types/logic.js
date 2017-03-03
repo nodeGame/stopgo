@@ -234,11 +234,40 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 });
             }
 
+            node.on.data('email', function(msg) {
+                var id, code;
+                id = msg.from;
+
+                code = channel.registry.getClient(id);
+                if (!code) {
+                    console.log('ERROR: no codewen in endgame:', id);
+                    return;
+                }
+
+                // Write email.
+                appendToEmailFile(msg.data, code);
+            });
+
             node.on.data('done', function(msg) {
                 saveAll();
             });
         }
     });
+
+    function appendToEmailFile(email, code) {
+        var row, gameDir;
+
+        gameDir = channel.getGameDir();
+        row  = '"' + (code.id || code.AccessCode || 'NA') + '", "' +
+            (code.workerId || 'NA') + '", "' + email + '"\n';
+
+        fs.appendFile(gameDir + 'data/email.csv', row, function(err) {
+            if (err) {
+                console.log(err);
+                console.log(row);
+            }
+        });
+    }
 
     function getRoles(id1, id2) {
         var redId, blueId;
@@ -303,16 +332,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     }
 
     function saveAll() {
-        var gDir, line;
-        gDir = channel.getGameDir();
-        node.game.memory.save( gDir + 'data/data_' + node.nodename + '.json');
+        var gameDir, line;
+        gameDir = channel.getGameDir();
+        node.game.memory.save( gameDir + 'data/data_' + node.nodename + '.json');
 
         line = node.nodename + ',' + channel.numStopGoDecisions +
                ',' + channel.numChooseStop +
                ',' + channel.numRightLeftDecisions +
                ',' + channel.numChooseRight + "\n";
 
-        fs.appendFile(gDir + 'data/avgDecisions.csv', line, function(err) {
+        fs.appendFile(gameDir + 'data/avgDecisions.csv', line, function(err) {
             if (err) console.log('An error occurred saving: ' + line);
         });
     }

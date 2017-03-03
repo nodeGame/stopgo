@@ -46,7 +46,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                                 // Wait a bit, the button is still hidden.
                                 setTimeout(function() {
-                                    rndButtonId = Math.floor(Math.random()*2) ? 
+                                    rndButtonId = Math.floor(Math.random()*2) ?
                                         'stop':'go';
                                     W.getElementById(rndButtonId).click();
                                 }, 2000);
@@ -63,10 +63,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                 }, 2000);
                             }
                         }
-                        else {
+                        else if (stepId !== 'end') {
                             node.timer.randomDone(2000);
                         }
-                      
+
                     }
                 }
             }
@@ -80,8 +80,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 _cb = stepObj._cb;
                 _cb.call(this);
-                             
-                node.timer.randomDone(2000);                
+
+                node.timer.randomDone(2000);
             };
         }
         return o;
