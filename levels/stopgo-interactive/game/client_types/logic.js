@@ -34,6 +34,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         node.game.choices = {};
         node.game.tables = {};
+        node.game.totals = {};
     });
 
     stager.extendStep('red-choice', {
@@ -100,8 +101,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         node.say('RED-CHOICE', roles.BLUE, redChoice);
                     }
                     else {
-                        console.log('aaaaaah',msg)
-                        node.err('Error: Invalid Red choice. ID of sender: '+id);
+                        // console.log('aaaaaah',msg)
+                        node.err('Error: Invalid Red choice. '+
+                                 'ID of sender: '+id);
                     }
                 }
             });
@@ -128,8 +130,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     playerObj = node.game.pl.get(id);
 
                     if (playerObj.clientType !== 'bot') {
-                        if (node.game.choices[roles.RED].blueChoice === 'RIGHT') {
-                            channel.numChooseRight += 1;8
+                        if (node.game.choices[roles.RED].blueChoice
+                            === 'RIGHT') {
+                            channel.numChooseRight += 1;
                         }
                         channel.numRightLeftDecisions += 1;
                         // console.log('RIGHT/LEFT: ' + channel.numChooseRight / channel.numRightLeftDecisions);
@@ -140,8 +143,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         node.say('BLUE-CHOICE', roles.RED, blueChoice);
                     }
                     else {
-                        console.log('missing blueCHoice ', id);
-                        node.err('Error: Invalid Blue choice. ID of sender: '+id);
+                        console.log('missing blueChoice ', id);
+                        node.err('Error: Invalid Blue choice. ' +
+                                 'ID of sender: '+id);
                     }
                 }
                 else {
@@ -168,7 +172,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 roles = allMatchesInRound[i];
 
-                payoffs = calculatePayoffs(node.game.choices[roles.RED], node.game.tables[roles.RED]);
+                payoffs = calculatePayoffs(node.game.choices[roles.RED],
+                                           node.game.tables[roles.RED]);
+
+                if (!node.game.totals[roles.RED]) {
+                    node.game.totals[roles.RED] = 0;
+                }
+                node.game.totals[roles.RED] += payoffs.RED;;
+
+                if (!node.game.totals[roles.BLUE]) {
+                    node.game.totals[roles.BLUE] = 0;
+                }
+                node.game.totals[roles.BLUE] += payoffs.BLUE;;
 
                 addData(roles.RED, payoffs.RED);
                 addData(roles.BLUE, payoffs.BLUE);
@@ -193,11 +208,66 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         cb: function() {
+            var code;
+            var allMatchesInRound;
+            var roles;
+            var i;
+
+            allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
+
+            // allMatchesInRound = node.game.matcher.getMatches();
+
+            for (i = 0; i < allMatchesInRound.length; i++) {
+                roles = allMatchesInRound[i];
+                code = channel.registry.getClient(roles.RED);
+
+                node.say('WIN', roles.RED, {
+                    total: node.game.totals[roles.RED],
+                    exit: code.ExitCode
+                });
+
+                code = channel.registry.getClient(roles.BLUE);
+
+                node.say('WIN', roles.BLUE, {
+                    total: node.game.totals[roles.BLUE],
+                    exit: code.ExitCode
+                });
+            }
+
+            node.on.data('email', function(msg) {
+                var id, code;
+                id = msg.from;
+
+                code = channel.registry.getClient(id);
+                if (!code) {
+                    console.log('ERROR: no codewen in endgame:', id);
+                    return;
+                }
+
+                // Write email.
+                appendToEmailFile(msg.data, code);
+            });
+
             node.on.data('done', function(msg) {
                 saveAll();
             });
         }
     });
+
+    function appendToEmailFile(email, code) {
+        var row, gameDir;
+
+        gameDir = channel.getGameDir();
+        row  = '"' + (code.id || code.AccessCode || 'NA') + '", "' +
+            (code.workerId || 'NA') + '", "' + email + '"\n';
+
+        fs.appendFile(gameDir + 'data/email.csv', row, function(err) {
+            if (err) {
+                console.log(err);
+                console.log(row);
+            }
+        });
+    }
 
     function getRoles(id1, id2) {
         var redId, blueId;
@@ -262,13 +332,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     }
 
     function saveAll() {
-        var gDir, line;
-        gDir = channel.getGameDir();
-        node.game.memory.save( gDir + 'data/data_' + node.nodename + '.json');
+        var gameDir, line;
+        gameDir = channel.getGameDir();
+        node.game.memory.save( gameDir + 'data/data_' + node.nodename + '.json');
 
-        line = node.nodename + ',' + channel.numStopGoDecisions + ',' + channel.numChooseStop +
-        ',' + channel.numRightLeftDecisions + ',' + channel.numChooseRight + "\n";
-        fs.appendFile(gDir + 'data/avgDecisions.csv', line, function(err) {
+        line = node.nodename + ',' + channel.numStopGoDecisions +
+               ',' + channel.numChooseStop +
+               ',' + channel.numRightLeftDecisions +
+               ',' + channel.numChooseRight + "\n";
+
+        fs.appendFile(gameDir + 'data/avgDecisions.csv', line, function(err) {
             if (err) console.log('An error occurred saving: ' + line);
         });
     }
