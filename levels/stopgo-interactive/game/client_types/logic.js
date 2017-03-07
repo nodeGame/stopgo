@@ -53,7 +53,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             });
 
-            bot.game.stop();
+            return;
+            if (bot.game.isStoppable()) bot.game.stop();
             // If a decision was made already from RED...
             bot.game.gotoStep(player.stage, {
                 role: node.game.matcher.getRoleFor(player.id)

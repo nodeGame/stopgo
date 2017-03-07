@@ -92,6 +92,10 @@ p {
     margin-bottom: 0.5em;
 }
 
+.btn {
+    white-space: normal;
+}
+
 #endscreen-feedback {
     resize: vertical;
 }
