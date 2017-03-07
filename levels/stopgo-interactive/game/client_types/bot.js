@@ -18,11 +18,45 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     game = {};
     game.nodename = 'bot';
 
+    var stager = require('nodegame-client').getStager();
+
     stager.setDefaultCallback(function() {
         var that;
         that = this;
         console.log('Stage: ' , that.getCurrentGameStage());
         that.node.timer.randomDone();
+    });
+
+
+    stager.setOnInit(function() {
+
+        var payoffs;
+        var payoffTableA, payoffTableB;
+        var redRowA, redRowB;
+        var blueRowA, blueRowB;
+        var tableClasses;
+
+        var payoffStopRed, payoffStopBlue;
+
+        // Add payoff tables
+        node.game.totalPayoff = 0;
+        payoffs = node.game.settings.payoffs;
+
+        payoffStopRed = payoffs.STOP.RED;
+        payoffStopBlue = payoffs.STOP.BLUE;
+
+        tableClasses = 'table table-bordered';
+
+        this.payoffTables = {};
+
+        node.game.playerRole = null;
+        node.game.redChoice = null;
+        node.game.blueChoice = null;
+        node.game.worldState = null;
+        node.game.totalPayment = 0;
+
+        // Additional debug information while developing the game.
+        // this.debugInfo = node.widgets.append('DebugInfo', header)
     });
 
     stager.extendStep('red-choice', {

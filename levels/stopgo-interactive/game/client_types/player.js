@@ -406,9 +406,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         donebutton: false,
+        frame: 'end.htm',
         widget: {
             name: 'EndScreen',
+            root: "body",
             options: {
+                title: false,
                 showEmailForm: true
             }
         }

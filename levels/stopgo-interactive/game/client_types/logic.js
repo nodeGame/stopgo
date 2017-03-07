@@ -35,6 +35,36 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.choices = {};
         node.game.tables = {};
         node.game.totals = {};
+
+        node.on.pdisconnect(function(player) {
+            player.allowReconnect = false; // check if registry maybe
+
+            var bot = channel.connectBot({
+                room: gameRoom,
+                // id: player.id, Otherwise it gets the wrong clinetType
+                clientType: 'bot',
+                setup: {
+                    settings: {
+                        botType: 'dynamic',
+                        // 'dynamic' for based on player results
+                        chanceOfStop: 0.5,
+                        chanceOfRight: 0.5
+                    }
+                }
+            });
+
+            bot.game.stop();
+            // If a decision was made already from RED...
+            bot.game.gotoStep(player.stage, {
+                role: node.game.matcher.getRoleFor(player.id)
+            });
+
+        });
+
+
+        // stager.setDefaultProperty('minPlayers', [
+        //    1,
+        //    function() {
     });
 
     stager.extendStep('red-choice', {
@@ -135,10 +165,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                             channel.numChooseRight += 1;
                         }
                         channel.numRightLeftDecisions += 1;
-                        // console.log('RIGHT/LEFT: ' + channel.numChooseRight / channel.numRightLeftDecisions);
+                        // console.log('RIGHT/LEFT: ' + channel.numChooseRight
+                        // / channel.numRightLeftDecisions);
                     }
 
-                    // TODO: move validation to before node.game.choices[roles.RED].blueChoice is assigned
+                    // TODO: move validation to before
+                    // node.game.choices[roles.RED].blueChoice is assigned
                     if (msg.data.blueChoice) {
                         node.say('BLUE-CHOICE', roles.RED, blueChoice);
                     }
@@ -245,7 +277,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
 
                 // Write email.
-                appendToEmailFile(msg.data, code);
+                appendToCSVFile(msg.data, code, 'email');
+            });
+
+            node.on.data('feedback', function(msg) {
+                var id, code;
+                id = msg.from;
+
+                code = channel.registry.getClient(id);
+                if (!code) {
+                    console.log('ERROR: no codewen in endgame:', id);
+                    return;
+                }
+
+                // Write email.
+                appendToCSVFile(msg.data, code, 'feedback');
             });
 
             node.on.data('done', function(msg) {
@@ -254,14 +300,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    function appendToEmailFile(email, code) {
+    function appendToCSVFile(email, code, fileName) {
         var row, gameDir;
 
         gameDir = channel.getGameDir();
         row  = '"' + (code.id || code.AccessCode || 'NA') + '", "' +
             (code.workerId || 'NA') + '", "' + email + '"\n';
 
-        fs.appendFile(gameDir + 'data/email.csv', row, function(err) {
+        fs.appendFile(gameDir + 'data/' + fileName + '.csv', row,
+                      function(err) {
             if (err) {
                 console.log(err);
                 console.log(row);
@@ -334,7 +381,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     function saveAll() {
         var gameDir, line;
         gameDir = channel.getGameDir();
-        node.game.memory.save( gameDir + 'data/data_' + node.nodename + '.json');
+        node.game.memory.save(gameDir + 'data/data_' + node.nodename +
+                              '.json');
 
         line = node.nodename + ',' + channel.numStopGoDecisions +
                ',' + channel.numChooseStop +
@@ -345,7 +393,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             if (err) console.log('An error occurred saving: ' + line);
         });
     }
-
 
     return {
         nodename: 'lgc' + counter,
