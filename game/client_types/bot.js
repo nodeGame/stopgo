@@ -18,6 +18,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     game = {};
     game.nodename = 'bot';
 
+    stager.setOnInit
+
     stager.setDefaultCallback(function() {
         var that;
         that = this;

@@ -63,9 +63,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                 }, 2000);
                             }
                         }
-                        else if (stepId !== 'end') {
-                            node.timer.randomDone(2000);
-                        }
 
                     }
                 }
@@ -81,7 +78,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 _cb = stepObj._cb;
                 _cb.call(this);
 
-                node.timer.randomDone(2000);
+                if (stepId !== 'end') {
+                    node.timer.randomDone(2000);
+                }
             };
         }
         return o;

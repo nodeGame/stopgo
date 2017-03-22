@@ -5,11 +5,11 @@
 /* What a mess */
 
 body {
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -18,87 +18,87 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 div#ng_header {
-  height: auto;
-  /*min-height: 75px;*/
-  padding: 10px 15px;
-  box-shadow: 0 0 15px lightgrey;
-  position: relative;
-  max-width: 42em;
-  width: 100%;
-  font-size: 20px;
-  border-radius: 5px;
+    height: auto;
+    /*min-height: 75px;*/
+    padding: 10px 15px;
+    box-shadow: 0 0 15px lightgrey;
+    position: relative;
+    max-width: 42em;
+    width: 100%;
+    font-size: 20px;
+    border-radius: 0px 0px 5px 5px;
 }
 
 #ng_header::after {
-  content: "";
-  display: table;
-  clear: both;
+    content: "";
+    display: table;
+    clear: both;
 }
 
 .donebutton {
-  min-width: auto;
+    min-width: auto;
 }
 
 .ng_widget {
-  height: auto;
-  margin-bottom: 0;
+    height: auto;
+    margin-bottom: 0;
 }
 
 .ng_widget::after {
-  content: "";
-  display: table;
-  clear: both;
+    content: "";
+    display: table;
+    clear: both;
 }
 
 .panel-body::after {
-  content: "";
-  display: table;
-  clear: both;
+    content: "";
+    display: table;
+    clear: both;
 }
 
 #ng_header > .ng_widget > .panel-body {
-  height: auto;
-  padding: 10px 0 !important;
-  padding-right: 10px !important;
-  line-height: 1em !important;
-  font-size: 18px !important;
+    height: auto;
+    padding: 10px 0 !important;
+    padding-right: 10px !important;
+    line-height: 1em !important;
+    font-size: 18px !important;
 }
 
 .visualround, .visualtimer, .moneytalks {
-  padding-right: 10px;
+    padding-right: 10px;
 }
 
 .donebutton > .panel-body {
-  padding: 0 !important;
-  padding-right: 0 !important;
+    padding: 0 !important;
+    padding-right: 0 !important;
 }
 
 #ng_header > .ng_widget > .panel-heading {
-  padding: 10px 0 !important;
-  padding-right: 10px !important;
-  line-height: 1em !important;
-  font-size: 18px !important;
+    padding: 10px 0 !important;
+    padding-right: 10px !important;
+    line-height: 1em !important;
+    font-size: 18px !important;
 }
 
 .requirements {
-  max-width: 42em;
-  width: 90%;
-  margin: 0 auto;
+    max-width: 42em;
+    width: 90%;
+    margin: 0 auto;
 }
 
 .waitingroom {
-  max-width: 42em;
-  width: 90%;
-  margin: 0 auto;
+    max-width: 42em;
+    width: 90%;
+    margin: 0 auto;
 }
 
 .ng-page-title {
-  text-align: center;
+    text-align: center;
 }
 
 iframe#ng_mainframe {
-  width: 100%;
-  padding: 0;
+    width: 100%;
+    padding: 0;
 }
 
 div.ng_header_position-horizontal-t > .ng_widget > .panel-heading {
@@ -107,12 +107,12 @@ div.ng_header_position-horizontal-t > .ng_widget > .panel-heading {
 }
 
 .visualround > .panel-body > div > div.rounddiv {
-  font-size: 16px;
-  /*float: left;*/
+    font-size: 16px;
+    /*float: left;*/
 }
 
 .stagediv {
-  display: none;
+    display: none;
 }
 
 .ng_header_position-horizontal-t, .ng_header_position-horizontal-b {

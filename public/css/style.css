@@ -12,6 +12,12 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: normal;
 }
 
+.form-control {
+    height: 2em;
+    padding: 0.5em 0.5em;
+    font-size: inherit;
+}
+
 #stop, #go, #right, #left {
     width: 5em;
     /*background-color: rgb(231, 231, 231);*/
@@ -80,6 +86,27 @@ p {
     margin-left: 1.5%;
     margin-right: 1.5%;
     float: left;
+}
+
+#endscreen-email, #endscreen-feedback {
+    margin-bottom: 0.5em;
+}
+
+.btn {
+    white-space: normal;
+}
+
+#endscreen-feedback {
+    resize: vertical;
+}
+
+#endscreen-char-count {
+    display: block;
+    float: right;
+}
+
+#endscreen-email-form, #endscreen-feedback-form {
+    margin-bottom: 1em;
 }
 
 .container {
