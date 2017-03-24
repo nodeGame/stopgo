@@ -328,7 +328,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('tour-end', {
-        frame: 'end.htm',
+        frame: 'practice-end.htm',
         done: function() {
             node.game.runningTotalPayoff.money = 0;
             node.game.runningTotalPayoff.update(0);
