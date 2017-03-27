@@ -1,6 +1,6 @@
 /**
  * # Bot type implementation of the game stages
- * Copyright(c) {YEAR} {AUTHOR} <{AUTHOR_EMAIL}>
+ * Copyright(c) 2017 Stefano Balietti
  * MIT Licensed
  *
  * Handles automatic play.
@@ -24,33 +24,67 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager = ngc.getStager(game.plot);
 
     stager.extendAllSteps(function(o) {
-        o._cb = o.cb;
-        o.cb = function() {
-            var _cb, stepObj, id;
-            stepObj = this.getCurrentStepObj();
-            // Invoking original callback.
-            _cb = stepObj._cb;
-            _cb.call(this);
+        var role;
+        if (o.roles) {
+            o._roles = {};
+            for (role in o.roles) {
+                if (o.roles.hasOwnProperty(role)) {
+                    // Copy only cb property.
+                    o._roles[role] = o.roles[role].cb;
+                    // Make a new one.
+                    o.roles[role].cb = function() {
+                        var _cb, stepObj, stepId;
+                        var id;
 
-            id = stepObj.id
+                        stepObj = this.getCurrentStepObj();
+                        stepId = stepObj.id
 
-            // TODO: Adapt to specific steps.
-            if (id === 'stoporgo') {
-              node.on.data('ROLE_RED', function() {
-                var randomButtonId = Math.floor(Math.random() * 2) ? 'stop':'go';
-                W.getElementById(randomButtonId).click();
-              });
+                        _cb = stepObj._roles[this.role];
+                        _cb.call(this);
+
+                        if ((stepId === 'red-choice-tour' &&
+                             node.game.role === 'RED') ||
+                            (stepId === 'blue-choice-tour' &&
+                             node.game.role === 'BLUE')) {
+
+                            // Id of the button to press.
+                            id = node.game.tourChoices[node.game.role];
+                            id = id.toLowerCase();
+
+                            // Wait a bit, the button is still hidden.
+                            setTimeout(function() {
+                                W.getElementById(id).click();
+                            }, 2000);
+
+                        }
+                        else {
+                            node.timer.randomDone(2000);
+                        }
+                    }
+                }
             }
-            else if (id === 'leftorright') {
-              if (node.game.role === 'blue') {
-                var randomButtonId = Math.floor(Math.random() * 2) ? 'left':'right';
-                W.getElementById(randomButtonId).click();
-              }
-            }
-            else {
-              node.timer.randomDone(2000);
-            }
-        };
+        }
+        else {
+            o._cb = o.cb;
+            o.cb = function() {
+                var _cb, stepObj, stepId;
+                var tmp;
+
+                stepObj = this.getCurrentStepObj();
+                stepId = stepObj.id
+
+                _cb = stepObj._cb;
+                _cb.call(this);
+
+                if (stepId === 'choose-tour') {
+                    tmp = Math.random() > 0.5 ? 'RED' : 'BLUE';
+                    node.game.selectTourRole(tmp);
+                }
+                else {
+                    node.timer.randomDone(2000);
+                }
+            };
+        }
         return o;
     });
 

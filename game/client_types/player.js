@@ -112,7 +112,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         };
     });
 
-    stager.extendStep('choose-tour', { // why extend step not stage?
+    stager.extendStep('choose-tour', {
         donebutton: false,
         frame: 'choose-tour.htm',
         cb: function() {
@@ -134,8 +134,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('red-choice-tour', {
         frame: 'stopgostep.htm',
         init: function() {
-            // save this value
+            // Save this values.
             this.tourWorldState = Math.floor(Math.random() * 2) ? 'A' : 'B';
+            this.tourChoices = this.settings.tour[(this.getRound() - 1)];
         },
         roles: {
             RED: {
@@ -144,18 +145,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.show('waiting_for_blue');
                 },
                 cb: function() {
-                    var roundNumber;
-                    var tourChoices;
                     var correctButton, wrongButton, stopGoButtons;
                     var payoffTable;
 
-                    roundNumber = this.getRound() - 1;
-                    tourChoices = this.settings.tour[roundNumber];
                     payoffTable = this.payoffTables[node.game.tourWorldState];
 
                     W.setInnerHTML('info', node.game.infoText);
                     W.setInnerHTML('tour-instructions', 'Please choose ' +
-                                   '<strong>' + tourChoices.RED +
+                                   '<strong>' + this.tourChoices.RED +
                                    '</strong> below. In a normal game you ' +
                                    'may choose whatever you like.');
 
@@ -170,7 +167,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     stopGoButtons = W.getElementById('stop-go-buttons');
 
-                    if (tourChoices.RED === 'STOP') {
+                    if (this.tourChoices.RED === 'STOP') {
                         correctButton = W.getElementById('stop');
                         wrongButton = W.getElementById('go');
                     }
@@ -185,7 +182,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         node.game.clickDone();
                         W.setInnerHTML('red-decision',
-                                       'Your choice: ' + tourChoices.RED);
+                                       'Your choice: ' + this.tourChoices.RED);
                     };
                     wrongButton.onclick = node.game.clickWrong;
 
@@ -217,32 +214,27 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             BLUE: {
                 donebutton: false,
                 cb: function() {
-                    var roundNumber;
-                    var tourChoices;
                     var leftRightButtons;
-
-                    roundNumber = node.game.getRound() - 1;
-                    tourChoices = node.game.settings.tour[roundNumber];
 
                     W.setInnerHTML('info', node.game.infoText);
                     W.setInnerHTML('tour-instructions', 'Please choose ' +
-                    '<strong>' + tourChoices.BLUE + '</strong> below. ' +
+                    '<strong>' + this.tourChoices.BLUE + '</strong> below. ' +
                     'In a normal game you may choose whatever you like.');
 
                     W.show('make-blue-decision');
                     W.hide('awaiting-red-decision');
 
-                    W.setInnerHTML('red-choice', tourChoices.RED);
+                    W.setInnerHTML('red-choice', this.tourChoices.RED);
 
                     leftRightButtons = W.getElementById('left-right-buttons');
 
-                    if (tourChoices.BLUE === 'LEFT') {
+                    if (this.tourChoices.BLUE === 'LEFT') {
                         W.getElementById('left').onclick = function() {
                             node.game.clickDone();
                         };
                         W.getElementById('right').onclick = this.clickWrong;
                     }
-                    else if (tourChoices.BLUE === 'RIGHT') {
+                    else if (this.tourChoices.BLUE === 'RIGHT') {
                         W.getElementById('right').onclick = function() {
                             node.game.clickDone();
                         };
@@ -273,8 +265,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('results-tour', {
         frame: 'results.htm',
         cb: function() {
-            var roundNumber;
-            var tourChoices;
             var payoffs;
             var otherPlayerRole;
             var payment;
@@ -282,8 +272,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var playerColorClass, otherPlayerColorClass;
             var payoffsGo;
 
-            roundNumber = node.game.getRound() - 1;
-            tourChoices = node.game.settings.tour[roundNumber];
             payoffs = node.game.settings.payoffs;
             otherPlayerRole = node.game.tourRole === 'RED' ? 'BLUE' : 'RED';
 
@@ -292,8 +280,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             payoffsGo = payoffs.GO[this.tourWorldState];
 
-            if (tourChoices.RED === 'GO') {
-                payment = payoffsGo[tourChoices.BLUE][this.tourRole];
+            if (this.tourChoices.RED === 'GO') {
+                payment = payoffsGo[this.tourChoices.BLUE][this.tourRole];
             }
             else {
                 payment = payoffs.STOP[node.game.tourRole];
@@ -302,7 +290,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.game.tourPay += payment;
             node.game.runningTotalPayoff.update(payment);
 
-            playerChoice = tourChoices[node.game.tourRole].toUpperCase();
+            playerChoice = this.tourChoices[node.game.tourRole].toUpperCase();
             playerColorClass = node.game.tourRole.toLowerCase();
             otherPlayerColorClass = otherPlayerRole.toLowerCase();
 
@@ -315,7 +303,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                        otherPlayerColorClass);
 
             W.setInnerHTML('other-player-choice',
-                           tourChoices[otherPlayerRole]);
+                           this.tourChoices[otherPlayerRole]);
 
             W.setInnerHTML('payoff', payment + ' ' +
             node.game.runningTotalPayoff.currency);
