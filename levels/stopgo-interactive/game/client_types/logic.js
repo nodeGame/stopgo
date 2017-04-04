@@ -53,12 +53,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             });
 
-            return;
-            if (bot.game.isStoppable()) bot.game.stop();
-            // If a decision was made already from RED...
-            bot.game.gotoStep(player.stage, {
-                role: node.game.matcher.getRoleFor(player.id)
-            });
+            //if (bot.game.isStoppable()) bot.game.stop();
+            // bot.on('NODEGAME_READY', function() {
+            setTimeout(function() {
+              return;
+                // If a decision was made already from RED...
+debugger
+                node.game.matcher.replaceId(player.id, bot.id);
+
+                bot.game.gotoStep(player.stage, {
+                    role: node.game.matcher.getRoleFor(player.id)
+                });
+            }, 3000);
 
         });
 

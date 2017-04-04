@@ -41,9 +41,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             }, 10);
 
             // Save client's data.
-            db = node.game.memory.player[msg.from];
-            // node.game.memory.save('aa.json');
-            db.save('data_tour.json', { flag: 'a' });
+            if (node.game.memory.player[msg.from]) {
+              db = node.game.memory.player[msg.from];
+              // node.game.memory.save('aa.json');
+              db.save('data_tour.json', { flag: 'a' });
+            }
         });
     });
 
