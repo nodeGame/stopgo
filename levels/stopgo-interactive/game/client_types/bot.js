@@ -1,6 +1,6 @@
 /**
  * # Bot type implementation of the game stages
- * Copyright(c) 2016 brenste <myemail>
+ * Copyright(c) 2017 Stefano Balietti
  * MIT Licensed
  *
  * http://www.nodegame.org
@@ -9,22 +9,24 @@
 
 "use strict";
 
+var ngc = require('nodegame-client');
+
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     var channel = gameRoom.channel;
-    var logic = gameRoom.node;
+    var node = gameRoom.node;
 
     var game;
     game = {};
     game.nodename = 'bot';
 
-    var stager = require('nodegame-client').getStager();
-
+    // var stager = ngc.getStager();
+debugger
     stager.setDefaultCallback(function() {
         var that;
         that = this;
         console.log('Stage: ' , that.getCurrentGameStage());
-        that.node.timer.randomDone();
+        node.timer.randomDone();
     });
 
 
@@ -37,6 +39,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var tableClasses;
 
         var payoffStopRed, payoffStopBlue;
+
+        debugger
 
         // Add payoff tables
         node.game.totalPayoff = 0;
@@ -55,8 +59,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.worldState = null;
         node.game.totalPayment = 0;
 
-        // Additional debug information while developing the game.
-        // this.debugInfo = node.widgets.append('DebugInfo', header)
     });
 
     stager.extendStep('red-choice', {
@@ -65,7 +67,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     var that;
                     that = this;
-
+debugger
                     var randomDoneValue;
                     var chanceOfStop;
                     var isDynamic;
@@ -73,29 +75,33 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     isDynamic = (that.settings.botType === 'dynamic');
 
                     if (isDynamic && channel.numStopGoDecisions >= 1) {
-                        chanceOfStop = channel.numChooseStop / channel.numStopGoDecisions;
+                        chanceOfStop = 
+                            channel.numChooseStop / channel.numStopGoDecisions;
                     }
                     else {
                         chanceOfStop = that.settings.chanceOfStop;
                     }
 
-                    randomDoneValue = (getRandom(0, 1) <= chanceOfStop) ? 'STOP' : 'GO';
+                    randomDoneValue =
+                        (getRandom(0, 1) <= chanceOfStop) ? 'STOP' : 'GO';
 
-                    console.log('RED ROLE BOT:', that.node.player.id, ', partner: ', that.partner);
+                    console.log('RED ROLE BOT:', node.player.id,
+                                ', partner: ', that.partner);
                     console.log(randomDoneValue);
 
-                    that.node.done(randomDoneValue);
+                    node.done(randomDoneValue);
                 }
             },
             BLUE: {
                 cb: function() {
                     var that;
                     that = this;
+debugger
+                    console.log('BLUE ROLE BOT:', node.player.id,
+                                ', partner: ', that.partner);
 
-                    console.log('BLUE ROLE BOT:', that.node.player.id, ', partner: ', that.partner);
-
-                    that.node.once.data('RED-CHOICE', function() {
-                        that.node.done();
+                    node.once.data('RED-CHOICE', function() {
+                        node.done();
                     });
                 }
             }
@@ -110,9 +116,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     var that;
                     that = this;
-
-                    that.node.once.data('BLUE-CHOICE', function() {
-                        that.node.done();
+debugger
+                    node.once.data('BLUE-CHOICE', function() {
+                        node.done();
                     });
                 }
             },
@@ -122,21 +128,22 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var randomDoneValue;
                     var chanceOfRight;
                     var isDynamic;
-
+debugger
                     that = this;
                     isDynamic = (that.settings.botType === 'dynamic');
 
                     if (isDynamic && channel.numRightLeftDecisions >= 1) {
-                        chanceOfRight = channel.numChooseRight / channel.numRightLeftDecisions;
+                        chanceOfRight =
+                            channel.numChooseRight/channel.numRightLeftDecisions;
                     }
                     else {
                         chanceOfRight = that.settings.chanceOfRight;
                     }
 
                     randomDoneValue = (getRandom(0, 1) <= chanceOfRight)  ?
-                                      'RIGHT' : 'LEFT';
+                        'RIGHT' : 'LEFT';
 
-                    that.node.done(randomDoneValue);
+                    node.done(randomDoneValue);
                 }
             }
         }

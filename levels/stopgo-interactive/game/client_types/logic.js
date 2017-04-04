@@ -36,9 +36,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.tables = {};
         node.game.totals = {};
 
+        node.on.pconnect(function(player) {
+            console.log('SOMEBODY CONNECTED!!! ', player);
+            gameRoom.setupClient(player.id);
+        });
+
         node.on.pdisconnect(function(player) {
             player.allowReconnect = false; // check if registry maybe
-
+            debugger
             var bot = channel.connectBot({
                 room: gameRoom,
                 // id: player.id, Otherwise it gets the wrong clinetType
@@ -53,15 +58,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             });
 
-            //if (bot.game.isStoppable()) bot.game.stop();
-            // bot.on('NODEGAME_READY', function() {
+            //bot.on('PLAYER_CREATED', function() {
             setTimeout(function() {
-              return;
-                // If a decision was made already from RED...
-debugger
-                node.game.matcher.replaceId(player.id, bot.id);
+                debugger
+                node.game.matcher.replaceId(player.id, bot.player.id);
 
-                bot.game.gotoStep(player.stage, {
+                bot.game.start({ step: false });
+debugger
+
+                bot.game.gotoStep(node.player.stage, {
                     role: node.game.matcher.getRoleFor(player.id)
                 });
             }, 3000);
