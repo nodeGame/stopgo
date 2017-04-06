@@ -67,7 +67,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             //bot.on('PLAYER_CREATED', function() {
             setTimeout(function() {
                 return;
-                debugger
                 node.game.matcher.replaceId(player.id, bot.player.id);
 
                 bot.game.start({ step: false });
@@ -84,6 +83,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         //    1,
         //    function() {
     });
+
+    // stager.extendStep('game', {
+    //    minPlayers: 2
+    // });
 
     stager.extendStep('red-choice', {
         matcher: {
@@ -165,21 +168,22 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var blueChoice;
                 var playerObj;
                 var roles;
+                var choices;
 
                 id = msg.from;
                 otherId = node.game.matcher.getMatchFor(id);
                 roles = getRoles(id, otherId);
 
                 if (id === roles.BLUE) {
-                    blueChoice = msg.data.blueChoice;
+                    choices = node.game.choices;
 
-                    node.game.choices[roles.RED].blueChoice = blueChoice;
+                    blueChoice = msg.data.blueChoice;
+                    choices[roles.RED].blueChoice = blueChoice;
 
                     playerObj = node.game.pl.get(id);
 
                     if (playerObj.clientType !== 'bot') {
-                        if (node.game.choices[roles.RED].blueChoice
-                            === 'RIGHT') {
+                        if (choices[roles.RED].blueChoice === 'RIGHT') {
                             channel.numChooseRight += 1;
                         }
                         channel.numRightLeftDecisions += 1;

@@ -21,7 +21,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     game.nodename = 'bot';
 
     // var stager = ngc.getStager();
-debugger
+
     stager.setDefaultCallback(function() {
         var that;
         that = this;
