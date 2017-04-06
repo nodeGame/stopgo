@@ -43,7 +43,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         node.on.pdisconnect(function(player) {
             player.allowReconnect = false; // check if registry maybe
-            debugger
+
             var bot = channel.connectBot({
                 room: gameRoom,
                 // id: player.id, Otherwise it gets the wrong clinetType
