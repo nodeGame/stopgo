@@ -36,10 +36,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.tables = {};
         node.game.totals = {};
 
-        node.on.pconnect(function(player) {
-            console.log('SOMEBODY CONNECTED!!! ', player);
-            gameRoom.setupClient(player.id);
-        });
+        //node.on.pconnect(function(player) {
+        //    console.log('SOMEBODY CONNECTED!!! ', player);
+        //    gameRoom.setupClient(player.id);
+        //});
 
         node.on.pdisconnect(function(player) {
             player.allowReconnect = false; // check if registry maybe
@@ -55,17 +55,23 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         chanceOfStop: 0.5,
                         chanceOfRight: 0.5
                     }
+                },
+                // TODO: if replaceId is set should options from old data.
+                replaceId: player.id,
+                gotoStep: node.player.stage,
+                gotoStepOptions: {
+                    plot: { role: node.game.matcher.getRoleFor(player.id) }
                 }
             });
-
+            
             //bot.on('PLAYER_CREATED', function() {
             setTimeout(function() {
+                return;
                 debugger
                 node.game.matcher.replaceId(player.id, bot.player.id);
 
                 bot.game.start({ step: false });
-debugger
-
+                
                 bot.game.gotoStep(node.player.stage, {
                     role: node.game.matcher.getRoleFor(player.id)
                 });
