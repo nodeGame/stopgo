@@ -40,7 +40,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         var payoffStopRed, payoffStopBlue;
 
-        debugger
 
         // Add payoff tables
         node.game.totalPayoff = 0;
@@ -65,10 +64,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         roles: {
             RED: {
                 cb: function() {
-                    var that;
-                    that = this;
-debugger
-                    var randomDoneValue;
+                    var decision;
                     var chanceOfStop;
                     var isDynamic;
 
@@ -82,27 +78,20 @@ debugger
                         chanceOfStop = that.settings.chanceOfStop;
                     }
 
-                    randomDoneValue =
-                        (getRandom(0, 1) <= chanceOfStop) ? 'STOP' : 'GO';
-
-                    console.log('RED ROLE BOT:', node.player.id,
-                                ', partner: ', that.partner);
-                    console.log(randomDoneValue);
-
-                    node.done(randomDoneValue);
+                    decision = (Math.random() <= chanceOfStop) ? 'STOP' : 'GO';
+                    
+                    console.log('BLUE BOT:', node.player.id, ', partner: ',
+                                this.partner, ', decision: ', decision);
+                    node.done({ blueChoice: decision });
                 }
             },
             BLUE: {
                 cb: function() {
-                    var that;
-                    that = this;
-debugger
-                    console.log('BLUE ROLE BOT:', node.player.id,
-                                ', partner: ', that.partner);
-
-                    node.once.data('RED-CHOICE', function() {
+                    var decision;       
+                    node.once.data('RED-CHOICE', function(msg) {
+                        node.game.redChoice = msg.data;
                         node.done();
-                    });
+                    });                    
                 }
             }
         }
@@ -113,45 +102,24 @@ debugger
         partner: function() { return this.partner; },
         roles: {
             RED: {
-                cb: function() {
-                    var that;
-                    that = this;
-debugger
-                    node.once.data('BLUE-CHOICE', function() {
+                cb: function() {       
+                    node.once.data('BLUE-CHOICE', function(msg) {
+                        node.game.blueChoice = msg.data;
                         node.done();
                     });
                 }
             },
             BLUE: {
                 cb: function() {
-                    var that;
-                    var randomDoneValue;
-                    var chanceOfRight;
-                    var isDynamic;
-debugger
-                    that = this;
-                    isDynamic = (that.settings.botType === 'dynamic');
-
-                    if (isDynamic && channel.numRightLeftDecisions >= 1) {
-                        chanceOfRight =
-                            channel.numChooseRight/channel.numRightLeftDecisions;
-                    }
-                    else {
-                        chanceOfRight = that.settings.chanceOfRight;
-                    }
-
-                    randomDoneValue = (getRandom(0, 1) <= chanceOfRight)  ?
-                        'RIGHT' : 'LEFT';
-
-                    node.done(randomDoneValue);
+                    var decision;
+                    decision = Math.random() > 0.5 ? 'LEFT' : 'RIGHT';
+                    console.log('BLUE BOT:', node.player.id, ', partner: ',
+                                this.partner, ', decision: ', decision);
+                    node.done({ blueChoice: decision });
                 }
             }
         }
     });
-
-    function getRandom(min, max) {
-        return Math.random() * (max - min) + min;
-    }
 
     game.plot = stager.getState();
 

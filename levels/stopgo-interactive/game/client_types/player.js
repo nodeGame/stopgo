@@ -129,14 +129,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 init: function() {
                     node.game.playerRole = 'RED';
                 },
-                done: function() {
-                    var button;
-
-                    button = W.getElementById('stop');
-                    button.disabled = true;
-
-                    button = W.getElementById('go');
-                    button.disabled = true;
+                done: function(decision) {
+                    if (!decision) return false;                    
+                    node.game.redChoice = decision.redChoice;
+                    W.getElementById('stop').disabled = true;
+                    W.getElementById('go').disabled = true;
                 },
                 cb: function() {
                     var buttonStop, buttonGo, payoffTableDiv1;
@@ -163,7 +160,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         buttonGo.disabled = false;
 
                         buttonStop.onclick = function() {
-                            node.game.redChoice = 'STOP';
                             node.done({ redChoice: node.game.redChoice });
                         };
 
@@ -252,11 +248,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.addLoadingDots(W.getElementById('awaiting-red-decision'), 5);
                     // Make the observer display visible.
 
-                    node.on.data('RED-CHOICE', function(message) {
-                        node.game.redChoice = message.data;
-
-                        // W.show('make-blue-decision');
-                        // W.hide('awaiting-red-decision');
+                    node.on.data('RED-CHOICE', function(msg) {
+                        node.game.redChoice = msg.data;
                         node.done();
                     });
                 }
@@ -283,8 +276,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.setInnerHTML('red-decision', '<strong>Your choice: ' +
                                    node.game.redChoice + '.</strong>');
 
-                    node.on.data('BLUE-CHOICE', function(message) {
-                        node.game.blueChoice = message.data;
+                    node.on.data('BLUE-CHOICE', function(msg) {
+                        node.game.blueChoice = msg.data;
                         node.done();
                     });
                 }
@@ -295,14 +288,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     buttonId = Math.floor(Math.random() * 2) ? 'left' : 'right';
                     W.getElementById(buttonId).click();
                 },
-                done: function() {
-                    var button;
-
-                    button = W.getElementById('left');
-                    button.disabled = true;
-
-                    button = W.getElementById('right');
-                    button.disabled = true;
+                done: function(decision) {
+                    if (!decision) return false;                    
+                    node.game.blueChoice = decision.blueChoice;
+                    W.getElementById('left').disabled = true;
+                    W.getElementById('right').disabled = true;
                 },
                 cb: function() {
                     var buttonLeft, buttonRight;
@@ -329,13 +319,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     ' ' + node.game.runningTotalPayoff.currency);
 
                     buttonLeft.onclick = function() {
-                        node.game.blueChoice = 'LEFT';
-                        node.done({blueChoice: node.game.blueChoice});
+                        node.done({ blueChoice: 'LEFT' });
                     };
 
                     buttonRight.onclick = function() {
-                        node.game.blueChoice = 'RIGHT';
-                        node.done({blueChoice: node.game.blueChoice});
+                        node.done({ blueChoice: 'RIGHT' });
                     };
                 }
             }

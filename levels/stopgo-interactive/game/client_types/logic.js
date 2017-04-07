@@ -1,6 +1,6 @@
 /**
 * # Logic type implementation of the game stages
-* Copyright(c) 2016 brenste <myemail>
+* Copyright(c) 2017 Stefano Balietti <ste@nodegame.org>
 * MIT Licensed
 *
 * http://www.nodegame.org
@@ -64,24 +64,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             });
             
-            //bot.on('PLAYER_CREATED', function() {
-            setTimeout(function() {
-                return;
-                node.game.matcher.replaceId(player.id, bot.player.id);
-
-                bot.game.start({ step: false });
-                
-                bot.game.gotoStep(node.player.stage, {
-                    role: node.game.matcher.getRoleFor(player.id)
-                });
-            }, 3000);
 
         });
-
-
-        // stager.setDefaultProperty('minPlayers', [
-        //    1,
-        //    function() {
     });
 
     // stager.extendStep('game', {
