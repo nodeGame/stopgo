@@ -36,11 +36,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.tables = {};
         node.game.totals = {};
 
-        //node.on.pconnect(function(player) {
-        //    console.log('SOMEBODY CONNECTED!!! ', player);
-        //    gameRoom.setupClient(player.id);
-        //});
-
         node.on.pdisconnect(function(player) {
             player.allowReconnect = false; // check if registry maybe
 
@@ -58,19 +53,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 },
                 // TODO: if replaceId is set should options from old data.
                 replaceId: player.id,
-                gotoStep: node.player.stage,
-                gotoStepOptions: {
-                    plot: { role: node.game.matcher.getRoleFor(player.id) }
-                }
+                gotoStep: node.player.stage
+                // gotoStepOptions: {
+                //     plot: { role: node.game.matcher.getRoleFor(player.id) }
+                // }
             });
             
 
         });
     });
-
-    // stager.extendStep('game', {
-    //    minPlayers: 2
-    // });
 
     stager.extendStep('red-choice', {
         matcher: {
@@ -91,36 +82,26 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
 
-            // allMatchesInRound = node.game.matcher.getMatches();
-
             for (i = 0; i < allMatchesInRound.length; i++) {
-                // was:
-                // match = allMatchesInRound[i];
-                // roles = getRoles(match[0], match[1]);
-
                 roles = allMatchesInRound[i];
                 payoffTable = getRandomTable();
                 node.game.tables[roles.RED] = payoffTable;
-
                 node.say('TABLE', roles.RED, payoffTable);
             }
 
             node.on.data('done', function(msg) {
                 var id, otherId;
                 var playerObj;
-                var roles;
+                var role;
                 var redChoice;
 
                 id = msg.from;
-                playerObj = node.game.pl.get(id);
-                otherId = node.game.matcher.getMatchFor(id);
-                roles = getRoles(id, otherId);
+                role = node.game.matcher.getRoleFor(id);
 
-                console.log('DONE: '+id);
-
-                if (id === roles.RED) {
+                if (role === 'RED') {
+                    playerObj = node.game.pl.get(id);
                     redChoice = msg.data.redChoice;
-                    node.game.choices[roles.RED] = { redChoice: redChoice };
+                    node.game.choices[id] = { redChoice: redChoice };
 
                     if (playerObj.clientType !== 'bot') {
                         if (redChoice === 'STOP') {
@@ -133,12 +114,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     // TODO: move validation to before node.game.redChoice
                     // is assigned.
                     if (msg.data.redChoice) {
-                        node.say('RED-CHOICE', roles.BLUE, redChoice);
+                        debugger
+                        otherId = node.game.matcher.getMatchFor(id);
+                        node.say('RED-CHOICE', otherId, redChoice);
                     }
                     else {
-                        // console.log('aaaaaah',msg)
-                        node.err('Error: Invalid Red choice. '+
-                                 'ID of sender: '+id);
+                        node.err('Invalid Red choice. ID of sender: ' + id);
                     }
                 }
             });
@@ -151,18 +132,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var id, otherId;
                 var blueChoice;
                 var playerObj;
-                var roles;
+                var role;
                 var choices;
-
+debugger
                 id = msg.from;
-                otherId = node.game.matcher.getMatchFor(id);
-                roles = getRoles(id, otherId);
+                role = node.game.matcher.getRoleFor(id);
 
-                if (id === roles.BLUE) {
-                    choices = node.game.choices;
+                if (role === 'BLUE') {
+                    otherId = node.game.matcher.getMatchFor(id);
 
+                    choices = node.game.choices;                    
                     blueChoice = msg.data.blueChoice;
-                    choices[roles.RED].blueChoice = blueChoice;
+                    choices[otherId].blueChoice = blueChoice;
 
                     playerObj = node.game.pl.get(id);
 
@@ -177,17 +158,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     // TODO: move validation to before
                     // node.game.choices[roles.RED].blueChoice is assigned
-                    if (msg.data.blueChoice) {
-                        node.say('BLUE-CHOICE', roles.RED, blueChoice);
+                    if (msg.data.blueChoice) {                        
+                        node.say('BLUE-CHOICE', otherId, blueChoice);
                     }
                     else {
-                        console.log('missing blueChoice ', id);
-                        node.err('Error: Invalid Blue choice. ' +
-                                 'ID of sender: '+id);
+                        node.err('Invalid Blue choice. ID of sender: ' + id);
                     }
-                }
-                else {
-                    console.log('IT IS RED ', id);
                 }
             });
         }
@@ -204,9 +180,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
 
             for (i = 0; i < allMatchesInRound.length; i++) {
-                // was:
-                // match = allMatchesInRound[i];
-                // roles = getRoles(match[0], match[1]);
 
                 roles = allMatchesInRound[i];
 
@@ -322,24 +295,25 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         });
     }
 
-    function getRoles(id1, id2) {
-        var redId, blueId;
-
-        console.log('getRoleFor '+id1+': '+node.game.matcher.getRoleFor(id1));
-        if (node.game.matcher.getRoleFor(id1) === 'RED') {
-            redId = id1;
-            blueId = id2;
-        }
-        else {
-            redId = id2;
-            blueId = id1;
-        }
-
-        return {
-            RED: redId,
-            BLUE: blueId
-        };
-    }
+    // TODO: do we need this?
+//     function getRoles(id1, id2) {
+//         var redId, blueId;
+// 
+//         console.log('getRoleFor '+id1+': '+node.game.matcher.getRoleFor(id1));
+//         if (node.game.matcher.getRoleFor(id1) === 'RED') {
+//             redId = id1;
+//             blueId = id2;
+//         }
+//         else {
+//             redId = id2;
+//             blueId = id1;
+//         }
+// 
+//         return {
+//             RED: redId,
+//             BLUE: blueId
+//         };
+//     }
 
     function addData(playerId, data) {
         var item = node.game.memory.player[playerId].last();

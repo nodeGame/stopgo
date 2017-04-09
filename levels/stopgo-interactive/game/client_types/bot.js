@@ -11,10 +11,12 @@
 
 var ngc = require('nodegame-client');
 
-module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
+module.exports = function(treatmentName, settings, stager,
+                          setup, gameRoom, node) {
 
     var channel = gameRoom.channel;
-    var node = gameRoom.node;
+    var logic = gameRoom.node;
+    var node;
 
     var game;
     game = {};
@@ -23,9 +25,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // var stager = ngc.getStager();
 
     stager.setDefaultCallback(function() {
-        var that;
-        that = this;
-        console.log('Stage: ' , that.getCurrentGameStage());
+        console.log('Stage: ' , this.getCurrentGameStage());
         node.timer.randomDone();
     });
 
@@ -39,7 +39,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var tableClasses;
 
         var payoffStopRed, payoffStopBlue;
-
 
         // Add payoff tables
         node.game.totalPayoff = 0;
@@ -68,14 +67,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var chanceOfStop;
                     var isDynamic;
 
-                    isDynamic = (that.settings.botType === 'dynamic');
+                    isDynamic = (this.settings.botType === 'dynamic');
 
                     if (isDynamic && channel.numStopGoDecisions >= 1) {
                         chanceOfStop = 
                             channel.numChooseStop / channel.numStopGoDecisions;
                     }
                     else {
-                        chanceOfStop = that.settings.chanceOfStop;
+                        chanceOfStop = this.settings.chanceOfStop;
                     }
 
                     decision = (Math.random() <= chanceOfStop) ? 'STOP' : 'GO';
@@ -112,6 +111,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             BLUE: {
                 cb: function() {
                     var decision;
+                    debugger
                     decision = Math.random() > 0.5 ? 'LEFT' : 'RIGHT';
                     console.log('BLUE BOT:', node.player.id, ', partner: ',
                                 this.partner, ', decision: ', decision);

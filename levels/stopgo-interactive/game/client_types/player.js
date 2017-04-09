@@ -1,6 +1,6 @@
 /**
 * # Player type implementation of the game stages
-* Copyright(c) 2017
+* Copyright(c) 2017 Stefano Balietti <ste@nodegame.org>
 * MIT Licensed
 *
 * Each client type must extend / implement the stages defined in `game.stages`.
@@ -41,9 +41,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         this.visualRound = node.widgets.append('VisualRound', header);
         this.visualTimer = node.widgets.append('VisualTimer', header);
         this.runningTotalPayoff = node.widgets.append('MoneyTalks', header,
-                                                      {currency: 'USD'});
+                                                      { currency: 'USD' });
         this.doneButton = node.widgets.append('DoneButton', header,
-                                              {text: 'Done'});
+                                              { text: 'Done' });
 
         // node.player.stage.round
 
@@ -160,12 +160,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         buttonGo.disabled = false;
 
                         buttonStop.onclick = function() {
-                            node.done({ redChoice: node.game.redChoice });
+                            node.done({ redChoice: 'STOP' });
                         };
 
                         buttonGo.onclick = function() {
-                            node.game.redChoice = 'GO';
-                            node.done({ redChoice: node.game.redChoice });
+                            node.done({ redChoice: 'GO' });
                         };
 
                         // Keep this comments for the moment!
