@@ -1,6 +1,6 @@
 /**
  * # Bot type implementation of the game stages
- * Copyright(c) 2017 Stefano Balietti
+ * Copyright(c) 2017 Stefano Balietti <ste@nodegame.org>
  * MIT Licensed
  *
  * http://www.nodegame.org
@@ -78,9 +78,9 @@ module.exports = function(treatmentName, settings, stager,
 
                     decision = (Math.random() <= chanceOfStop) ? 'STOP' : 'GO';
 
-                    console.log('BLUE BOT:', node.player.id, ', partner: ',
+                    console.log('RED BOT:', node.player.id, ', partner: ',
                                 this.partner, ', decision: ', decision);
-                    node.done({ blueChoice: decision });
+                    node.done({ redChoice: decision });
                 }
             },
             BLUE: {

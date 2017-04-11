@@ -39,9 +39,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.totals = {};
 
         node.on.pdisconnect(function(player) {
+            var role;
+
             player.allowReconnect = false; // check if registry maybe
 
-            var bot = channel.connectBot({
+            role = node.game.matcher.getRoleFor(player.id);
+
+            channel.connectBot({
                 room: gameRoom,
                 // id: player.id, Otherwise it gets the wrong clinetType
                 clientType: 'bot',
@@ -55,13 +59,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 },
                 // TODO: if replaceId is set should options from old data.
                 replaceId: player.id,
-                gotoStep: node.player.stage
+                gotoStep: node.player.stage,
+                ready: function(bot) {
+                    if (role === 'RED') {
+                        node.game.tables[bot.player.id] =
+                            node.game.tables[player.id];
+                    }
+                }
                 // gotoStepOptions: {
                 //     plot: { role: node.game.matcher.getRoleFor(player.id) }
                 // }
             });
 
-
+            
         });
     });
 
@@ -116,7 +126,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     // TODO: move validation to before node.game.redChoice
                     // is assigned.
                     if (msg.data.redChoice) {
-                        debugger
                         otherId = node.game.matcher.getMatchFor(id);
                         node.say('RED-CHOICE', otherId, redChoice);
                     }
@@ -184,6 +193,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             for (i = 0; i < allMatchesInRound.length; i++) {
 
                 roles = allMatchesInRound[i];
+
+                console.log('ROLES');
+                console.log(roles);
 
                 payoffs = calculatePayoffs(node.game.choices[roles.RED],
                                            node.game.tables[roles.RED]);
@@ -331,6 +343,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         blueChoice = choices.blueChoice;
 
         if (choices.redChoice === 'GO') {
+            console.log('CHOICES');
+            console.log(choices);
+            console.log('PAYOFFS.GO');
+            console.log(payoffs.GO);
             bluePayoff = payoffs.GO[table][blueChoice].BLUE;
             redPayoff = payoffs.GO[table][blueChoice].RED;
         }
@@ -395,7 +411,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         if (fs.existsSync(filePath)) {
             db = new ngc.NDDB();
             db.loadSync(filePath);
-            debugger;
             lastLine = db.last();
             console.log(lastLine);
             decisions = lastLine;

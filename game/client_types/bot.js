@@ -1,6 +1,6 @@
 /**
  * # Bot type implementation of the game stages
- * Copyright(c) 2016 brenste <myemail>
+ * Copyright(c) 2017 Stefano Balietti <ste@nodegame.org>
  * MIT Licensed
  *
  * http://www.nodegame.org
@@ -18,8 +18,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     game = {};
     game.nodename = 'bot';
 
-    stager.setOnInit
-
     stager.setDefaultCallback(function() {
         var that;
         that = this;
@@ -32,11 +30,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             RED: {
                 cb: function() {
                     var that;
-                    that = this;
-
                     var randomDoneValue;
                     var chanceOfStop;
                     var isDynamic;
+
+                    that = this;
 
                     isDynamic = (that.settings.botType === 'dynamic');
 
@@ -47,9 +45,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         chanceOfStop = that.settings.chanceOfStop;
                     }
 
-                    randomDoneValue = (getRandom(0, 1) <= chanceOfStop) ? 'STOP' : 'GO';
+                    randomDoneValue = (getRandom(0, 1) <= chanceOfStop) ?
+                        'STOP' : 'GO';
 
-                    console.log('RED ROLE BOT:', that.node.player.id, ', partner: ', that.partner);
+                    console.log('RED ROLE BOT:', that.node.player.id,
+                                ', partner: ', that.partner);
                     console.log(randomDoneValue);
 
                     that.node.done(randomDoneValue);
@@ -60,7 +60,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var that;
                     that = this;
 
-                    console.log('BLUE ROLE BOT:', that.node.player.id, ', partner: ', that.partner);
+                    console.log('BLUE ROLE BOT:', that.node.player.id,
+                                ', partner: ', that.partner);
 
                     that.node.once.data('RED-CHOICE', function() {
                         that.node.done();
