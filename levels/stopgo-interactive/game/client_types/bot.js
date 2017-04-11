@@ -63,15 +63,17 @@ module.exports = function(treatmentName, settings, stager,
                     var decision;
                     var chanceOfStop;
                     var isDynamic;
+                    var minDecisions;
 
+                    minDecisions = this.settings.botChance.minDecisions;
                     isDynamic = (this.settings.botType === 'dynamic');
 
-                    if (isDynamic && channel.numStopGoDecisions >= 1) {
+                    if (isDynamic && channel.numStopGoDecisions >= minDecisions) {
                         chanceOfStop = channel.numChooseStop
                                        / channel.numStopGoDecisions;
                     }
                     else {
-                        chanceOfStop = this.settings.chanceOfStop;
+                        chanceOfStop = this.settings.botChance.stop;
                     }
 
                     decision = (Math.random() <= chanceOfStop) ? 'STOP' : 'GO';
@@ -110,15 +112,17 @@ module.exports = function(treatmentName, settings, stager,
                     var decision;
                     var isDynamic;
                     var chanceOfRight;
+                    var minDecisions;
 
                     isDynamic = (this.settings.botType === 'dynamic');
+                    minDecisions = this.settings.botChance.minDecisions;
 
-                    if (isDynamic && channel.numRightLeftDecisions >= 1) {
+                    if (isDynamic && channel.numRightLeftDecisions >= minDecisions) {
                         chanceOfRight = channel.numChooseRight
                                        / channel.numRightLeftDecisions;
                     }
                     else {
-                        chanceOfRight = 0.5;
+                        chanceOfRight = this.settings.botChance.right;
                     }
 
                     decision = Math.random() > chanceOfRight ? 'LEFT' : 'RIGHT';

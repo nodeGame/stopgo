@@ -104,6 +104,12 @@ module.exports = {
     	}
     },
 
+    botChance: {
+        stop: 0.5, // default bot chance
+        right: 0.5,
+        minDecisions: 10
+    },
+
     // Probability of A vs B.
     pi: 0.5,
 
