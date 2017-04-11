@@ -27,10 +27,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.setOnInit(function() {
         // Initialize the client.
-        channel.numChooseStop = 0;
-        channel.numStopGoDecisions = 0;
-        channel.numChooseRight = 0;
-        channel.numRightLeftDecisions = 0;
+        // channel.numChooseStop = 0;
+        // channel.numStopGoDecisions = 0;
+        // channel.numChooseRight = 0;
+        // channel.numRightLeftDecisions = 0;
+
+        readBotData('avgDecisions.csv');
 
         node.game.choices = {};
         node.game.tables = {};
@@ -58,7 +60,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 //     plot: { role: node.game.matcher.getRoleFor(player.id) }
                 // }
             });
-            
+
 
         });
     });
@@ -134,21 +136,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var playerObj;
                 var role;
                 var choices;
-debugger
+
                 id = msg.from;
                 role = node.game.matcher.getRoleFor(id);
 
                 if (role === 'BLUE') {
                     otherId = node.game.matcher.getMatchFor(id);
 
-                    choices = node.game.choices;                    
+                    choices = node.game.choices;
                     blueChoice = msg.data.blueChoice;
                     choices[otherId].blueChoice = blueChoice;
 
                     playerObj = node.game.pl.get(id);
 
                     if (playerObj.clientType !== 'bot') {
-                        if (choices[roles.RED].blueChoice === 'RIGHT') {
+                        if (choices[otherId].blueChoice === 'RIGHT') {
                             channel.numChooseRight += 1;
                         }
                         channel.numRightLeftDecisions += 1;
@@ -158,7 +160,7 @@ debugger
 
                     // TODO: move validation to before
                     // node.game.choices[roles.RED].blueChoice is assigned
-                    if (msg.data.blueChoice) {                        
+                    if (msg.data.blueChoice) {
                         node.say('BLUE-CHOICE', otherId, blueChoice);
                     }
                     else {
@@ -298,7 +300,7 @@ debugger
     // TODO: do we need this?
 //     function getRoles(id1, id2) {
 //         var redId, blueId;
-// 
+//
 //         console.log('getRoleFor '+id1+': '+node.game.matcher.getRoleFor(id1));
 //         if (node.game.matcher.getRoleFor(id1) === 'RED') {
 //             redId = id1;
@@ -308,7 +310,7 @@ debugger
 //             redId = id2;
 //             blueId = id1;
 //         }
-// 
+//
 //         return {
 //             RED: redId,
 //             BLUE: blueId
@@ -359,19 +361,63 @@ debugger
     }
 
     function saveAll() {
-        var gameDir, line;
+        var gameDir, line, avgDecisionFilePath;
         gameDir = channel.getGameDir();
         node.game.memory.save(gameDir + 'data/data_' + node.nodename +
                               '.json');
 
+        avgDecisionFilePath = gameDir + 'data/avgDecisions.csv';
+
+        if (!fs.existsSync(avgDecisionFilePath)) {
+            fs.appendFile(avgDecisionFilePath,
+                          'Node,StopGo,Stop,RightLeft,Right\n');
+        }
+
         line = node.nodename + ',' + channel.numStopGoDecisions +
                ',' + channel.numChooseStop +
                ',' + channel.numRightLeftDecisions +
-               ',' + channel.numChooseRight + "\n";
+               ',' + channel.numChooseRight + '\n';
 
-        fs.appendFile(gameDir + 'data/avgDecisions.csv', line, function(err) {
+        fs.appendFile(avgDecisionFilePath, line, function(err) {
             if (err) console.log('An error occurred saving: ' + line);
         });
+    }
+
+    // should be moved out of logic init so only called once
+    function readBotData(fileName) {
+        var gameDir, filePath;
+        var db;
+        var lastLine;
+        var decisions;
+
+        gameDir = channel.getGameDir();
+        filePath = gameDir + 'data/' + fileName;
+        if (fs.existsSync(filePath)) {
+            db = new ngc.NDDB();
+            db.loadSync(filePath);
+            debugger;
+            lastLine = db.last();
+            console.log(lastLine);
+            decisions = lastLine;
+            setDecisionsProbabilities(decisions.StopGo,
+                                      decisions.Stop,
+                                      decisions.RightLeft,
+                                      decisions.Right);
+        }
+        else {
+            setDecisionsProbabilities(0, 0, 0, 0);
+        }
+    }
+
+    function setDecisionsProbabilities(totalStopGo,
+                                       totalStop,
+                                       totalRightLeft,
+                                       totalRight) {
+
+        channel.numStopGoDecisions = totalStopGo;
+        channel.numChooseStop = totalStop;
+        channel.numRightLeftDecisions = totalRightLeft;
+        channel.numChooseRight = totalRight;
     }
 
     return {
