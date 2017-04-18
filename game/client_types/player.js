@@ -321,6 +321,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             // Sets the role again.
             node.game.plot.updateProperty(node.game.getNextStep(),
                                           'role', node.game.tutorialRole);
+
+            W.getElementById('payoff-table')
+            .appendChild(this.payoffTables[this.tutorialWorldState]);
+
+            if (this.tutorialChoices['RED'] === 'GO') {
+                W.show('go-choice');
+            }
+            else {
+                W.show('stop-choice');
+            }
+
         }
     });
 
