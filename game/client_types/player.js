@@ -142,7 +142,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             RED: {
                 donebutton: false,
                 done: function() {
-                    W.show('waiting_for_blue');
                     W.show('awaiting-blue-decision');
                     W.addLoadingDots(W.getElementById('awaiting-blue-decision'),
                      5);
@@ -207,7 +206,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     W.show('info');
                     W.show('tutorial-instructions');
-
+                    W.addLoadingDots(W.getElementById('awaiting-red-decision'),
+                     5);
                     W.show('blue');
                 }
             }
