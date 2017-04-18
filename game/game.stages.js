@@ -24,10 +24,9 @@ module.exports = function(stager, settings) {
     	steps: [
     	    'red-choice-tour',
     	    'blue-choice-tour',
-            'results-tour'
+          'results-tour'
     	]
     });
-
 
     // stager.extendStage('practice', {
     // 	steps: [
@@ -37,13 +36,14 @@ module.exports = function(stager, settings) {
     // 	]
     // });
 
+    // stager.skip('instructions');
+    // stager.skip('choose-tour');
+    // stager.skip('tour');
+
     // Modify the stager to skip one stage.
-    stager.skip('instructions');
     // stager.skip('quiz');
     // stager.skip('practice');
     // stager.skip('practice-end');
-    stager.skip('choose-tour');
-    stager.skip('tour');
     // stager.skip('tour-end');
     // stager.skip('test');
 

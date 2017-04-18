@@ -143,6 +143,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 donebutton: false,
                 done: function() {
                     W.show('waiting_for_blue');
+                    W.show('awaiting-blue-decision');
+                    W.addLoadingDots(W.getElementById('awaiting-blue-decision'), 5);
+                    W.hide('stop-go-buttons');
+                    W.hide('make-your-choice');
                 },
                 cb: function() {
                     var correctButton, wrongButton, stopGoButtons;
@@ -152,7 +156,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     W.setInnerHTML('info', node.game.infoText);
                     W.setInnerHTML('tour-instructions', 'Please choose ' +
-                                   '<strong>' + this.tourChoices.RED +
+                                   '<strong>' + node.game.tourChoices.RED +
                                    '</strong> below. In a normal game you ' +
                                    'may choose whatever you like.');
 
@@ -182,7 +186,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         node.game.clickDone();
                         W.setInnerHTML('red-decision',
-                                       'Your choice: ' + this.tourChoices.RED);
+                                       'Your choice: ' +
+                                       node.game.tourChoices.RED);
                     };
                     wrongButton.onclick = node.game.clickWrong;
 

@@ -130,7 +130,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     node.game.playerRole = 'RED';
                 },
                 done: function(decision) {
-                    if (!decision) return false;                    
+                    if (!decision) return false;
                     node.game.redChoice = decision.redChoice;
                     W.getElementById('stop').disabled = true;
                     W.getElementById('go').disabled = true;
@@ -288,7 +288,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.getElementById(buttonId).click();
                 },
                 done: function(decision) {
-                    if (!decision) return false;                    
+                    if (!decision) return false;
                     node.game.blueChoice = decision.blueChoice;
                     W.getElementById('left').disabled = true;
                     W.getElementById('right').disabled = true;
