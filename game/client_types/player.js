@@ -186,8 +186,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         node.game.clickDone();
                         W.setInnerHTML('red-decision',
-                                       'Your choice: ' +
-                                       node.game.tutorialChoices.RED);
+                                       '<strong>Your choice: ' +
+                                       node.game.tutorialChoices.RED +
+                                       '</strong>');
                     };
                     wrongButton.onclick = node.game.clickWrong;
 

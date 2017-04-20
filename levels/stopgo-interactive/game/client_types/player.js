@@ -388,22 +388,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             });
         }
     });
-    //
-    // stager.extendStep('end', {
-    //     donebutton: false,
-    //     frame: 'end.htm',
-    //     cb: function() {
-    //         node.game.visualTimer.setToZero();
-    //
-    //         W.setInnerHTML('total', node.game.totalPayment+
-    //                        ' ' + node.game.runningTotalPayoff.currency);
-    //         node.game.totalPayment = 0;
-    //     },
-    //     done: function() {
-    //         node.game.runningTotalPayoff.money = 0;
-    //         node.game.runningTotalPayoff.update(0);
-    //     }
-    // });
 
     stager.extendStep('end', {
         donebutton: false,
