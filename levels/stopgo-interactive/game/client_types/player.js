@@ -45,7 +45,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         this.doneButton = node.widgets.append('DoneButton', header,
                                               { text: 'Done' });
 
-
         this.historyButton = document.createElement('button');
         this.historyButton.innerHTML = 'History';
 
@@ -421,7 +420,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                           choices['RED'], choices['BLUE'],
                                           worldState,
                                           payoffs['RED'], payoffs['BLUE']]);
-
+                                          
+                W.addClass(node.game.history.parse(), 'table table-bordered');
                 node.game.historyDiv.appendChild(node.game.history.parse());
             });
         }
