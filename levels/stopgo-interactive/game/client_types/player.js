@@ -244,7 +244,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var span;
 
                     W.show('blue');
-                    W.addLoadingDots(W.getElementById('awaiting-red-decision'), 5);
+                    W.addLoadingDots(W.getElementById('awaiting-red-decision'),
+                                     5);
                     // Make the observer display visible.
 
                     node.on.data('RED-CHOICE', function(msg) {
@@ -270,7 +271,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 timer: null,
                 cb: function() {
                     W.show('awaiting-blue-decision');
-                    W.addLoadingDots(W.getElementById('awaiting-blue-decision'), 5);
+                    W.addLoadingDots(W.getElementById('awaiting-blue-decision'),
+                                     5);
                     W.hide('stop-go-buttons');
                     W.hide('make-your-choice');
 
@@ -373,6 +375,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.setInnerHTML('payoff', payment + ' ' +
                 node.game.runningTotalPayoff.currency);
                 W.setInnerHTML('world-state', worldState);
+
+                W.getElementById('payoff-table')
+                .appendChild(node.game.payoffTables[worldState]);
+
+                if (choices['RED'] === 'GO') {
+                    W.show('go-choice');
+                }
+                else {
+                    W.show('stop-choice');
+                }
             });
         }
     });
