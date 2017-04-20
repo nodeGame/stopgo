@@ -97,7 +97,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     isDynamic = (that.settings.botType === 'dynamic');
 
                     if (isDynamic && channel.numRightLeftDecisions >= 1) {
-                        chanceOfRight = channel.numChooseRight / channel.numRightLeftDecisions;
+                        chanceOfRight = channel.numChooseRight /
+                                        channel.numRightLeftDecisions;
                     }
                     else {
                         chanceOfRight = that.settings.chanceOfRight;
