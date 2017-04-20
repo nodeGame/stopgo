@@ -39,7 +39,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     isDynamic = (that.settings.botType === 'dynamic');
 
                     if (isDynamic && channel.numStopGoDecisions >= 1) {
-                        chanceOfStop = channel.numChooseStop / channel.numStopGoDecisions;
+                        chanceOfStop = channel.numChooseStop /
+                                       channel.numStopGoDecisions;
                     }
                     else {
                         chanceOfStop = that.settings.chanceOfStop;

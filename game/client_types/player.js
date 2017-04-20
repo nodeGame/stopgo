@@ -361,7 +361,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             payoffTables = this.payoffTables;
 
             W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' +
-            node.game.runningTotalPayoff.currency);
+                           node.game.runningTotalPayoff.currency);
             W.getElementById('payoff-matrix-a').appendChild(payoffTables.A);
             W.getElementById('payoff-matrix-b').appendChild(payoffTables.B);
         }
