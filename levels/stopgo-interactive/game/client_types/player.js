@@ -83,6 +83,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.worldState = null;
         node.game.totalPayment = 0;
 
+        node.game.history = new W.Table();
+        node.game.history.addRow(['Round', 'Red Choice', 'Blue Choice',
+                                  'World State', 'Red Payoff', 'Blue Payoff']);
+
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
     });
@@ -385,6 +389,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 else {
                     W.show('stop-choice');
                 }
+
+                node.game.history.addRow([node.player.stage.round,
+                                          choices['RED'], choices['BLUE'],
+                                          worldState,
+                                          payoffs['RED'], payoffs['BLUE']]);
             });
         }
     });

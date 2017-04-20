@@ -24,21 +24,13 @@ module.exports = function(stager, settings) {
     	steps: [
     	    'red-choice-tutorial',
     	    'blue-choice-tutorial',
-          'results-tutorial'
+            'results-tutorial'
     	]
     });
 
-    // stager.extendStage('practice', {
-    // 	steps: [
-    // 	    'red-choice',
-    // 	    'blue-choice',
-    // 	    'results'
-    // 	]
-    // });
-
     // stager.skip('instructions');
-    // stager.skip('choose-tutorial');
-    // stager.skip('tutorial');
+    stager.skip('choose-tutorial');
+    stager.skip('tutorial');
 
     // Modify the stager to skip one stage.
     // stager.skip('quiz');
