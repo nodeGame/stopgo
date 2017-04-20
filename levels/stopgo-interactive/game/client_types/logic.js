@@ -226,7 +226,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 };
 
                 addToHistory(roles.RED, results, node.game.history);
-                addToHistory(roles.BLUE, results, node.game.history)
+                addToHistory(roles.BLUE, results, node.game.history);
 
                 node.say('RESULTS', roles.RED, results);
                 node.say('RESULTS', roles.BLUE, results);
