@@ -49,12 +49,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         this.historyButton = document.createElement('button');
         this.historyButton.innerHTML = 'History';
 
+        this.historyButtonPanelBody = document.createElement('div');
+        W.addClass(this.historyButtonPanelBody, 'panel-body');
+        this.historyButtonPanelBody.appendChild(this.historyButton);
+
         this.historyButtonPanel = document.createElement('div');
-        W.addClass(this.historyButtonPanel, "ng_widget panel panel-body donebutton");
-        this.historyButtonPanel.appendChild(this.historyButton);
+        W.addClass(this.historyButtonPanel, 'ng_widget panel panel-default ' +
+                                            'donebutton');
+        this.historyButtonPanel.appendChild(this.historyButtonPanelBody);
 
         this.historyDiv = document.createElement('div');
-        this.historyDiv.innerHTML = '<h1>here is the history</h1>';
+        W.addClass(this.historyDiv, 'history');
+        this.historyDiv.innerHTML = '<h2>here is the history</h2>';
         this.historyDiv.style.display = 'none';
         W.addClass(this.historyButton, 'btn btn-lg btn-warning');
         header.appendChild(this.historyButtonPanel);
