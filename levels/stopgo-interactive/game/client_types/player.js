@@ -45,6 +45,27 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         this.doneButton = node.widgets.append('DoneButton', header,
                                               { text: 'Done' });
 
+
+        this.historyButton = document.createElement('button');
+        this.historyButton.innerHTML = 'History';
+
+        this.historyButtonPanel = document.createElement('div');
+        W.addClass(this.historyButtonPanel, "ng_widget panel panel-body donebutton");
+        this.historyButtonPanel.appendChild(this.historyButton);
+
+        this.historyDiv = document.createElement('div');
+        this.historyDiv.innerHTML = '<h1>here is the history</h1>';
+        this.historyDiv.style.display = 'none';
+        W.addClass(this.historyButton, 'btn btn-lg btn-warning');
+        header.appendChild(this.historyButtonPanel);
+        document.body.insertBefore(this.historyDiv, frame);
+
+        this.historyButton.onclick = function() {
+            node.game.historyDiv.style.display =
+                    node.game.historyDiv.style.display === 'none' ?
+                                                           'block' : 'none';
+        }
+
         // node.player.stage.round
 
         // Add payoff tables
@@ -394,6 +415,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                           choices['RED'], choices['BLUE'],
                                           worldState,
                                           payoffs['RED'], payoffs['BLUE']]);
+
+                node.game.historyDiv.appendChild(node.game.history.parse());
             });
         }
     });
