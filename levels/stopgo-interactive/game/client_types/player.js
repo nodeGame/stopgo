@@ -83,6 +83,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.worldState = null;
         node.game.totalPayment = 0;
 
+        node.game.history = new W.Table();
+        node.game.history.addRow(['Round', 'Red Choice', 'Blue Choice',
+                                  'World State', 'Red Payoff', 'Blue Payoff']);
+
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
     });
@@ -130,7 +134,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     node.game.playerRole = 'RED';
                 },
                 done: function(decision) {
-                    if (!decision) return false;                    
+                    if (!decision) return false;
                     node.game.redChoice = decision.redChoice;
                     W.getElementById('stop').disabled = true;
                     W.getElementById('go').disabled = true;
@@ -244,7 +248,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var span;
 
                     W.show('blue');
-                    W.addLoadingDots(W.getElementById('awaiting-red-decision'), 5);
+                    W.addLoadingDots(W.getElementById('awaiting-red-decision'),
+                                     5);
                     // Make the observer display visible.
 
                     node.on.data('RED-CHOICE', function(msg) {
@@ -270,7 +275,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 timer: null,
                 cb: function() {
                     W.show('awaiting-blue-decision');
-                    W.addLoadingDots(W.getElementById('awaiting-blue-decision'), 5);
+                    W.addLoadingDots(W.getElementById('awaiting-blue-decision'),
+                                     5);
                     W.hide('stop-go-buttons');
                     W.hide('make-your-choice');
 
@@ -290,7 +296,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.getElementById(buttonId).click();
                 },
                 done: function(decision) {
-                    if (!decision) return false;                    
+                    if (!decision) return false;
                     node.game.blueChoice = decision.blueChoice;
                     W.getElementById('left').disabled = true;
                     W.getElementById('right').disabled = true;
@@ -373,25 +379,24 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.setInnerHTML('payoff', payment + ' ' +
                 node.game.runningTotalPayoff.currency);
                 W.setInnerHTML('world-state', worldState);
+
+                W.getElementById('payoff-table')
+                .appendChild(node.game.payoffTables[worldState]);
+
+                if (choices['RED'] === 'GO') {
+                    W.show('go-choice');
+                }
+                else {
+                    W.show('stop-choice');
+                }
+
+                node.game.history.addRow([node.player.stage.round,
+                                          choices['RED'], choices['BLUE'],
+                                          worldState,
+                                          payoffs['RED'], payoffs['BLUE']]);
             });
         }
     });
-    //
-    // stager.extendStep('end', {
-    //     donebutton: false,
-    //     frame: 'end.htm',
-    //     cb: function() {
-    //         node.game.visualTimer.setToZero();
-    //
-    //         W.setInnerHTML('total', node.game.totalPayment+
-    //                        ' ' + node.game.runningTotalPayoff.currency);
-    //         node.game.totalPayment = 0;
-    //     },
-    //     done: function() {
-    //         node.game.runningTotalPayoff.money = 0;
-    //         node.game.runningTotalPayoff.update(0);
-    //     }
-    // });
 
     stager.extendStep('end', {
         donebutton: false,

@@ -37,6 +37,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.choices = {};
         node.game.tables = {};
         node.game.totals = {};
+        node.game.history = {};
 
         node.on.pdisconnect(function(player) {
             var role;
@@ -77,7 +78,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 // }
             });
 
-            
+
         });
     });
 
@@ -230,9 +231,11 @@ debugger
                     world: node.game.tables[roles.RED]
                 };
 
+                addToHistory(roles.RED, results, node.game.history);
+                addToHistory(roles.BLUE, results, node.game.history);
+
                 node.say('RESULTS', roles.RED, results);
                 node.say('RESULTS', roles.BLUE, results);
-
             }
         }
     });
@@ -334,6 +337,13 @@ debugger
 //             BLUE: blueId
 //         };
 //     }
+
+    function addToHistory(id, results, history) {
+        if (!history[id]) {
+            history[id] = [];
+        }
+        history[id].push(results);
+    }
 
     function addData(playerId, data) {
         var item = node.game.memory.player[playerId].last();

@@ -29,7 +29,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.setOnInit(function() {
 
-        node.on.data('tour-over', function(msg) {
+        node.on.data('tutorial-over', function(msg) {
             var db;
 
             // Move client to part2.
@@ -44,7 +44,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             if (node.game.memory.player[msg.from]) {
               db = node.game.memory.player[msg.from];
               // node.game.memory.save('aa.json');
-              db.save('data_tour.json', { flag: 'a' });
+              db.save('data_tutorial.json', { flag: 'a' });
             }
         });
     });

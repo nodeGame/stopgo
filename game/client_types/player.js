@@ -1,5 +1,5 @@
 /**
- * # Player type implementation of the game stages (Tour)
+ * # Player type implementation of the game stages (tutorial)
  * Copyright(c) 2016
  * MIT Licensed
  *
@@ -82,25 +82,25 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
 
-        this.tourRole = '';
-        this.tourPay = 0;
-        this.tourWorldState = '';
+        this.tutorialRole = '';
+        this.tutorialPay = 0;
+        this.tutorialWorldState = '';
 
-        this.infoText = 'This is only a tour of the game, ' +
+        this.infoText = 'This is only a tutorial of the game, ' +
                         'not the actual game.';
 
-        this.selectTourRole = function(role) {
-            node.game.tourRole = role;
+        this.selecttutorialRole = function(role) {
+            node.game.tutorialRole = role;
             // node.game.setRole(role, true);
             node.game.plot.setStepProperty(node.game.getNextStep(),
                                            'role', role);
-            node.done({tourRole: role});
+            node.done({tutorialRole: role});
         };
 
         this.clickDone = function(obj) {
             var response;
             response = {
-                world: node.game.tourWorldState
+                world: node.game.tutorialWorldState
             };
             node.JSUS.mixin(response, obj);
             node.done(response);
@@ -112,62 +112,66 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         };
     });
 
-    stager.extendStep('choose-tour', {
+    stager.extendStep('choose-tutorial', {
         donebutton: false,
-        frame: 'choose-tour.htm',
+        frame: 'choose-tutorial.htm',
         cb: function() {
             var redSelectButton;
             var blueSelectButton;
 
-            redSelectButton = W.getElementById('tour-red-selection');
-            blueSelectButton = W.getElementById('tour-blue-selection');
+            redSelectButton = W.getElementById('tutorial-red-selection');
+            blueSelectButton = W.getElementById('tutorial-blue-selection');
 
             redSelectButton.onclick = function() {
-                node.game.selectTourRole('RED');
+                node.game.selecttutorialRole('RED');
             };
             blueSelectButton.onclick = function() {
-                node.game.selectTourRole('BLUE');
+                node.game.selecttutorialRole('BLUE');
             };
         }
     });
 
-    stager.extendStep('red-choice-tour', {
+    stager.extendStep('red-choice-tutorial', {
         frame: 'stopgostep.htm',
         init: function() {
             // Save this values.
-            this.tourWorldState = Math.floor(Math.random() * 2) ? 'A' : 'B';
-            this.tourChoices = this.settings.tour[(this.getRound() - 1)];
+            this.tutorialWorldState = Math.floor(Math.random() * 2) ? 'A' : 'B';
+            this.tutorialChoices = this.settings.tutorial[(this.getRound()-1)];
         },
         roles: {
             RED: {
                 donebutton: false,
                 done: function() {
-                    W.show('waiting_for_blue');
+                    W.show('awaiting-blue-decision');
+                    W.addLoadingDots(W.getElementById('awaiting-blue-decision'),
+                     5);
+                    W.hide('stop-go-buttons');
+                    W.hide('make-your-choice');
                 },
                 cb: function() {
                     var correctButton, wrongButton, stopGoButtons;
                     var payoffTable;
 
-                    payoffTable = this.payoffTables[node.game.tourWorldState];
+                    payoffTable = this.payoffTables[this.tutorialWorldState];
 
                     W.setInnerHTML('info', node.game.infoText);
-                    W.setInnerHTML('tour-instructions', 'Please choose ' +
-                                   '<strong>' + this.tourChoices.RED +
+                    W.setInnerHTML('tutorial-instructions', 'Please choose ' +
+                                   '<strong>' + node.game.tutorialChoices.RED +
                                    '</strong> below. In a normal game you ' +
                                    'may choose whatever you like.');
 
                     W.show('info');
-                    W.show('tour-instructions');
+                    W.show('tutorial-instructions');
 
                     W.show('red');
                     W.getElementById('payoff-table').appendChild(payoffTable);
-                    W.setInnerHTML('world-state', node.game.tourWorldState);
+                    W.setInnerHTML('world-state', node.game.tutorialWorldState);
                     W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
                                    ' ' + node.game.runningTotalPayoff.currency);
 
                     stopGoButtons = W.getElementById('stop-go-buttons');
 
-                    if (this.tourChoices.RED === 'STOP') {
+                    if (this.tutorialChoices.RED === 'STOP') {
                         correctButton = W.getElementById('stop');
                         wrongButton = W.getElementById('go');
                     }
@@ -182,7 +186,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         node.game.clickDone();
                         W.setInnerHTML('red-decision',
-                                       'Your choice: ' + this.tourChoices.RED);
+                                       '<strong>Your choice: ' +
+                                       node.game.tutorialChoices.RED +
+                                       '</strong>');
                     };
                     wrongButton.onclick = node.game.clickWrong;
 
@@ -193,22 +199,23 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             BLUE: {
                 cb: function() {
                     W.setInnerHTML('info', node.game.infoText);
-                    W.setInnerHTML('tour-instructions', 'Click ' +
+                    W.setInnerHTML('tutorial-instructions', 'Click ' +
                     '<strong>"Done"</strong> to receive Red\'s choice and ' +
                     'the results. In a normal game, you would wait for the ' +
                     'other player to make a selection (the "Done" button ' +
                     'would be disabled).');
 
                     W.show('info');
-                    W.show('tour-instructions');
-
+                    W.show('tutorial-instructions');
+                    W.addLoadingDots(W.getElementById('awaiting-red-decision'),
+                     5);
                     W.show('blue');
                 }
             }
         }
     });
 
-    stager.extendStep('blue-choice-tour', {
+    stager.extendStep('blue-choice-tutorial', {
         role: true,
         roles: {
             BLUE: {
@@ -217,24 +224,25 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var leftRightButtons;
 
                     W.setInnerHTML('info', node.game.infoText);
-                    W.setInnerHTML('tour-instructions', 'Please choose ' +
-                    '<strong>' + this.tourChoices.BLUE + '</strong> below. ' +
+                    W.setInnerHTML('tutorial-instructions', 'Please choose ' +
+                    '<strong>' + this.tutorialChoices.BLUE +
+                    '</strong> below. ' +
                     'In a normal game you may choose whatever you like.');
 
                     W.show('make-blue-decision');
                     W.hide('awaiting-red-decision');
 
-                    W.setInnerHTML('red-choice', this.tourChoices.RED);
+                    W.setInnerHTML('red-choice', this.tutorialChoices.RED);
 
                     leftRightButtons = W.getElementById('left-right-buttons');
 
-                    if (this.tourChoices.BLUE === 'LEFT') {
+                    if (this.tutorialChoices.BLUE === 'LEFT') {
                         W.getElementById('left').onclick = function() {
                             node.game.clickDone();
                         };
                         W.getElementById('right').onclick = this.clickWrong;
                     }
-                    else if (this.tourChoices.BLUE === 'RIGHT') {
+                    else if (this.tutorialChoices.BLUE === 'RIGHT') {
                         W.getElementById('right').onclick = function() {
                             node.game.clickDone();
                         };
@@ -252,7 +260,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             },
             RED: {
                 cb: function() {
-                    W.setInnerHTML('tour-instructions', 'Click ' +
+                    W.setInnerHTML('tutorial-instructions', 'Click ' +
                     '<strong>"Done"</strong> to receive Blue\'s choice and ' +
                     'the results. In a normal game, you would wait for the ' +
                     'other player to make a selection (the "Done" button ' +
@@ -262,7 +270,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    stager.extendStep('results-tour', {
+    stager.extendStep('results-tutorial', {
         frame: 'results.htm',
         cb: function() {
             var payoffs;
@@ -271,30 +279,32 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var playerChoice;
             var playerColorClass, otherPlayerColorClass;
             var payoffsGo;
+            var tutorialRole;
 
             payoffs = node.game.settings.payoffs;
-            otherPlayerRole = node.game.tourRole === 'RED' ? 'BLUE' : 'RED';
+            otherPlayerRole = node.game.tutorialRole === 'RED' ? 'BLUE' : 'RED';
 
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
 
-            payoffsGo = payoffs.GO[this.tourWorldState];
-
-            if (this.tourChoices.RED === 'GO') {
-                payment = payoffsGo[this.tourChoices.BLUE][this.tourRole];
+            payoffsGo = payoffs.GO[this.tutorialWorldState];
+            tutorialRole = this.tutorialRole;
+            if (this.tutorialChoices.RED === 'GO') {
+                payment = payoffsGo[this.tutorialChoices.BLUE][tutorialRole];
             }
             else {
-                payment = payoffs.STOP[node.game.tourRole];
+                payment = payoffs.STOP[this.tutorialRole];
             }
 
-            node.game.tourPay += payment;
+            node.game.tutorialPay += payment;
             node.game.runningTotalPayoff.update(payment);
 
-            playerChoice = this.tourChoices[node.game.tourRole].toUpperCase();
-            playerColorClass = node.game.tourRole.toLowerCase();
+            playerChoice = this.tutorialChoices[node.game.tutorialRole]
+                           .toUpperCase();
+            playerColorClass = node.game.tutorialRole.toLowerCase();
             otherPlayerColorClass = otherPlayerRole.toLowerCase();
 
-            W.setInnerHTML('player', node.game.tourRole);
+            W.setInnerHTML('player', node.game.tutorialRole);
             W.setInnerHTML('player-choice', playerChoice);
             W.addClass(W.getElementById('player'), playerColorClass);
 
@@ -303,33 +313,44 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                        otherPlayerColorClass);
 
             W.setInnerHTML('other-player-choice',
-                           this.tourChoices[otherPlayerRole]);
+                           this.tutorialChoices[otherPlayerRole]);
 
             W.setInnerHTML('payoff', payment + ' ' +
             node.game.runningTotalPayoff.currency);
-            W.setInnerHTML('world-state', node.game.tourWorldState);
+            W.setInnerHTML('world-state', node.game.tutorialWorldState);
 
             // Sets the role again.
             node.game.plot.updateProperty(node.game.getNextStep(),
-                                          'role', node.game.tourRole);
+                                          'role', node.game.tutorialRole);
+
+            W.getElementById('payoff-table')
+            .appendChild(this.payoffTables[this.tutorialWorldState]);
+
+            if (this.tutorialChoices['RED'] === 'GO') {
+                W.show('go-choice');
+            }
+            else {
+                W.show('stop-choice');
+            }
+
         }
     });
 
-    stager.extendStep('tour-end', {
+    stager.extendStep('tutorial-end', {
         frame: 'practice-end.htm',
         done: function() {
             node.game.runningTotalPayoff.money = 0;
             node.game.runningTotalPayoff.update(0);
 
-            node.say('tour-over');
+            node.say('tutorial-over');
         },
         cb: function() {
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
-            W.setInnerHTML('tour-instructions', 'Click <strong>"Done"' +
+            W.setInnerHTML('tutorial-instructions', 'Click <strong>"Done"' +
                            '</strong> to be moved into the waiting room.');
-            W.show('tour-instructions');
-            W.setInnerHTML('total', node.game.tourPay + ' ' +
+            W.show('tutorial-instructions');
+            W.setInnerHTML('total', node.game.tutorialPay + ' ' +
             node.game.runningTotalPayoff.currency);
         }
     });
@@ -341,7 +362,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             payoffTables = this.payoffTables;
 
             W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' +
-            node.game.runningTotalPayoff.currency);
+                           node.game.runningTotalPayoff.currency);
             W.getElementById('payoff-matrix-a').appendChild(payoffTables.A);
             W.getElementById('payoff-matrix-b').appendChild(payoffTables.B);
         }

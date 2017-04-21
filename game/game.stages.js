@@ -13,38 +13,30 @@ module.exports = function(stager, settings) {
 
     stager
         .next('instructions')
-        .next('choose-tour') // choose blue/red
-        .repeat('tour', settings.tour.length) //
-        .next('tour-end') // remind players that they are randomly assigned to blue/red
+        .next('choose-tutorial') // choose blue/red
+        .repeat('tutorial', settings.tutorial.length) //
+        .next('tutorial-end') // remind players that they are randomly assigned to blue/red
         // .repeat('practice', settings.REPEAT_PRACTICE)
         // .next('practice-end')
         .gameover();
 
-    stager.extendStage('tour', {
+    stager.extendStage('tutorial', {
     	steps: [
-    	    'red-choice-tour',
-    	    'blue-choice-tour',
-            'results-tour'
+    	    'red-choice-tutorial',
+    	    'blue-choice-tutorial',
+            'results-tutorial'
     	]
     });
 
-
-    // stager.extendStage('practice', {
-    // 	steps: [
-    // 	    'red-choice',
-    // 	    'blue-choice',
-    // 	    'results'
-    // 	]
-    // });
+    // stager.skip('instructions');
+    stager.skip('choose-tutorial');
+    stager.skip('tutorial');
 
     // Modify the stager to skip one stage.
-    stager.skip('instructions');
     // stager.skip('quiz');
     // stager.skip('practice');
     // stager.skip('practice-end');
-    stager.skip('choose-tour');
-    stager.skip('tour');
-    // stager.skip('tour-end');
+    // stager.skip('tutorial-end');
     // stager.skip('test');
 
     return stager.getState();

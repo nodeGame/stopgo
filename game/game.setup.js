@@ -14,7 +14,7 @@
 module.exports = function(settings, stages) {
 
     var setup = {};
-
+    
     //auto: true = automatic run, auto: false = user input
     setup.env = {
         auto: false

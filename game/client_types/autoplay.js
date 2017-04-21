@@ -42,13 +42,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         _cb = stepObj._roles[this.role];
                         _cb.call(this);
 
-                        if ((stepId === 'red-choice-tour' &&
+                        if ((stepId === 'red-choice-tutorial' &&
                              node.game.role === 'RED') ||
-                            (stepId === 'blue-choice-tour' &&
+                            (stepId === 'blue-choice-tutorial' &&
                              node.game.role === 'BLUE')) {
 
                             // Id of the button to press.
-                            id = node.game.tourChoices[node.game.role];
+                            id = node.game.tutorialChoices[node.game.role];
                             id = id.toLowerCase();
 
                             // Wait a bit, the button is still hidden.
@@ -76,9 +76,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 _cb = stepObj._cb;
                 _cb.call(this);
 
-                if (stepId === 'choose-tour') {
+                if (stepId === 'choose-tutorial') {
                     tmp = Math.random() > 0.5 ? 'RED' : 'BLUE';
-                    node.game.selectTourRole(tmp);
+                    node.game.selecttutorialRole(tmp);
                 }
                 else {
                     node.timer.randomDone(2000);

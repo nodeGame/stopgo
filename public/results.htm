@@ -3,29 +3,51 @@
 <link rel="stylesheet" href="/lib/bootstrap/bootstrap.min.css" />
 <link rel="stylesheet" href="css/style.css"/>
 <body>
-  <h1>Round Results</h1>
-  <div id="info" class="alert alert-warning" style="display:none" role="alert">
-  </div>
-  <div id="instructions">
-    <p>
-      You are <strong><span id="player"> __ </span></strong>. You
-      chose: <strong><span id="player-choice">__</span></strong>.
-    </p>
-    <p>
-      The other
-      player, <strong><span id="other-player">__ </span></strong>,
-      chose: <strong><span id="other-player-choice">__ </span></strong>.
-    </p>
-    <p>
-      The state of the world was: <strong><span id="world-state">
-      __ </span></strong>.
-    </p>
-    <!-- language changed for tour -->
-    <p>
-      Your payoff in this round is: <span id="payoff" class="money">__</span>.
-    </p>
-    <p>
-      Press <em>"Done"</em> to go to the next round.
-    </p>
-  </div>
+    <h1>Round Results</h1>
+    <div id="info" class="alert alert-warning" style="display:none" role="alert">
+    </div>
+    <div id="instructions">
+        <p>
+            You are <strong><span id="player"> __ </span></strong>. You
+            chose: <strong><span id="player-choice">__</span></strong>.
+        </p>
+        <p>
+            The other
+            player, <strong><span id="other-player">__ </span></strong>,
+            chose: <strong><span id="other-player-choice">__ </span></strong>.
+        </p>
+        <p>
+            The state of the world was:
+            <strong><span id="world-state"> __ </span></strong>.
+        </p>
+        <!-- language changed for tour -->
+        <p>
+            Your payoff in this round is:
+            <span id="payoff" class="money">__</span>.
+        </p>
+        <p>
+            Press <em>"Done"</em> to go to the next round.
+        </p>
+    </div>
+    <div id="go-choice" style="display: none">
+        <p>
+            This was the payoff table used for the last match which
+            determined your pay:
+        </p>
+        <div id="payoff-table" class="panel panel-default">
+            <div class="panel-heading">
+                Payoff Table (based on state of the world)
+            </div>
+        </div>
+        <p>
+            Remember, the state of the world is randomly set each round and
+            determines the payoff table. Next round it will be randomly set
+            again.
+        </p>
+    </div>
+    <div id="stop-choice" style="display: none">
+        <p>
+            Since "Stop" was chosen, the payoff table of the world was not used.
+        </p>
+    </div>
 </body>
