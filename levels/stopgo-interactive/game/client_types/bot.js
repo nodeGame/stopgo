@@ -105,7 +105,9 @@ module.exports = function(treatmentName, settings, stager,
                         node.game.blueChoice = msg.data;
                         node.done();
                     });
-                }
+                },
+                // Blues times up first, and will send data.
+                timeup: null
             },
             BLUE: {
                 cb: function() {

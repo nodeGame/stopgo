@@ -64,6 +64,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     if (role === 'RED') {
                         node.game.tables[bot.player.id] =
                             node.game.tables[player.id];
+
+                        // Save the Red choice, if it was done already.
+                        if (node.game.choices[player.id]) {
+                            node.game.choices[bot.player.id] =
+                                node.game.choices[player.id];
+                        }
                     }
                 }
                 // gotoStepOptions: {
@@ -151,7 +157,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 if (role === 'BLUE') {
                     otherId = node.game.matcher.getMatchFor(id);
-
+debugger
                     choices = node.game.choices;
                     blueChoice = msg.data.blueChoice;
                     choices[otherId].blueChoice = blueChoice;
