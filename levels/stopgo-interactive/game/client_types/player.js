@@ -26,7 +26,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Initialize the client.
         // Setup page: header + frame.
         var header = W.generateHeader();
+        var infoPanel = W.generateInfoPanel();
         var frame = W.generateFrame();
+
         W.setHeaderPosition('top');
 
         var payoffs;
@@ -45,33 +47,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         this.doneButton = node.widgets.append('DoneButton', header,
                                               { text: 'Done' });
 
-        this.historyButton = document.createElement('button');
-        this.historyButton.innerHTML = 'History';
-
-        this.historyButtonPanelBody = document.createElement('div');
-        W.addClass(this.historyButtonPanelBody, 'panel-body');
-        this.historyButtonPanelBody.appendChild(this.historyButton);
-
-        this.historyButtonPanel = document.createElement('div');
-        W.addClass(this.historyButtonPanel, 'ng_widget panel panel-default ' +
-                                            'donebutton');
-        this.historyButtonPanel.appendChild(this.historyButtonPanelBody);
-
         this.historyDiv = document.createElement('div');
-        W.addClass(this.historyDiv, 'history');
         this.historyDiv.innerHTML = '<h2>here is the history</h2>';
-        this.historyDiv.style.display = 'none';
-        W.addClass(this.historyButton, 'btn btn-lg btn-warning');
-        header.appendChild(this.historyButtonPanel);
-        document.body.insertBefore(this.historyDiv, frame);
+        W.addClass(this.historyDiv, 'history');
 
-        this.historyButton.onclick = function() {
-            node.game.historyDiv.style.display =
-                    node.game.historyDiv.style.display === 'none' ?
-                                                           'block' : 'none';
-        }
+        this.historyButton = infoPanel.createToggleButton();
+        infoPanel.infoPanelDiv.appendChild(this.historyDiv);
 
-        // node.player.stage.round
+        console.log(header);
+        header.appendChild(this.historyButton);
 
         // Add payoff tables
         node.game.totalPayoff = 0;
@@ -108,6 +92,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.blueChoice = null;
         node.game.worldState = null;
         node.game.totalPayment = 0;
+
+
+
+
 
         node.game.history = new W.Table();
         node.game.history.addRow(['Round', 'Red Choice', 'Blue Choice',
@@ -420,7 +408,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                           choices['RED'], choices['BLUE'],
                                           worldState,
                                           payoffs['RED'], payoffs['BLUE']]);
-                                          
+
                 W.addClass(node.game.history.parse(), 'table table-bordered');
                 node.game.historyDiv.appendChild(node.game.history.parse());
             });
