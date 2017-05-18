@@ -26,8 +26,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Initialize the client.
         // Setup page: header + frame.
         var header = W.generateHeader();
-        var infoPanel = W.generateInfoPanel();
         var frame = W.generateFrame();
+        var infoPanel = W.generateInfoPanel();
 
         W.setHeaderPosition('top');
 
@@ -51,10 +51,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         this.historyDiv.innerHTML = '<h2>here is the history</h2>';
         W.addClass(this.historyDiv, 'history');
 
-        this.historyButton = infoPanel.createToggleButton();
+        this.historyButton = infoPanel.createToggleButton('Toggle History');
         infoPanel.infoPanelDiv.appendChild(this.historyDiv);
 
-        console.log(header);
         header.appendChild(this.historyButton);
 
         // Add payoff tables
