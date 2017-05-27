@@ -26,10 +26,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Initialize the client.
         // Setup page: header + frame.
         var header = W.generateHeader();
+        W.setHeaderPosition('top');
+
         var frame = W.generateFrame();
         var infoPanel = W.generateInfoPanel();
-
-        W.setHeaderPosition('top');
 
         var payoffs;
         var payoffTableA, payoffTableB;
