@@ -48,10 +48,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                               { text: 'Done' });
 
         this.historyDiv = document.createElement('div');
-        this.historyDiv.innerHTML = '<h2>here is the history</h2>';
+        this.historyDiv.innerHTML = '<h3>Game history</h3>';
         W.addClass(this.historyDiv, 'history');
 
-        this.historyButton = infoPanel.createToggleButton('Toggle History');
+        this.historyButton = infoPanel.createToggleButton('History');
         infoPanel.infoPanelDiv.appendChild(this.historyDiv);
 
         header.appendChild(this.historyButton);
