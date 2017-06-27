@@ -23,13 +23,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     var game;
 
     stager.setOnInit(function() {
-        // Initialize the client.
-        // Setup page: header + frame.
-        var header = W.generateHeader();
-        W.setHeaderPosition('top');
 
-        var frame = W.generateFrame();
-        var infoPanel = W.generateInfoPanel();
+        // Setup page: header + frame + infopanel.
+
+        var header, frame, infoPanel;
 
         var payoffs;
         var payoffTableA, payoffTableB;
@@ -38,6 +35,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var tableClasses;
 
         var payoffStopRed, payoffStopBlue;
+
+        header = W.generateHeader();
+
+        frame = W.generateFrame();
+
+        infoPanel = W.generateInfoPanel(undefined, {
+            onStep: 'close'
+        });
 
         // Add widgets.
         this.visualRound = node.widgets.append('VisualRound', header);
@@ -60,16 +65,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.totalPayoff = 0;
         payoffs = node.game.settings.payoffs;
 
-        redRowA = ['Red', payoffs.GO.A.LEFT.RED, payoffs.GO.A.RIGHT.RED];
-        blueRowA = ['Blue', payoffs.GO.A.LEFT.BLUE, payoffs.GO.A.RIGHT.BLUE];
+        redRowA = [ 'Red', payoffs.GO.A.LEFT.RED, payoffs.GO.A.RIGHT.RED ];
+        blueRowA = [ 'Blue', payoffs.GO.A.LEFT.BLUE, payoffs.GO.A.RIGHT.BLUE ];
 
         payoffTableA = new W.Table();
-        payoffTableA.addRow(['', 'Left', 'Right']);
+        payoffTableA.addRow([ '', 'Left', 'Right' ]);
         payoffTableA.addRow(redRowA);
         payoffTableA.addRow(blueRowA);
 
-        redRowB = ['Red', payoffs.GO.B.LEFT.RED, payoffs.GO.B.RIGHT.RED];
-        blueRowB = ['Blue', payoffs.GO.B.LEFT.BLUE, payoffs.GO.B.RIGHT.BLUE];
+        redRowB = [ 'Red', payoffs.GO.B.LEFT.RED, payoffs.GO.B.RIGHT.RED ];
+        blueRowB = [ 'Blue', payoffs.GO.B.LEFT.BLUE, payoffs.GO.B.RIGHT.BLUE ];
         payoffTableB = new W.Table();
         payoffTableB.addRow(['', 'Left', 'Right']);
         payoffTableB.addRow(redRowB);
@@ -92,13 +97,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.worldState = null;
         node.game.totalPayment = 0;
 
-
-
-
-
         node.game.history = new W.Table();
-        node.game.history.addRow(['Round', 'Red Choice', 'Blue Choice',
-                                  'World State', 'Red Payoff', 'Blue Payoff']);
+        node.game.history.addRow([
+            'Round', 'Red Choice', 'Blue Choice',
+            'World State', 'Red Payoff', 'Blue Payoff'
+        ]);
 
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
