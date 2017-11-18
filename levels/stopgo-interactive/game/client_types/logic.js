@@ -158,7 +158,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 if (role === 'BLUE') {
                     otherId = node.game.matcher.getMatchFor(id);
-debugger
                     choices = node.game.choices;
                     blueChoice = msg.data.blueChoice;
                     choices[otherId].blueChoice = blueChoice;
@@ -346,8 +345,10 @@ debugger
     }
 
     function addData(playerId, data) {
-        var item = node.game.memory.player[playerId].last();
-        item.bonus = data;
+        if (node.game.memory.player[playerId]){
+            var item = node.game.memory.player[playerId].last();
+            item.bonus = data;
+        }
     }
 
     // returns payoffs as a object

@@ -28,7 +28,7 @@ module.exports = function(treatmentName, settings, stager,
         console.log('Stage: ' , this.getCurrentGameStage());
         node.timer.randomDone();
     });
-
+    
     stager.setOnInit(function() {
         var payoffs;
         var payoffTableA, payoffTableB;
