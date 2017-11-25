@@ -239,9 +239,9 @@ module.exports = {
 
 
     /**
-     * ## PLAY_WITH_BOT_OPTION (boolean) Optional
+     * ## ALLOW_PLAY_WITH_BOTS (boolean) Optional
      *
      * Displays button to connect bots to the server and begin game
      */
-    PLAY_WITH_BOT_OPTION: true
+    ALLOW_PLAY_WITH_BOTS: true
 };
