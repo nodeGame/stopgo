@@ -40,14 +40,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.history = {};
 
         node.on.pdisconnect(function(player) {
-            var role;
+            var role, options;
             player.allowReconnect = false; // check if registry maybe
             if (node.game.pl.size() === 1 &&
                 node.game.pl.first().clientType === "player") {
 
                 role = node.game.matcher.getRoleFor(player.id);
 
-                channel.connectBot({
+                options = {
                     room: gameRoom,
                     // id: player.id, Otherwise it gets the wrong clinetType
                     clientType: 'bot',
@@ -64,31 +64,27 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     replaceId: player.id,
                     gotoStep: node.player.stage,
                     ready: function(bot) {
-                        if (role === 'RED') {
-                            node.game.tables[bot.player.id] =
-                                node.game.tables[player.id];
+                        node.game.tables[bot.player.id] =
+                            node.game.tables[player.id];
 
-                            // Save the Red choice, if it was done already.
-                            if (node.game.choices[player.id]) {
-                                node.game.choices[bot.player.id] =
-                                    node.game.choices[player.id];
-                            }
-                        }
-                        if (role === 'BLUE') {
-                            node.game.tables[bot.player.id] =
-                                node.game.tables[player.id];
-
-                            // Save the Red choice, if it was done already.
-                            if (node.game.choices[player.id]) {
-                                node.game.choices[bot.player.id] =
-                                    node.game.choices[player.id];
-                            }
-                        }
+                        // Save the Red choice, if it was done already.
+                        if (node.game.choices[player.id]) {
+                            node.game.choices[bot.player.id] =
+                                node.game.choices[player.id];
+                        }   
                     }
-                    // gotoStepOptions: {
-                    //     plot: { role: node.game.matcher.getRoleFor(player.id) }
-                    // }
-                });
+                };
+
+                if (node.player.stage.step !== 3) {
+                    options.gotoStepOptions = {
+                        plot: { 
+                             partner: node.game.matcher.getMatchFor(player.id),
+                             role: node.game.matcher.getRoleFor(player.id)
+                        }
+                    };
+                }
+
+                channel.connectBot(options);
             }
 
         });
