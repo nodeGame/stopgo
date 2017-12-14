@@ -33,7 +33,7 @@ module.exports = {
      *
      * The size of each group dispatched by the waiting room
      */
-    GROUP_SIZE: 2,
+    GROUP_SIZE: 10,
 
     /**
      * ## POOL_SIZE (number) Optional
@@ -44,7 +44,7 @@ module.exports = {
      *
      * Default: GROUP_SIZE
      */
-    POOL_SIZE: 2,
+    POOL_SIZE: 10,
 
     /**
      * ## N_GAMES (number) Optional
@@ -199,7 +199,7 @@ module.exports = {
      *
      * @see WaitingRoom.dispatch
      */
-    PING_BEFORE_DISPATCH: false,
+    PING_BEFORE_DISPATCH: true,
 
     /**
      * ## logicPath (string) Optional

@@ -69,8 +69,8 @@ module.exports = function(treatmentName, settings, stager,
                     isDynamic = (this.settings.botType === 'dynamic');
 
                     if (isDynamic && channel.numStopGoDecisions >= minDecisions) {
-                        chanceOfStop = channel.numChooseStop
-                                       / channel.numStopGoDecisions;
+                        chanceOfStop = 
+                            channel.numChooseStop / channel.numStopGoDecisions;
                     }
                     else {
                         chanceOfStop = this.settings.botChance.stop;
@@ -120,8 +120,8 @@ module.exports = function(treatmentName, settings, stager,
                     minDecisions = this.settings.botChance.minDecisions;
 
                     if (isDynamic && channel.numRightLeftDecisions >= minDecisions) {
-                        chanceOfRight = channel.numChooseRight
-                                       / channel.numRightLeftDecisions;
+                        chanceOfRight =
+                            channel.numChooseRight / channel.numRightLeftDecisions;
                     }
                     else {
                         chanceOfRight = this.settings.botChance.right;
