@@ -20,8 +20,6 @@ var publishLevels = constants.publishLevels;
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
-    var game;
-
     stager.setDefaultStepRule(stepRules.SOLO);
 
     stager.setOnInit(function() {
@@ -40,7 +38,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var payoffStopRed, payoffStopBlue;
 
         // Add widgets.
-        this.visualRound = node.widgets.append('VisualRound', header);
+        this.visualRound = node.widgets.append('VisualRound', header, {
+            title: false
+        });
         this.visualTimer = node.widgets.append('VisualTimer', header);
         this.runningTotalPayoff = node.widgets.append('MoneyTalks', header,
                                                       {currency: 'USD'});
@@ -367,8 +367,4 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.getElementById('payoff-matrix-b').appendChild(payoffTables.B);
         }
     });
-
-    game = setup;
-    game.plot = stager.getState();
-    return game;
 };

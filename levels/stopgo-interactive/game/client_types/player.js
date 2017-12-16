@@ -38,13 +38,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var payoffStopRed, payoffStopBlue;
 
         // Add widgets.
-        this.visualRound = node.widgets.append('VisualRound', header);
+        this.visualRound = node.widgets.append('VisualRound', header, {
+            title: false
+        });
         this.visualTimer = node.widgets.append('VisualTimer', header);
-        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header,
-                                                      { currency: 'USD' });
-        this.doneButton = node.widgets.append('DoneButton', header,
-                                              { text: 'Done' });
-
+        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header, {
+            currency: 'USD'
+        });
+        this.doneButton = node.widgets.append('DoneButton', header, {
+            text: 'Done'
+        });
+        
         // node.player.stage.round
 
         // Add payoff tables
