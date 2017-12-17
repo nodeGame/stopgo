@@ -11,9 +11,6 @@
 
 var fs = require('fs');
 var ngc = require('nodegame-client');
-var stepRules = ngc.stepRules;
-var constants = ngc.constants;
-var counter = 0;
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
@@ -21,9 +18,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     var channel = gameRoom.channel;
 
     // Must implement the stages here.
-
-    // Increment counter.
-    counter = counter ? ++counter : settings.SESSION_ID || 1;
 
     stager.setOnInit(function() {
         // Initialize the client.
@@ -459,15 +453,4 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         channel.numRightLeftDecisions = totalRightLeft;
         channel.numChooseRight = totalRight;
     }
-
-    return {
-        nodename: 'lgc' + counter,
-        // Extracts, and compacts the game plot that we defined above.
-        plot: stager.getState(),
-        // If debug is false (default false), exception will be caught and
-        // and printed to screen, and the game will continue.
-        debug: settings.DEBUG,
-        // Controls the amount of information printed to screen.
-        verbosity: -100
-    };
 }

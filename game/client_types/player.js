@@ -28,7 +28,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var header = W.generateHeader();
         var frame = W.generateFrame();
         W.setHeaderPosition('top');
-
         var payoffs;
         var payoffTableA, payoffTableB;
         var redRowA, redRowB;
@@ -42,10 +41,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             title: false
         });
         this.visualTimer = node.widgets.append('VisualTimer', header);
-        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header,
-                                                      {currency: 'USD'});
-        this.doneButton = node.widgets.append('DoneButton', header,
-                                              {text: 'Done'});
+        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header, {
+            title: 'Points',
+            currency: 'Points',
+            precision: 0,
+            showCurrency: false
+        });
+        this.doneButton = node.widgets.append('DoneButton', header, {
+            text: 'Done'
+        });
 
         // node.player.stage.round
 
@@ -315,8 +319,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.setInnerHTML('other-player-choice',
                            this.tutorialChoices[otherPlayerRole]);
 
-            W.setInnerHTML('payoff', payment + ' ' +
-            node.game.runningTotalPayoff.currency);
+            payment += ' ' + node.game.runningTotalPayoff.currency;            
+            W.setInnerHTML('payoff', payment);
             W.setInnerHTML('world-state', node.game.tutorialWorldState);
 
             // Sets the role again.
@@ -339,19 +343,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('tutorial-end', {
         frame: 'practice-end.htm',
         done: function() {
-            node.game.runningTotalPayoff.money = 0;
-            node.game.runningTotalPayoff.update(0);
-
+            node.game.runningTotalPayoff.update(0, true);
             node.say('tutorial-over');
         },
         cb: function() {
+            var payoff, ex;
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
             W.setInnerHTML('tutorial-instructions', 'Click <strong>"Done"' +
                            '</strong> to be moved into the waiting room.');
             W.show('tutorial-instructions');
-            W.setInnerHTML('total', node.game.tutorialPay + ' ' +
-            node.game.runningTotalPayoff.currency);
+            ex = node.game.settings.EXCHANGE_RATE;
+            payoff = node.game.tutorialPay + ' ';
+            payoff += node.game.runningTotalPayoff.currency + ' = ' +
+                (node.game.tutorialPay*ex).toFixed(2) + 'USD';
+            W.setInnerHTML('total',  payoff);
         }
     });
 

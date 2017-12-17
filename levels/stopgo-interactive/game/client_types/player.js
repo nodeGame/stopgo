@@ -13,14 +13,7 @@
 
 'use strict';
 
-var ngc = require('nodegame-client');
-var stepRules = ngc.stepRules;
-var constants = ngc.constants;
-var publishLevels = constants.publishLevels;
-
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
-
-    var game;
 
     stager.setOnInit(function() {
         // Initialize the client.
@@ -155,7 +148,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         W.show('red');
                         W.getElementById('payoff-table')
-                        .appendChild(payoffTable);
+                            .appendChild(payoffTable);
                         W.setInnerHTML('world-state', node.game.worldState);
                         W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
                                        ' ' +
@@ -415,7 +408,4 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
-    game = setup;
-    game.plot = stager.getState();
-    return game;
 };
