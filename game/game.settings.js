@@ -86,7 +86,7 @@ settings = {
         original: {
             fullName: "A=3.33 and PI=0.5",
             description: "As in original EGLML paper",
-            // Probability of A vs B.
+            // Probability of state of the world is A.
             PI: 0.5,
             // Payoff in first leaf.
             TWO: 6,
@@ -123,7 +123,7 @@ settings = {
             PI: 0.2
         },
 
-        A6_PI02: {
+        A6_PI08: {
             fullName: "A=6 and PI=0.8",
             description: "none",
             STOP: 3,

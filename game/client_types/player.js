@@ -364,9 +364,36 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('instructions', {
         frame: 'instructions.htm',
         cb: function() {
-            var payoffTables;
+            var payoffTables, s, str, mult;
+            s = node.game.settings;
             payoffTables = this.payoffTables;
 
+            W.setInnerHTML('probability-A', (s.PI * 100) + '%');
+            // JS fails horribly with floating precision.
+            W.setInnerHTML('probability-B',
+                           (parseFloat((1-s.PI).toFixed(2)) * 100) + '%');
+
+            if (s.PI === 0.5) {
+                str = 'A and B are equally likely';
+            }
+            else {
+                if (s.PI > 0.5) {
+                    mult = parseFloat(s.PI / (1-s.PI)).toFixed(1);
+                    if (mult.charAt(mult.length-1) === "0") {
+                        mult = mult.substr(0, mult.length-2);
+                    }
+                    str = 'A is ' + mult + ' times more likely than B';
+                }
+                else {
+                    mult = parseFloat((1-s.PI) / s.PI).toFixed(1);
+                    if (mult.charAt(mult.length-1) === "0") {
+                        mult = mult.substr(0, mult.length-2);
+                    }
+                    str = 'B is ' + mult + ' times more likely than A';
+                }
+            }
+            W.setInnerHTML('probability-explained', str);
+            
             W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' +
                            node.game.runningTotalPayoff.currency);
             W.getElementById('payoff-matrix-a').appendChild(payoffTables.A);
