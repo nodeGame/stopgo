@@ -34,6 +34,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         this.memory.on('insert', function(o) {
             o.room = node.nodename;
             o.treatment = treatmentName;
+            o.bot = !!channel.bots[o.player];
+            // console.log('Bot? ', o.from, channel.bots[o.from])
+            // console.log('Bot? ', o.from, Object.keys(channel.bots))
         });
         
         node.game.choices = {};
@@ -44,8 +47,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.on.pdisconnect(function(player) {
             var role, options;
             player.allowReconnect = false; // check if registry maybe
-            if (node.game.pl.size() === 1 &&
-                node.game.pl.first().clientType === "player") {
+            if (node.game.pl.first().clientType !== "bot") {
 
                 role = node.game.matcher.getRoleFor(player.id);
 
@@ -77,6 +79,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
                 };
 
+                // TODO: improve.
                 if (node.player.stage.step !== 3) {
                     options.gotoStepOptions = {
                         plot: { 
@@ -87,6 +90,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
 
                 channel.connectBot(options);
+                
             }
 
         });
@@ -378,11 +382,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         gameDir = channel.getGameDir();
         node.game.memory.save('db.json');
         node.game.memory.save('db.csv', {
+            bool2num: true,
             headers: [
                 "room", "treatment",
-                "time", "timeup", "timestamp", "player",
+                "time", "timeup", "timestamp", "player", "bot", 
                 "stage.stage", "stage.step","stage.round",
-                "redChoice", "blueChoice"
+                "redChoice", "blueChoice", "bonus"
             ]
         });
 
