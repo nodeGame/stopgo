@@ -257,7 +257,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     .appendChild(node.game.payoffTables.B);
 
                     W.setInnerHTML('payoff-stop-blue', this.payoffStopBlue +
-                    ' ' + node.game.runningTotalPayoff.currency);
+                                   ' ' + node.game.runningTotalPayoff.currency);
+
+                    // On small screens, table can be cut.
+                    setTimeout(function() { W.adjustFrameHeight() });
                 }
             },
             RED: {
