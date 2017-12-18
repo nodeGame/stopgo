@@ -36,11 +36,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         });
         this.visualTimer = node.widgets.append('VisualTimer', header);
         this.runningTotalPayoff = node.widgets.append('MoneyTalks', header, {
-            currency: 'USD'
+            title: 'Points',
+            currency: 'Points',
+            precision: 0,
+            showCurrency: false
         });
-        this.doneButton = node.widgets.append('DoneButton', header, {
-            text: 'Done'
-        });
+        this.doneButton = node.widgets.append('DoneButton', header);
         
         // node.player.stage.round
 
@@ -402,8 +403,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             name: 'EndScreen',
             root: "body",
             options: {
+                panel: false,
                 title: false,
-                showEmailForm: true
+                showEmailForm: true,
+                email: { errString: 'Please enter a valid email and retry' },
             }
         }
     });

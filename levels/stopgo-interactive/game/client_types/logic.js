@@ -1,11 +1,11 @@
 /**
-* # Logic type implementation of the game stages
-* Copyright(c) 2017 Stefano Balietti <ste@nodegame.org>
-* MIT Licensed
-*
-* http://www.nodegame.org
-* ---
-*/
+ * # Logic type implementation of the game stages
+ * Copyright(c) 2017 Stefano Balietti <ste@nodegame.org>
+ * MIT Licensed
+ *
+ * http://www.nodegame.org
+ * ---
+ */
 
 "use strict";
 
@@ -72,8 +72,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 if (node.player.stage.step !== 3) {
                     options.gotoStepOptions = {
                         plot: { 
-                             partner: node.game.matcher.getMatchFor(player.id),
-                             role: node.game.matcher.getRoleFor(player.id)
+                            partner: node.game.matcher.getMatchFor(player.id),
+                            role: node.game.matcher.getRoleFor(player.id)
                         }
                     };
                 }
@@ -257,14 +257,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 code = channel.registry.getClient(roles.RED);
 
                 node.say('WIN', roles.RED, {
-                    total: node.game.totals[roles.RED],
+                    totalRaw: node.game.totals[roles.RED],
                     exit: code.ExitCode
                 });
 
                 code = channel.registry.getClient(roles.BLUE);
 
                 node.say('WIN', roles.BLUE, {
-                    total: node.game.totals[roles.BLUE],
+                    totalRaw: node.game.totals[roles.BLUE],
                     exit: code.ExitCode
                 });
             }
@@ -312,32 +312,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         fs.appendFile(gameDir + 'data/' + fileName + '.csv', row,
                       function(err) {
-            if (err) {
-                console.log(err);
-                console.log(row);
-            }
-        });
+                          if (err) {
+                              console.log(err);
+                              console.log(row);
+                          }
+                      });
     }
-
-    // TODO: do we need this?
-//     function getRoles(id1, id2) {
-//         var redId, blueId;
-//
-//         console.log('getRoleFor '+id1+': '+node.game.matcher.getRoleFor(id1));
-//         if (node.game.matcher.getRoleFor(id1) === 'RED') {
-//             redId = id1;
-//             blueId = id2;
-//         }
-//         else {
-//             redId = id2;
-//             blueId = id1;
-//         }
-//
-//         return {
-//             RED: redId,
-//             BLUE: blueId
-//         };
-//     }
 
     function addToHistory(id, results, history) {
         if (!history[id]) {
@@ -409,9 +389,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
 
         line = node.nodename + ',' + channel.numStopGoDecisions +
-               ',' + channel.numChooseStop +
-               ',' + channel.numRightLeftDecisions +
-               ',' + channel.numChooseRight + '\n';
+            ',' + channel.numChooseStop +
+            ',' + channel.numRightLeftDecisions +
+            ',' + channel.numChooseRight + '\n';
 
         fs.appendFile(avgDecisionFilePath, line, function(err) {
             if (err) console.log('An error occurred saving: ' + line);

@@ -47,9 +47,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             precision: 0,
             showCurrency: false
         });
-        this.doneButton = node.widgets.append('DoneButton', header, {
-            text: 'Done'
-        });
+        this.doneButton = node.widgets.append('DoneButton', header);
 
         // node.player.stage.round
 
@@ -353,11 +351,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.setInnerHTML('tutorial-instructions', 'Click <strong>"Done"' +
                            '</strong> to be moved into the waiting room.');
             W.show('tutorial-instructions');
-            ex = node.game.settings.EXCHANGE_RATE;
+         
             payoff = node.game.tutorialPay + ' ';
-            payoff += node.game.runningTotalPayoff.currency + ' = ' +
-                (node.game.tutorialPay*ex).toFixed(2) + 'USD';
-            W.setInnerHTML('total',  payoff);
+            payoff += node.game.runningTotalPayoff.currency;
+            W.setInnerHTML('total', payoff);
+            ex = node.game.settings.EXCHANGE_RATE;
+            payoff = (node.game.tutorialPay*ex).toFixed(2) + ' USD';
+            W.setInnerHTML('total-in-money', payoff);
+
         }
     });
 
