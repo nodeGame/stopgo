@@ -35,8 +35,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             o.room = node.nodename;
             o.treatment = treatmentName;
             o.bot = !!channel.bots[o.player];
-            // console.log('Bot? ', o.from, channel.bots[o.from])
-            // console.log('Bot? ', o.from, Object.keys(channel.bots))
         });
         
         node.game.choices = {};
@@ -130,7 +128,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 id = msg.from;
                 role = node.game.matcher.getRoleFor(id);
-
+                otherId = node.game.matcher.getMatchFor(id);
+                // Add info to data, so that it is saved in database.
+                msg.data.partner = otherId;
+ 
                 if (role === 'RED') {
                     playerObj = node.game.pl.get(id);
                     redChoice = msg.data.redChoice;
@@ -147,7 +148,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     // TODO: move validation to before node.game.redChoice
                     // is assigned.
                     if (msg.data.redChoice) {
-                        otherId = node.game.matcher.getMatchFor(id);
                         node.say('RED-CHOICE', otherId, redChoice);
                     }
                     else {
@@ -387,7 +387,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 "room", "treatment",
                 "time", "timeup", "timestamp", "player", "bot", 
                 "stage.stage", "stage.step","stage.round",
-                "redChoice", "blueChoice", "bonus"
+                "redChoice", "blueChoice", "bonus", "partner"
             ]
         });
 
