@@ -31,9 +31,9 @@ settings = {
      * used to initialize the game timer for the step.
      */
     TIMER: {
-        'instructions-light': 25000,
-        'blue-choice': 25000,
-        'red-choice': 25000,
+        'instructions-light': 30000,
+        'blue-choice': 30000,
+        'red-choice': 30000,
         'results': 12000
         // instructions: 60000
     },
