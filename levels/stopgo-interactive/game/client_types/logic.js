@@ -21,12 +21,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // Must implement the stages here.
 
     stager.setOnInit(function() {
-        // Initialize the client.
-        // channel.numChooseStop = 0;
-        // channel.numStopGoDecisions = 0;
-        // channel.numChooseRight = 0;
-        // channel.numRightLeftDecisions = 0;
 
+        // Initialize the client.
         readBotData('avgDecisions.csv');
 
         
@@ -39,8 +35,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         
         node.game.choices = {};
         node.game.tables = {};
-        node.game.totals = {};
-        node.game.history = {};
+
+        // TODO: do we need these?
+        // node.game.totals = {};
+        // node.game.history = {};
 
         node.on.pdisconnect(function(player) {
             var role, options;
@@ -207,6 +205,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var match;
             var roles;
             var i;
+            var client;
 
             allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
 
@@ -220,15 +219,25 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 payoffs = calculatePayoffs(node.game.choices[roles.RED],
                                            node.game.tables[roles.RED]);
 
-                if (!node.game.totals[roles.RED]) {
-                    node.game.totals[roles.RED] = 0;
-                }
-                node.game.totals[roles.RED] += payoffs.RED;;
+                // Respondent payoff.
+                client = channel.registry.getClient(roles.RED);
+                client.win = client.win ?
+                    client.win + payoffs.RED : payoffs.RED;
 
-                if (!node.game.totals[roles.BLUE]) {
-                    node.game.totals[roles.BLUE] = 0;
-                }
-                node.game.totals[roles.BLUE] += payoffs.BLUE;;
+
+                client = channel.registry.getClient(roles.BLUE);
+                client.win = client.win ?
+                    client.win + payoffs.BLUE : payoffs.BLUE;
+                
+//                if (!node.game.totals[roles.RED]) {
+//                    node.game.totals[roles.RED] = 0;
+//                }
+//                node.game.totals[roles.RED] += payoffs.RED;
+// 
+//                if (!node.game.totals[roles.BLUE]) {
+//                    node.game.totals[roles.BLUE] = 0;
+//                }
+//                node.game.totals[roles.BLUE] += payoffs.BLUE;;
 
                 addData(roles.RED, payoffs.RED);
                 addData(roles.BLUE, payoffs.BLUE);
@@ -244,8 +253,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     world: node.game.tables[roles.RED]
                 };
 
-                addToHistory(roles.RED, results, node.game.history);
-                addToHistory(roles.BLUE, results, node.game.history);
+                // addToHistory(roles.RED, results, node.game.history);
+                // addToHistory(roles.BLUE, results, node.game.history);
 
                 node.say('RESULTS', roles.RED, results);
                 node.say('RESULTS', roles.BLUE, results);
@@ -255,31 +264,39 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         cb: function() {
-            var code;
-            var allMatchesInRound;
-            var roles;
-            var i;
+            
+            // var code;
+            // var roles;
+            // var i;
+            // var allMatchesInRound;
 
-            allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
-
-            // allMatchesInRound = node.game.matcher.getMatches();
-
-            for (i = 0; i < allMatchesInRound.length; i++) {
-                roles = allMatchesInRound[i];
-                code = channel.registry.getClient(roles.RED);
-
-                node.say('WIN', roles.RED, {
-                    totalRaw: node.game.totals[roles.RED],
-                    exit: code.ExitCode
-                });
-
-                code = channel.registry.getClient(roles.BLUE);
-
-                node.say('WIN', roles.BLUE, {
-                    totalRaw: node.game.totals[roles.BLUE],
-                    exit: code.ExitCode
-                });
-            }
+//            allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
+// 
+//            // allMatchesInRound = node.game.matcher.getMatches();
+// 
+//            for (i = 0; i < allMatchesInRound.length; i++) {
+//                roles = allMatchesInRound[i];
+//                code = channel.registry.getClient(roles.RED);
+// 
+//                node.say('WIN', roles.RED, {
+//                    totalRaw: node.game.totals[roles.RED],
+//                    exit: code.ExitCode
+//                });
+// 
+//                code = channel.registry.getClient(roles.BLUE);
+// 
+//                node.say('WIN', roles.BLUE, {
+//                    totalRaw: node.game.totals[roles.BLUE],
+//                    exit: code.ExitCode
+//                });
+//            }
+debugger
+            gameRoom.computeBonus({
+                say: true,   // default false
+                dump: true,  // default false
+                print: true  // default false                
+            });
+            
 
             node.on.data('email', function(msg) {
                 var id, code;
@@ -328,12 +345,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         });
     }
 
-    function addToHistory(id, results, history) {
-        if (!history[id]) {
-            history[id] = [];
-        }
-        history[id].push(results);
-    }
+//     function addToHistory(id, results, history) {
+//         if (!history[id]) {
+//             history[id] = [];
+//         }
+//         history[id].push(results);
+//     }
 
     function addData(playerId, data) {
         if (node.game.memory.player[playerId]){
