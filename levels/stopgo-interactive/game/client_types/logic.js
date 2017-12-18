@@ -10,6 +10,7 @@
 "use strict";
 
 var fs = require('fs');
+var path = require('path');
 var ngc = require('nodegame-client');
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
@@ -28,6 +29,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         readBotData('avgDecisions.csv');
 
+        
+        // Add session name to data in DB.
+        this.memory.on('insert', function(o) {
+            o.room = node.nodename;
+            o.treatment = treatmentName;
+        });
+        
         node.game.choices = {};
         node.game.tables = {};
         node.game.totals = {};
@@ -297,26 +305,23 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 appendToCSVFile(msg.data, code, 'feedback');
             });
 
-            node.on.data('done', function(msg) {
-                saveAll();
-            });
+            // Save db and avgDecisions.
+            saveAll();
         }
     });
 
     function appendToCSVFile(email, code, fileName) {
-        var row, gameDir;
+        var row;
 
-        gameDir = channel.getGameDir();
         row  = '"' + (code.id || code.AccessCode || 'NA') + '", "' +
             (code.workerId || 'NA') + '", "' + email + '"\n';
 
-        fs.appendFile(gameDir + 'data/' + fileName + '.csv', row,
-                      function(err) {
-                          if (err) {
-                              console.log(err);
-                              console.log(row);
-                          }
-                      });
+        fs.appendFile(gameRoom.dataDir + fileName + '.csv', row, function(err) {
+            if (err) {
+                console.log(err);
+                console.log(row);
+            }
+        });
     }
 
     function addToHistory(id, results, history) {
@@ -362,15 +367,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     function getRandomTable() {
         var payoffTable;
-
-        // TODO: double check is pi chance for A or B?
-        if (Math.random() < node.game.settings.pi) {
-            payoffTable = 'A';
-        }
-        else {
-            payoffTable = 'B';
-        }
-
+        if (Math.random() < node.game.settings.PI) payoffTable = 'A';
+        else payoffTable = 'B';        
         return payoffTable;
         // console.log('THE STATE OF THE WORLD IS: ' + node.game.payoffTable);
     }
@@ -378,10 +376,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     function saveAll() {
         var gameDir, line, avgDecisionFilePath;
         gameDir = channel.getGameDir();
-        node.game.memory.save(gameDir + 'data/data_' + node.nodename +
-                              '.json');
+        node.game.memory.save('db.json');
+        node.game.memory.save('db.csv', {
+            headers: [
+                "room", "treatment",
+                "time", "timeup", "timestamp", "player",
+                "stage.stage", "stage.step","stage.round",
+                "redChoice", "blueChoice"
+            ]
+        });
 
-        avgDecisionFilePath = gameDir + 'data/avgDecisions.csv';
+        avgDecisionFilePath = path.resolve(gameDir, 'data', 'avgDecisions.csv');
 
         if (!fs.existsSync(avgDecisionFilePath)) {
             fs.appendFile(avgDecisionFilePath,
@@ -400,13 +405,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     // should be moved out of logic init so only called once
     function readBotData(fileName) {
-        var gameDir, filePath;
+        var filePath;
         var db;
         var lastLine;
         var decisions;
 
-        gameDir = channel.getGameDir();
-        filePath = gameDir + 'data/' + fileName;
+        filePath = path.resolve(channel.getGameDir(), 'data', fileName);
         if (fs.existsSync(filePath)) {
             db = new ngc.NDDB();
             db.loadSync(filePath);
