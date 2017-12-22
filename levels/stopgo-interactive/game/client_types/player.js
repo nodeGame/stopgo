@@ -406,7 +406,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 panel: false,
                 title: false,
                 showEmailForm: true,
-                email: { errString: 'Please enter a valid email and retry' },
+                email: {
+                    texts: {
+                        label: 'Enter your email (optional):',
+                        errString: 'Please enter a valid email and retry'
+                    }
+                }
             }
         }
     });

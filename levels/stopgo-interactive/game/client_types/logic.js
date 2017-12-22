@@ -37,8 +37,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         node.on.pdisconnect(function(player) {
             var role, options;
-            player.allowReconnect = false; // check if registry maybe
-            if (node.game.pl.first().clientType !== "bot") {
+            if (channel.registry.isRemote(player)) {
+                player.allowReconnect = false; // check if registry maybe
 
                 role = node.game.matcher.getRoleFor(player.id);
 
@@ -259,7 +259,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 code = channel.registry.getClient(id);
                 if (!code) {
-                    console.log('ERROR: no codewen in endgame:', id);
+                    console.log('ERROR: no code in endgame:', id);
                     return;
                 }
 
@@ -273,7 +273,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 code = channel.registry.getClient(id);
                 if (!code) {
-                    console.log('ERROR: no codewen in endgame:', id);
+                    console.log('ERROR: no code in endgame:', id);
                     return;
                 }
 
