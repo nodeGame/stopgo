@@ -20,8 +20,6 @@ var publishLevels = constants.publishLevels;
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
-    var game;
-
     stager.setDefaultStepRule(stepRules.SOLO);
 
     stager.setOnInit(function() {
@@ -30,7 +28,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var header = W.generateHeader();
         var frame = W.generateFrame();
         W.setHeaderPosition('top');
-
         var payoffs;
         var payoffTableA, payoffTableB;
         var redRowA, redRowB;
@@ -40,12 +37,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var payoffStopRed, payoffStopBlue;
 
         // Add widgets.
-        this.visualRound = node.widgets.append('VisualRound', header);
+        this.visualRound = node.widgets.append('VisualRound', header, {
+            title: false
+        });
         this.visualTimer = node.widgets.append('VisualTimer', header);
-        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header,
-                                                      {currency: 'USD'});
-        this.doneButton = node.widgets.append('DoneButton', header,
-                                              {text: 'Done'});
+        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header, {
+            title: 'Points',
+            currency: 'Points',
+            precision: 0,
+            showCurrency: false
+        });
+        this.doneButton = node.widgets.append('DoneButton', header);
 
         // node.player.stage.round
 
@@ -255,7 +257,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     .appendChild(node.game.payoffTables.B);
 
                     W.setInnerHTML('payoff-stop-blue', this.payoffStopBlue +
-                    ' ' + node.game.runningTotalPayoff.currency);
+                                   ' ' + node.game.runningTotalPayoff.currency);
+
+                    // On small screens, table can be cut.
+                    setTimeout(function() { W.adjustFrameHeight() });
                 }
             },
             RED: {
@@ -315,8 +320,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.setInnerHTML('other-player-choice',
                            this.tutorialChoices[otherPlayerRole]);
 
-            W.setInnerHTML('payoff', payment + ' ' +
-            node.game.runningTotalPayoff.currency);
+            payment += ' ' + node.game.runningTotalPayoff.currency;            
+            W.setInnerHTML('payoff', payment);
             W.setInnerHTML('world-state', node.game.tutorialWorldState);
 
             // Sets the role again.
@@ -339,36 +344,64 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('tutorial-end', {
         frame: 'practice-end.htm',
         done: function() {
-            node.game.runningTotalPayoff.money = 0;
-            node.game.runningTotalPayoff.update(0);
-
+            node.game.runningTotalPayoff.update(0, true);
             node.say('tutorial-over');
         },
         cb: function() {
+            var payoff, ex;
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
             W.setInnerHTML('tutorial-instructions', 'Click <strong>"Done"' +
                            '</strong> to be moved into the waiting room.');
             W.show('tutorial-instructions');
-            W.setInnerHTML('total', node.game.tutorialPay + ' ' +
-            node.game.runningTotalPayoff.currency);
+         
+            payoff = node.game.tutorialPay + ' ';
+            payoff += node.game.runningTotalPayoff.currency;
+            W.setInnerHTML('total', payoff);
+            ex = node.game.settings.EXCHANGE_RATE;
+            payoff = (node.game.tutorialPay*ex).toFixed(2) + ' USD';
+            W.setInnerHTML('total-in-money', payoff);
+
         }
     });
 
     stager.extendStep('instructions', {
         frame: 'instructions.htm',
         cb: function() {
-            var payoffTables;
+            var payoffTables, s, str, mult;
+            s = node.game.settings;
             payoffTables = this.payoffTables;
 
+            W.setInnerHTML('probability-A', (s.PI * 100) + '%');
+            // JS fails horribly with floating precision.
+            W.setInnerHTML('probability-B',
+                           (parseFloat((1-s.PI).toFixed(2)) * 100) + '%');
+
+            if (s.PI === 0.5) {
+                str = 'A and B are equally likely';
+            }
+            else {
+                if (s.PI > 0.5) {
+                    mult = parseFloat(s.PI / (1-s.PI)).toFixed(1);
+                    if (mult.charAt(mult.length-1) === "0") {
+                        mult = mult.substr(0, mult.length-2);
+                    }
+                    str = 'A is ' + mult + ' times more likely than B';
+                }
+                else {
+                    mult = parseFloat((1-s.PI) / s.PI).toFixed(1);
+                    if (mult.charAt(mult.length-1) === "0") {
+                        mult = mult.substr(0, mult.length-2);
+                    }
+                    str = 'B is ' + mult + ' times more likely than A';
+                }
+            }
+            W.setInnerHTML('probability-explained', str);
+            
             W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' +
                            node.game.runningTotalPayoff.currency);
             W.getElementById('payoff-matrix-a').appendChild(payoffTables.A);
             W.getElementById('payoff-matrix-b').appendChild(payoffTables.B);
         }
     });
-
-    game = setup;
-    game.plot = stager.getState();
-    return game;
 };

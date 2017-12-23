@@ -29,8 +29,8 @@ module.exports = function(stager, settings) {
     });
 
     // stager.skip('instructions');
-    stager.skip('choose-tutorial');
-    stager.skip('tutorial');
+    // stager.skip('choose-tutorial');
+    // stager.skip('tutorial');
 
     // Modify the stager to skip one stage.
     // stager.skip('quiz');

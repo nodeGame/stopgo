@@ -16,7 +16,6 @@ module.exports = function(treatmentName, settings, stager,
 
     var channel = gameRoom.channel;
     var logic = gameRoom.node;
-    var node;
 
     var game;
     game = {};
@@ -26,9 +25,9 @@ module.exports = function(treatmentName, settings, stager,
 
     stager.setDefaultCallback(function() {
         console.log('Stage: ' , this.getCurrentGameStage());
-        node.timer.randomDone();
+        this.node.timer.randomDone();
     });
-
+    
     stager.setOnInit(function() {
         var payoffs;
         var payoffTableA, payoffTableB;
@@ -49,11 +48,11 @@ module.exports = function(treatmentName, settings, stager,
 
         this.payoffTables = {};
 
-        node.game.playerRole = null;
-        node.game.redChoice = null;
-        node.game.blueChoice = null;
-        node.game.worldState = null;
-        node.game.totalPayment = 0;
+        this.playerRole = null;
+        this.redChoice = null;
+        this.blueChoice = null;
+        this.worldState = null;
+        this.totalPayment = 0;
     });
 
     stager.extendStep('red-choice', {
@@ -69,8 +68,8 @@ module.exports = function(treatmentName, settings, stager,
                     isDynamic = (this.settings.botType === 'dynamic');
 
                     if (isDynamic && channel.numStopGoDecisions >= minDecisions) {
-                        chanceOfStop = channel.numChooseStop
-                                       / channel.numStopGoDecisions;
+                        chanceOfStop = 
+                            channel.numChooseStop / channel.numStopGoDecisions;
                     }
                     else {
                         chanceOfStop = this.settings.botChance.stop;
@@ -80,15 +79,16 @@ module.exports = function(treatmentName, settings, stager,
 
                     console.log('RED BOT:', node.player.id, ', partner: ',
                                 this.partner, ', decision: ', decision);
-                    node.done({ redChoice: decision });
+                    this.node.done({ redChoice: decision });
                 }
             },
             BLUE: {
                 cb: function() {
-                    var decision;
-                    node.once.data('RED-CHOICE', function(msg) {
-                        node.game.redChoice = msg.data;
-                        node.done();
+                    var decision, that;
+                    that = this;
+                    this.node.once.data('RED-CHOICE', function(msg) {
+                        that.node.game.redChoice = msg.data;
+                        that.node.done();
                     });
                 }
             }
@@ -101,11 +101,15 @@ module.exports = function(treatmentName, settings, stager,
         roles: {
             RED: {
                 cb: function() {
-                    node.once.data('BLUE-CHOICE', function(msg) {
-                        node.game.blueChoice = msg.data;
-                        node.done();
+                    var that;
+                    that = this;
+                    this.node.once.data('BLUE-CHOICE', function(msg) {
+                        that.node.game.blueChoice = msg.data;
+                        that.node.done();
                     });
-                }
+                },
+                // Blues times up first, and will send data.
+                timeup: null
             },
             BLUE: {
                 cb: function() {
@@ -118,8 +122,8 @@ module.exports = function(treatmentName, settings, stager,
                     minDecisions = this.settings.botChance.minDecisions;
 
                     if (isDynamic && channel.numRightLeftDecisions >= minDecisions) {
-                        chanceOfRight = channel.numChooseRight
-                                       / channel.numRightLeftDecisions;
+                        chanceOfRight =
+                            channel.numChooseRight / channel.numRightLeftDecisions;
                     }
                     else {
                         chanceOfRight = this.settings.botChance.right;
@@ -128,7 +132,7 @@ module.exports = function(treatmentName, settings, stager,
                     decision = Math.random() > chanceOfRight ? 'LEFT' : 'RIGHT';
                     console.log('BLUE BOT:', node.player.id, ', partner: ',
                                 this.partner, ', decision: ', decision);
-                    node.done({ blueChoice: decision });
+                    this.node.done({ blueChoice: decision });
                 }
             }
         }

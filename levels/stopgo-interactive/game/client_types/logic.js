@@ -1,19 +1,17 @@
 /**
-* # Logic type implementation of the game stages
-* Copyright(c) 2017 Stefano Balietti <ste@nodegame.org>
-* MIT Licensed
-*
-* http://www.nodegame.org
-* ---
-*/
+ * # Logic type implementation of the game stages
+ * Copyright(c) 2017 Stefano Balietti <ste@nodegame.org>
+ * MIT Licensed
+ *
+ * http://www.nodegame.org
+ * ---
+ */
 
 "use strict";
 
 var fs = require('fs');
+var path = require('path');
 var ngc = require('nodegame-client');
-var stepRules = ngc.stepRules;
-var constants = ngc.constants;
-var counter = 0;
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
@@ -22,56 +20,69 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     // Must implement the stages here.
 
-    // Increment counter.
-    counter = counter ? ++counter : settings.SESSION_ID || 1;
-
     stager.setOnInit(function() {
-        // Initialize the client.
-        // channel.numChooseStop = 0;
-        // channel.numStopGoDecisions = 0;
-        // channel.numChooseRight = 0;
-        // channel.numRightLeftDecisions = 0;
 
+        // Initialize the client.
         readBotData('avgDecisions.csv');
 
+        // Add session name to data in DB.
+        this.memory.on('insert', function(o) {
+            o.room = node.nodename;
+            o.treatment = treatmentName;
+            o.bot = !!channel.bots[o.player];
+        });
+        
         node.game.choices = {};
         node.game.tables = {};
-        node.game.totals = {};
-        node.game.history = {};
 
         node.on.pdisconnect(function(player) {
-            var role;
-
+            var role, options;
             player.allowReconnect = false; // check if registry maybe
+            if (node.game.pl.first().clientType !== "bot") {
 
-            role = node.game.matcher.getRoleFor(player.id);
+                role = node.game.matcher.getRoleFor(player.id);
 
-            channel.connectBot({
-                room: gameRoom,
-                // id: player.id, Otherwise it gets the wrong clinetType
-                clientType: 'bot',
-                setup: {
-                    settings: {
-                        botType: 'dynamic',
-                        // 'dynamic' for based on player results
-                        chanceOfStop: 0.5,
-                        chanceOfRight: 0.5
-                    }
-                },
-                // TODO: if replaceId is set should options from old data.
-                replaceId: player.id,
-                gotoStep: node.player.stage,
-                ready: function(bot) {
-                    if (role === 'RED') {
+                options = {
+                    room: gameRoom,
+                    // id: player.id, Otherwise it gets the wrong clinetType
+                    clientType: 'bot',
+                    setup: {
+                        settings: {
+                            botType: 'dynamic',
+                            // 'dynamic' for based on player results
+                            chanceOfStop: 0.5,
+                            chanceOfRight: 0.5
+                        }
+                    },
+                    // BUG: error when RED disconnects
+                    // TODO: if replaceId is set should options from old data.
+                    replaceId: player.id,
+                    gotoStep: node.player.stage,
+                    ready: function(bot) {
                         node.game.tables[bot.player.id] =
                             node.game.tables[player.id];
-                    }
-                }
-                // gotoStepOptions: {
-                //     plot: { role: node.game.matcher.getRoleFor(player.id) }
-                // }
-            });
 
+                        // Save the Red choice, if it was done already.
+                        if (node.game.choices[player.id]) {
+                            node.game.choices[bot.player.id] =
+                                node.game.choices[player.id];
+                        }   
+                    }
+                };
+
+                // TODO: improve.
+                if (node.player.stage.step !== 3) {
+                    options.gotoStepOptions = {
+                        plot: { 
+                            partner: node.game.matcher.getMatchFor(player.id),
+                            role: node.game.matcher.getRoleFor(player.id)
+                        }
+                    };
+                }
+
+                channel.connectBot(options);
+                
+            }
 
         });
     });
@@ -110,7 +121,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 id = msg.from;
                 role = node.game.matcher.getRoleFor(id);
-
+                otherId = node.game.matcher.getMatchFor(id);
+                // Add info to data, so that it is saved in database.
+                msg.data.partner = otherId;
+ 
                 if (role === 'RED') {
                     playerObj = node.game.pl.get(id);
                     redChoice = msg.data.redChoice;
@@ -127,7 +141,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     // TODO: move validation to before node.game.redChoice
                     // is assigned.
                     if (msg.data.redChoice) {
-                        otherId = node.game.matcher.getMatchFor(id);
                         node.say('RED-CHOICE', otherId, redChoice);
                     }
                     else {
@@ -152,7 +165,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 if (role === 'BLUE') {
                     otherId = node.game.matcher.getMatchFor(id);
-
                     choices = node.game.choices;
                     blueChoice = msg.data.blueChoice;
                     choices[otherId].blueChoice = blueChoice;
@@ -188,6 +200,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var match;
             var roles;
             var i;
+            var client;
 
             allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
 
@@ -201,15 +214,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 payoffs = calculatePayoffs(node.game.choices[roles.RED],
                                            node.game.tables[roles.RED]);
 
-                if (!node.game.totals[roles.RED]) {
-                    node.game.totals[roles.RED] = 0;
-                }
-                node.game.totals[roles.RED] += payoffs.RED;;
+                // Respondent payoff.
+                client = channel.registry.getClient(roles.RED);
+                client.win = client.win ?
+                    client.win + payoffs.RED : payoffs.RED;
 
-                if (!node.game.totals[roles.BLUE]) {
-                    node.game.totals[roles.BLUE] = 0;
-                }
-                node.game.totals[roles.BLUE] += payoffs.BLUE;;
+
+                client = channel.registry.getClient(roles.BLUE);
+                client.win = client.win ?
+                    client.win + payoffs.BLUE : payoffs.BLUE;
 
                 addData(roles.RED, payoffs.RED);
                 addData(roles.BLUE, payoffs.BLUE);
@@ -225,9 +238,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     world: node.game.tables[roles.RED]
                 };
 
-                addToHistory(roles.RED, results, node.game.history);
-                addToHistory(roles.BLUE, results, node.game.history);
-
                 node.say('RESULTS', roles.RED, results);
                 node.say('RESULTS', roles.BLUE, results);
             }
@@ -236,32 +246,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         cb: function() {
-            var code;
-            var allMatchesInRound;
-            var roles;
-            var i;
-
-            allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
-
-            // allMatchesInRound = node.game.matcher.getMatches();
-
-            for (i = 0; i < allMatchesInRound.length; i++) {
-                roles = allMatchesInRound[i];
-                code = channel.registry.getClient(roles.RED);
-
-                node.say('WIN', roles.RED, {
-                    total: node.game.totals[roles.RED],
-                    exit: code.ExitCode
-                });
-
-                code = channel.registry.getClient(roles.BLUE);
-
-                node.say('WIN', roles.BLUE, {
-                    total: node.game.totals[roles.BLUE],
-                    exit: code.ExitCode
-                });
-            }
-
+      
+            gameRoom.computeBonus({
+                say: true,   // default false
+                dump: true,  // default false
+                print: true  // default false                
+            });
+            
             node.on.data('email', function(msg) {
                 var id, code;
                 id = msg.from;
@@ -290,21 +281,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 appendToCSVFile(msg.data, code, 'feedback');
             });
 
-            node.on.data('done', function(msg) {
-                saveAll();
-            });
+            // Save db and avgDecisions.
+            saveAll();
         }
     });
 
     function appendToCSVFile(email, code, fileName) {
-        var row, gameDir;
+        var row;
 
-        gameDir = channel.getGameDir();
         row  = '"' + (code.id || code.AccessCode || 'NA') + '", "' +
             (code.workerId || 'NA') + '", "' + email + '"\n';
 
-        fs.appendFile(gameDir + 'data/' + fileName + '.csv', row,
-                      function(err) {
+        fs.appendFile(gameRoom.dataDir + fileName + '.csv', row, function(err) {
             if (err) {
                 console.log(err);
                 console.log(row);
@@ -312,36 +300,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         });
     }
 
-    // TODO: do we need this?
-//     function getRoles(id1, id2) {
-//         var redId, blueId;
-//
-//         console.log('getRoleFor '+id1+': '+node.game.matcher.getRoleFor(id1));
-//         if (node.game.matcher.getRoleFor(id1) === 'RED') {
-//             redId = id1;
-//             blueId = id2;
-//         }
-//         else {
-//             redId = id2;
-//             blueId = id1;
-//         }
-//
-//         return {
-//             RED: redId,
-//             BLUE: blueId
-//         };
-//     }
-
-    function addToHistory(id, results, history) {
-        if (!history[id]) {
-            history[id] = [];
-        }
-        history[id].push(results);
-    }
-
     function addData(playerId, data) {
-        var item = node.game.memory.player[playerId].last();
-        item.bonus = data;
+        if (node.game.memory.player[playerId]){
+            var item = node.game.memory.player[playerId].last();
+            item.bonus = data;
+        }
     }
 
     // returns payoffs as a object
@@ -373,15 +336,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     function getRandomTable() {
         var payoffTable;
-
-        // TODO: double check is pi chance for A or B?
-        if (Math.random() < node.game.settings.pi) {
-            payoffTable = 'A';
-        }
-        else {
-            payoffTable = 'B';
-        }
-
+        if (Math.random() < node.game.settings.PI) payoffTable = 'A';
+        else payoffTable = 'B';        
         return payoffTable;
         // console.log('THE STATE OF THE WORLD IS: ' + node.game.payoffTable);
     }
@@ -389,10 +345,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     function saveAll() {
         var gameDir, line, avgDecisionFilePath;
         gameDir = channel.getGameDir();
-        node.game.memory.save(gameDir + 'data/data_' + node.nodename +
-                              '.json');
+        node.game.memory.save('db.json');
+        node.game.memory.save('db.csv', {
+            bool2num: true,
+            headers: [
+                "room", "treatment",
+                "time", "timeup", "timestamp", "player", "bot", 
+                "stage.stage", "stage.step","stage.round",
+                "redChoice", "blueChoice", "bonus", "partner"
+            ]
+        });
 
-        avgDecisionFilePath = gameDir + 'data/avgDecisions.csv';
+        avgDecisionFilePath = path.resolve(gameDir, 'data', 'avgDecisions.csv');
 
         if (!fs.existsSync(avgDecisionFilePath)) {
             fs.appendFile(avgDecisionFilePath,
@@ -400,9 +364,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
 
         line = node.nodename + ',' + channel.numStopGoDecisions +
-               ',' + channel.numChooseStop +
-               ',' + channel.numRightLeftDecisions +
-               ',' + channel.numChooseRight + '\n';
+            ',' + channel.numChooseStop +
+            ',' + channel.numRightLeftDecisions +
+            ',' + channel.numChooseRight + '\n';
 
         fs.appendFile(avgDecisionFilePath, line, function(err) {
             if (err) console.log('An error occurred saving: ' + line);
@@ -411,13 +375,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     // should be moved out of logic init so only called once
     function readBotData(fileName) {
-        var gameDir, filePath;
+        var filePath;
         var db;
         var lastLine;
         var decisions;
 
-        gameDir = channel.getGameDir();
-        filePath = gameDir + 'data/' + fileName;
+        filePath = path.resolve(channel.getGameDir(), 'data', fileName);
         if (fs.existsSync(filePath)) {
             db = new ngc.NDDB();
             db.loadSync(filePath);
@@ -444,15 +407,4 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         channel.numRightLeftDecisions = totalRightLeft;
         channel.numChooseRight = totalRight;
     }
-
-    return {
-        nodename: 'lgc' + counter,
-        // Extracts, and compacts the game plot that we defined above.
-        plot: stager.getState(),
-        // If debug is false (default false), exception will be caught and
-        // and printed to screen, and the game will continue.
-        debug: settings.DEBUG,
-        // Controls the amount of information printed to screen.
-        verbosity: -100
-    };
 }

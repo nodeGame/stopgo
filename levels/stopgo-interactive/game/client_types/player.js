@@ -13,14 +13,7 @@
 
 'use strict';
 
-var ngc = require('nodegame-client');
-var stepRules = ngc.stepRules;
-var constants = ngc.constants;
-var publishLevels = constants.publishLevels;
-
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
-
-    var game;
 
     stager.setOnInit(function() {
         // Initialize the client.
@@ -40,12 +33,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var payoffStopRed, payoffStopBlue;
 
         // Add widgets.
-        this.visualRound = node.widgets.append('VisualRound', header);
+        this.visualRound = node.widgets.append('VisualRound', header, {
+            title: false
+        });
         this.visualTimer = node.widgets.append('VisualTimer', header);
-        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header,
-                                                      { currency: 'USD' });
-        this.doneButton = node.widgets.append('DoneButton', header,
-                                              { text: 'Done' });
+
+        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header, {
+            title: 'Points',
+            currency: 'Points',
+            precision: 0,
+            showCurrency: false
+        });
 
         this.historyDiv = document.createElement('div');
         this.historyDiv.innerHTML = '<h3>Game history</h3>';
@@ -56,6 +54,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         header.appendChild(this.historyButton);
 
+        this.doneButton = node.widgets.append('DoneButton', header);
+        
         // Add payoff tables
         node.game.totalPayoff = 0;
         payoffs = node.game.settings.payoffs;
@@ -164,7 +164,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         W.show('red');
                         W.getElementById('payoff-table')
-                        .appendChild(payoffTable);
+                            .appendChild(payoffTable);
                         W.setInnerHTML('world-state', node.game.worldState);
                         W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
                                        ' ' +
@@ -267,9 +267,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     node.on.data('RED-CHOICE', function(msg) {
                         node.game.redChoice = msg.data;
-                        // setTimeout(function() {
+                        //setTimeout(function() {
                             node.done();
-                        // }, 5000);
+                        //1}, 5000);
                     });
                 }
             }
@@ -421,13 +421,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             name: 'EndScreen',
             root: "body",
             options: {
+                panel: false,
                 title: false,
-                showEmailForm: true
+                showEmailForm: true,
+                email: { errString: 'Please enter a valid email and retry' },
             }
         }
     });
 
-    game = setup;
-    game.plot = stager.getState();
-    return game;
 };

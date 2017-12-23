@@ -14,23 +14,13 @@
  * http://www.nodegame.org
  * ---
  */
-module.exports = {
+var settings;
+
+settings = {
 
     // Variables shared by all treatments.
 
     // #nodeGame properties:
-
-    /**
-     * ## SESSION_ID (number)
-     *
-     * The name of the first session of the channel
-     *
-     * The waiting room assigns sequential session ids to every newly
-     * spawn game room. The session id is saved in each entry in the
-     * memory database of the logics, and used as the name of the
-     * session folder in the data/ directory.
-     */
-    SESSION_ID: 1,
 
     /**
      * ### TIMER (object) [nodegame-property]
@@ -41,10 +31,10 @@ module.exports = {
      * used to initialize the game timer for the step.
      */
     TIMER: {
-        'instructions-light': 20000,
-        'blue-choice': 20000,
-        'red-choice': 20000,
-        'results': 10000
+        'instructions-light': 30000,
+        'blue-choice': 30000,
+        'red-choice': 30000,
+        'results': 12000
         // instructions: 60000
     },
 
@@ -74,35 +64,6 @@ module.exports = {
     // Number of game rounds repetitions.
     REPEAT: 3,
 
-    // Payoffs of the game.
-    payoffs: {
-    	STOP: {
-            RED: 3,
-    		BLUE: 3
-    	},
-    	GO: {
-    		A: {
-                LEFT: {
-                    RED: 0,
-                    BLUE: 6
-                },
-                RIGHT: {
-                    RED: 10,
-                    BLUE: 0
-                }
-    		},
-    		B: {
-                LEFT: {
-                    RED: 6,
-                    BLUE: 0
-                },
-                RIGHT: {
-                    RED: 0,
-                    BLUE: 10
-                }
-    		}
-    	}
-    },
 
     botChance: {
         stop: 0.5, // default bot chance
@@ -110,8 +71,7 @@ module.exports = {
         minDecisions: 10
     },
 
-    // Probability of A vs B.
-    pi: 0.5,
+    EXCHANGE_RATE: 0.125,
 
     // # Treatments definition.
 
@@ -123,9 +83,94 @@ module.exports = {
 
     treatments: {
 
-        standard: {
-            fullName: "Standard Treatment",
-            description: "Standard time"
+        original: {
+            fullName: "A=3.33 and PI=0.5",
+            description: "As in original EGLML paper",
+            // Probability of state of the world is A.
+            PI: 0.5,
+            // Payoff in first leaf.
+            TWO: 6,
+            // Payoff in second leaf.
+            A: 10,
+            // Payoff if Player 1 chooses stop.
+            STOP: 3
+        },
+
+        A2_PI05: {
+            fullName: "A=2 and PI=0.5",
+            description: "none",
+            STOP: 3,
+            TWO: 6,
+            A: 6,
+            PI: 0.5
+        },
+
+        A6_PI05: {
+            fullName: "A=6 and PI=0.5",
+            description: "none",
+            STOP: 3,
+            TWO: 6,
+            A: 18,
+            PI: 0.5
+        },
+
+        A6_PI02: {
+            fullName: "A=6 and PI=0.2",
+            description: "none",
+            STOP: 3,
+            TWO: 6,
+            A: 18,
+            PI: 0.2
+        },
+
+        A6_PI08: {
+            fullName: "A=6 and PI=0.8",
+            description: "none",
+            STOP: 3,
+            TWO: 6,
+            A: 18,
+            PI: 0.8
         }
     }
 };
+
+// Create a proper payoffs object in each treatment.
+(function(settings) {
+    var mult, t;
+    mult = settings.multiplier;
+    for (t in settings.treatments) {
+        if (settings.treatments.hasOwnProperty(t)) {
+            t = settings.treatments[t];
+            t.payoffs = {
+    	        STOP: {
+                    RED:  t.STOP,
+    	            BLUE: t.STOP
+    	        },
+    	        GO: {
+    	            A: {
+                        LEFT: {
+                            RED:  0,
+                            BLUE: t.TWO
+                        },
+                        RIGHT: {
+                            RED:  t.A,
+                            BLUE: 0
+                        }
+    	            },
+    	            B: {
+                        LEFT: {
+                            RED:  t.TWO,
+                            BLUE: 0
+                        },
+                        RIGHT: {
+                            RED:  0,
+                            BLUE: t.A
+                        }
+    	            }
+    	        }
+            };
+        }
+    }
+})(settings);
+
+module.exports = settings;
