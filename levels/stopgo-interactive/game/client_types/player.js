@@ -19,8 +19,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Initialize the client.
         // Setup page: header + frame.
         var header = W.generateHeader();
-        var frame = W.generateFrame();
         W.setHeaderPosition('top');
+
+        var frame = W.generateFrame();
+        var infoPanel = W.generateInfoPanel();
 
         var payoffs;
         var payoffTableA, payoffTableB;
@@ -35,16 +37,25 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             title: false
         });
         this.visualTimer = node.widgets.append('VisualTimer', header);
+
         this.runningTotalPayoff = node.widgets.append('MoneyTalks', header, {
             title: 'Points',
             currency: 'Points',
             precision: 0,
             showCurrency: false
         });
+
+        this.historyDiv = document.createElement('div');
+        this.historyDiv.innerHTML = '<h3>Game history</h3>';
+        W.addClass(this.historyDiv, 'history');
+
+        this.historyButton = infoPanel.createToggleButton('History');
+        infoPanel.infoPanelDiv.appendChild(this.historyDiv);
+
+        header.appendChild(this.historyButton);
+
         this.doneButton = node.widgets.append('DoneButton', header);
         
-        // node.player.stage.round
-
         // Add payoff tables
         node.game.totalPayoff = 0;
         payoffs = node.game.settings.payoffs;
@@ -80,6 +91,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.blueChoice = null;
         node.game.worldState = null;
         node.game.totalPayment = 0;
+
+
+
+
 
         node.game.history = new W.Table();
         node.game.history.addRow(['Round', 'Red Choice', 'Blue Choice',
@@ -392,6 +407,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                           choices['RED'], choices['BLUE'],
                                           worldState,
                                           payoffs['RED'], payoffs['BLUE']]);
+
+                W.addClass(node.game.history.parse(), 'table table-bordered');
+                node.game.historyDiv.appendChild(node.game.history.parse());
             });
         }
     });
