@@ -47,7 +47,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         // History Div.
         this.historyButton = infoPanel.createToggleButton('History');
-
+        this.historyButton.disabled = true;
+        
         this.historyDiv = document.createElement('div');
         this.historyDiv.innerHTML = '<h3>Game history</h3>';
         W.addClass(this.historyDiv, 'history');
@@ -133,6 +134,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // partner: function() { return this.partner; },
         init: function() {
             node.game.redChoice = null;
+            node.game.playerRole = this.role;
+            if (this.getRound() > 1) this.historyButton.disabled = false;
         },
         roles: {
             RED: {
@@ -140,9 +143,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var buttonId;
                     buttonId = Math.floor(Math.random() * 2) ? 'stop':'go';
                     W.getElementById(buttonId).click();
-                },
-                init: function() {
-                    node.game.playerRole = 'RED';
                 },
                 done: function(decision) {
                     if (!decision) return false;
@@ -252,9 +252,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             },
             BLUE: {
                 timer: null,
-                init: function() {
-                    node.game.playerRole = 'BLUE';
-                },
                 cb: function() {
                     var span;
 
@@ -413,6 +410,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('end', {
+        init: function() {
+            W.infoPanel.destroy();
+        },
         donebutton: false,
         frame: 'end.htm',
         widget: {

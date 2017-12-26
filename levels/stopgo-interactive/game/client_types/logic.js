@@ -45,8 +45,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             if (channel.registry.isRemote(player)) {
                 player.allowReconnect = false; // check if registry maybe
 
-                role = node.game.matcher.getRoleFor(player.id);
-
                 options = {
                     room: gameRoom,
                     // id: player.id, Otherwise it gets the wrong clinetType
