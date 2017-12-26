@@ -17,14 +17,10 @@ module.exports = function(treatmentName, settings, stager,
     var channel = gameRoom.channel;
     var logic = gameRoom.node;
 
-    var game;
-    game = {};
-    game.nodename = 'bot';
-
     // var stager = ngc.getStager();
 
     stager.setDefaultCallback(function() {
-        console.log('Stage: ' , this.getCurrentGameStage());
+        console.log('Stage:' , this.getCurrentGameStage());
         this.node.timer.randomDone();
     });
     
@@ -37,7 +33,7 @@ module.exports = function(treatmentName, settings, stager,
 
         var payoffStopRed, payoffStopBlue;
 
-        // Add payoff tables
+        // Add payoff tables.
         node.game.totalPayoff = 0;
         payoffs = node.game.settings.payoffs;
 
@@ -137,8 +133,4 @@ module.exports = function(treatmentName, settings, stager,
             }
         }
     });
-
-    game.plot = stager.getState();
-
-    return game;
 };

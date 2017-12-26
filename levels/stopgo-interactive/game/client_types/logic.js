@@ -36,7 +36,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.tables = {};
 
         node.on.pdisconnect(function(player) {
-            var role, options;
+            var role, options, gameStage;
+            
+            gameStage = node.player.stage;
+            // Do nothing in the EndScreen stage.
+            if (gameStage.stage > 2) return;
+
             if (channel.registry.isRemote(player)) {
                 player.allowReconnect = false; // check if registry maybe
 
@@ -70,8 +75,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
                 };
 
-                // TODO: improve.
-                if (node.player.stage.step !== 3) {
+
+                // Add role and partner if in the game stage.
+                if (gameStage.stage === 2 && gameStage.step !== 3) {
                     options.gotoStepOptions = {
                         plot: { 
                             partner: node.game.matcher.getMatchFor(player.id),

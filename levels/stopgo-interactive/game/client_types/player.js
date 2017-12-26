@@ -45,15 +45,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             showCurrency: false
         });
 
+        // History Div.
+        this.historyButton = infoPanel.createToggleButton('History');
+
         this.historyDiv = document.createElement('div');
         this.historyDiv.innerHTML = '<h3>Game history</h3>';
         W.addClass(this.historyDiv, 'history');
-
-        this.historyButton = infoPanel.createToggleButton('History');
         infoPanel.infoPanelDiv.appendChild(this.historyDiv);
 
         header.appendChild(this.historyButton);
-
+        // End History Div.
+        
         this.doneButton = node.widgets.append('DoneButton', header);
         
         // Add payoff tables
@@ -91,10 +93,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.blueChoice = null;
         node.game.worldState = null;
         node.game.totalPayment = 0;
-
-
-
-
 
         node.game.history = new W.Table();
         node.game.history.addRow(['Round', 'Red Choice', 'Blue Choice',
