@@ -145,8 +145,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 donebutton: false,
                 done: function() {
                     W.show('awaiting-blue-decision');
-                    W.addLoadingDots(W.getElementById('awaiting-blue-decision'),
-                     5);
+                    W.addLoadingDots(W.getElementById('awaiting-blue-decision'));
                     W.hide('stop-go-buttons');
                     W.hide('make-your-choice');
                 },
@@ -209,8 +208,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     W.show('info');
                     W.show('tutorial-instructions');
-                    W.addLoadingDots(W.getElementById('awaiting-red-decision'),
-                     5);
+                    W.addLoadingDots(W.getElementById('awaiting-red-decision'));
                     W.show('blue');
                 }
             }

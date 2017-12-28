@@ -9,21 +9,24 @@
 
 "use strict";
 
+var ngc = require('nodegame-client');
+var stepRules = ngc.stepRules;
+
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     var channel = gameRoom.channel;
     var logic = gameRoom.node;
 
-    var game;
-    game = {};
-    game.nodename = 'bot';
+    stager.setDefaultStepRule(stepRules.SOLO);
 
+    
     stager.setDefaultCallback(function() {
-        console.log('Stage: ' , that.getCurrentGameStage());
+        console.log('Stage: ' , this.getCurrentGameStage());
         this.node.timer.randomDone();
     });
 
     stager.extendStep('red-choice-tutorial', {
+        role: function() { return Math.random() > 0.5 ? 'RED' : 'BLUE'; },
         roles: {
             RED: {
                 cb: function() {
@@ -40,7 +43,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('blue-choice-tutorial', {
         role: function() { return this.role; },
-        partner: function() { return this.partner; },
         roles: {
             RED: {
                 cb: function() {
@@ -54,20 +56,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             }
         }
     });
-    
+
     stager.extendStep('tutorial-end', {
-        cb: function() {
-            this.node.done('tutorial-over');
+        done: function() {
+            node.say('tutorial-over');
         }
     });
-
-    stager.extendStep('results-tutorial', {
-        cb: function() {
-            this.node.timer.randomDone();            
-        }
-    });
-
-    game.plot = stager.getState();
-
-    return game;
 };

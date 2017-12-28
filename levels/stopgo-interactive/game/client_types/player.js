@@ -199,7 +199,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     W.show('blue');
                     dots = W.addLoadingDots(
-                        W.getElementById('awaiting-red-decision'), 5);
+                        W.getElementById('awaiting-red-decision'));
 
                     node.on.data('RED-CHOICE', function(msg) {
                         node.game.redChoice = msg.data;
@@ -225,7 +225,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var dots;
                     W.show('awaiting-blue-decision');
                     dots = W.addLoadingDots(
-                        W.getElementById('awaiting-blue-decision'), 5);
+                        W.getElementById('awaiting-blue-decision'));
                     W.hide('stop-go-buttons');
                     W.hide('make-your-choice');
 

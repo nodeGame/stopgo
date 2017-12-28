@@ -1,6 +1,6 @@
 /**
  * # Game stages definition file
- * Copyright(c) 2016 brenste <myemail>
+ * Copyright(c) 2017 Stefano Balietti <ste@nodegame.org>
  * MIT Licensed
  *
  * Stages are defined using the stager API
@@ -13,11 +13,9 @@ module.exports = function(stager, settings) {
 
     stager
         .next('instructions')
-        .next('choose-tutorial') // choose blue/red
+        .next('choose-tutorial')
         .repeat('tutorial', settings.tutorial.length) //
-        .next('tutorial-end') // remind players that they are randomly assigned to blue/red
-        // .repeat('practice', settings.REPEAT_PRACTICE)
-        // .next('practice-end')
+        .next('tutorial-end')
         .gameover();
 
     stager.extendStage('tutorial', {
@@ -28,16 +26,10 @@ module.exports = function(stager, settings) {
     	]
     });
 
+    // Modify the stager to skip one stage.
+
     // stager.skip('instructions');
     // stager.skip('choose-tutorial');
     // stager.skip('tutorial');
-
-    // Modify the stager to skip one stage.
-    // stager.skip('quiz');
-    // stager.skip('practice');
-    // stager.skip('practice-end');
     // stager.skip('tutorial-end');
-    // stager.skip('test');
-
-    return stager.getState();
 };
