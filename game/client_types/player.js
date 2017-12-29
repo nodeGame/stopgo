@@ -84,10 +84,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
 
-        
-        this.pA = (node.game.settings.PI * 100) + '%';
-        this.pB = (node.game.settings.PIB * 100) + '%';
-
         this.tutorialRole = '';
         this.tutorialPay = 0;
         this.tutorialWorldState = '';
@@ -117,6 +113,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                   'Choose the specified selection.');
         };
 
+        this.pA = (node.game.settings.PI * 100) + '%';
+        this.pB = (node.game.settings.PIB * 100) + '%';
+        
         this.addTables = function(color) {
             color = color ? ('-' + color) : '';
             W.getElementById('payoff-matrix-a' + color)
@@ -183,10 +182,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     W.show('red');
                     
-                    //W.getElementById('payoff-matrix-a')
                     this.addTables('red');
 
-                    // W.getElementById('payoff-table').appendChild(payoffTable);
                     W.setInnerHTML('world-state', node.game.tutorialWorldState);
                     W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
                                    ' ' + node.game.runningTotalPayoff.currency);

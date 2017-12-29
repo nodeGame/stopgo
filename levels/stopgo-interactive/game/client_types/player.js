@@ -99,6 +99,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.history.addRow(['Round', 'Red Choice', 'Blue Choice',
                                   'World State', 'Red Payoff', 'Blue Payoff']);
 
+        
+        this.pA = (node.game.settings.PI * 100) + '%';
+        this.pB = (node.game.settings.PIB * 100) + '%';
+
+        this.addTables = function(color) {
+            color = color ? ('-' + color) : '';
+            W.getElementById('payoff-matrix-a' + color)
+                .appendChild(node.game.payoffTables.A);
+            W.getElementById('payoff-matrix-b' + color)
+                .appendChild(node.game.payoffTables.B);
+
+            W.setInnerHTML('probability-A-table' + color, '(' + this.pA + ')');
+            // JS fails horribly with floating precision.
+            W.setInnerHTML('probability-B-table' + color, '(' + this.pB + ')');
+        }
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
     });
@@ -169,8 +184,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                       .payoffTables[node.game.worldState];
 
                         W.show('red');
-                        W.getElementById('payoff-table')
-                            .appendChild(payoffTable);
+                        this.addTables('red');
+
                         W.setInnerHTML('world-state', node.game.worldState);
                         W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
                                        ' ' +
@@ -267,10 +282,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     buttonRight = W.getElementById('right');
                     buttonRight.disabled = false;
 
-                    W.getElementById('payoff-matrix-a')
-                    .appendChild(node.game.payoffTables.A);
-                    W.getElementById('payoff-matrix-b')
-                    .appendChild(node.game.payoffTables.B);
+                    
+                    this.addTables('blue');
 
                     W.setInnerHTML('payoff-stop-blue', this.payoffStopBlue +
                     ' ' + node.game.runningTotalPayoff.currency);
