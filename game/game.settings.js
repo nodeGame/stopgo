@@ -32,8 +32,8 @@ settings = {
      */
     TIMER: {
         'instructions-light': 30000,
-        'blue-choice': 30000,
-        'red-choice': 30000,
+        'blue-choice': 45000,
+        'red-choice': 45000,
         'results': 12000
         // instructions: 60000
     },

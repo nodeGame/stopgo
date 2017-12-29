@@ -134,6 +134,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 ctx: node.game.visualTimer.gameTimer,
                 name: 'extraTimer'
             });
+            W.setInnerHTML('probability-A', this.pA);
         },
         exit: function() {
             if (this.visualTimer) {
