@@ -84,6 +84,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
 
+        
+        this.pA = (node.game.settings.PI * 100) + '%';
+        this.pB = (node.game.settings.PIB * 100) + '%';
+
         this.tutorialRole = '';
         this.tutorialPay = 0;
         this.tutorialWorldState = '';
@@ -108,10 +112,22 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.done(response);
         };
 
-        node.game.node.game.clickWrong = function() {
+        this.clickWrong = function() {
             alert('Please follow the instructions! ' +
                   'Choose the specified selection.');
         };
+
+        this.addTables = function(color) {
+            color = color ? ('-' + color) : '';
+            W.getElementById('payoff-matrix-a' + color)
+                .appendChild(node.game.payoffTables.A);
+            W.getElementById('payoff-matrix-b' + color)
+                .appendChild(node.game.payoffTables.B);
+
+            W.setInnerHTML('probability-A-table' + color, '(' + this.pA + ')');
+            // JS fails horribly with floating precision.
+            W.setInnerHTML('probability-B-table' + color, '(' + this.pB + ')');
+        }
     });
 
     stager.extendStep('choose-tutorial', {
@@ -151,7 +167,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 },
                 cb: function() {
                     var correctButton, wrongButton, stopGoButtons;
-                    var payoffTable;
+                    var payoffTable, s;
+                    s = node.game.settings;
 
                     payoffTable = this.payoffTables[this.tutorialWorldState];
 
@@ -165,7 +182,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.show('tutorial-instructions');
 
                     W.show('red');
-                    W.getElementById('payoff-table').appendChild(payoffTable);
+                    
+                    //W.getElementById('payoff-matrix-a')
+                    this.addTables('red');
+
+                    // W.getElementById('payoff-table').appendChild(payoffTable);
                     W.setInnerHTML('world-state', node.game.tutorialWorldState);
                     W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
                                    ' ' + node.game.runningTotalPayoff.currency);
@@ -249,11 +270,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         W.getElementById('left').onclick = this.clickWrong;
                     }
 
-                    W.getElementById('payoff-matrix-a')
-                    .appendChild(node.game.payoffTables.A);
-                    W.getElementById('payoff-matrix-b')
-                    .appendChild(node.game.payoffTables.B);
-
+                    this.addTables('blue');
+                    
                     W.setInnerHTML('payoff-stop-blue', this.payoffStopBlue +
                                    ' ' + node.game.runningTotalPayoff.currency);
 
@@ -368,26 +386,30 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             var payoffTables, s, str, mult;
             s = node.game.settings;
+            
             payoffTables = this.payoffTables;
 
-            W.setInnerHTML('probability-A', (s.PI * 100) + '%');
+            W.setInnerHTML('probability-A', this.pA);
             // JS fails horribly with floating precision.
-            W.setInnerHTML('probability-B',
-                           (parseFloat((1-s.PI).toFixed(2)) * 100) + '%');
+            W.setInnerHTML('probability-B', this.pB);
 
+            W.setInnerHTML('probability-A-table', '(' + this.pA + ')');
+            // JS fails horribly with floating precision.
+            W.setInnerHTML('probability-B-table',  '(' + this.pB + ')');
+            
             if (s.PI === 0.5) {
                 str = 'A and B are equally likely';
             }
             else {
                 if (s.PI > 0.5) {
-                    mult = parseFloat(s.PI / (1-s.PI)).toFixed(1);
+                    mult = parseFloat(s.PI / (s.PIB)).toFixed(1);
                     if (mult.charAt(mult.length-1) === "0") {
                         mult = mult.substr(0, mult.length-2);
                     }
                     str = 'A is ' + mult + ' times more likely than B';
                 }
                 else {
-                    mult = parseFloat((1-s.PI) / s.PI).toFixed(1);
+                    mult = parseFloat((s.PIB) / s.PI).toFixed(1);
                     if (mult.charAt(mult.length-1) === "0") {
                         mult = mult.substr(0, mult.length-2);
                     }
@@ -398,6 +420,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             
             W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' +
                            node.game.runningTotalPayoff.currency);
+            W.setInnerHTML('exchange_rate', s.EXCHANGE_RATE);
             W.getElementById('payoff-matrix-a').appendChild(payoffTables.A);
             W.getElementById('payoff-matrix-b').appendChild(payoffTables.B);
         }

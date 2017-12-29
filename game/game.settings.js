@@ -141,6 +141,8 @@ settings = {
     for (t in settings.treatments) {
         if (settings.treatments.hasOwnProperty(t)) {
             t = settings.treatments[t];
+            // 1 - PI.
+            t.PIB = parseFloat((1-t.PI).toFixed(2));
             t.payoffs = {
     	        STOP: {
                     RED:  t.STOP,

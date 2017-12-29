@@ -129,3 +129,13 @@ ul#summary-rules {
 ul#summary-rules li {
     margin-bottom: 10px;
 }
+
+
+#probability-A-table,
+#probability-B-table,
+#probability-A-table-red,
+#probability-B-table-red,
+#probability-A-table-blue,
+#probability-B-table-blue {
+  float: right;
+}

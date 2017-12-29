@@ -34,13 +34,20 @@
                 receive <span id="payoff-stop"> __ </span>.
 
                 <br/> If you choose <strong>GO</strong>, then Blue choses
-                Left or Right and the payoff table is as follows:
+                Left or Right and based on of the following payoff tables:
             </p>
-            <div id="payoff-table" class="panel panel-default">
-                <div class="panel-heading">
-                    Payoff Table
-                </div>
-            </div>
+             <div id="payoff-matrix-a-red" class="panel panel-default half-size">
+               <div class="panel-heading">
+                 Payoffs World A <span id="probability-A-table-red">__</span>
+               </div>
+               <!-- Payoff Table A added here on init-->
+             </div>
+             <div id="payoff-matrix-b-red" class="panel panel-default half-size">
+               <div class="panel-heading">
+                 Payoffs World B <span id="probability-B-table-red">__</span>
+               </div>
+               <!-- Payoff Table B added here on init -->
+             </div>
         </div>
 
         <div id="blue" style="display:none">
@@ -69,17 +76,21 @@
                     get <span id="payoff-stop-blue"> __ </span>, regardless
                     of your choice.
                     <br/>
-                    If Red choses <strong>GO</strong>, there
-                    is an equal chance for either of the payoff tables below:
+                    If Red choses <strong>GO</strong>, your payoff is based on
+                    one of the two table tables below:
                 </p>
 
                 <div class="row">
-                    <div id="payoff-matrix-a" class="panel panel-default half-size">
-                        <div class="panel-heading">Payoff Table A</div>
+                    <div id="payoff-matrix-a-blue" class="panel panel-default half-size">
+                      <div class="panel-heading">
+                        Payoffs World A <span id="probability-A-table-blue">__</span>
+                      </div>
                         <!-- Payoff Table A added here on init-->
                     </div>
-                    <div id="payoff-matrix-b" class="panel panel-default half-size">
-                        <div class="panel-heading">Payoff Table B</div>
+                    <div id="payoff-matrix-b-blue" class="panel panel-default half-size">
+                      <div class="panel-heading">
+                        Payoffs World B <span id="probability-B-table-blue">__</span>
+                      </div>
                         <!-- Payoff Table B added here on init -->
                     </div>
                 </div>
