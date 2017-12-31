@@ -28,6 +28,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Initialize the client.
         readBotData('avgDecisions.csv');
 
+        node.game.choices = {};
+        node.game.tables = {};
+        
         // Add session name to data in DB.
         this.memory.on('insert', function(o) {
             o.room = node.nodename;
@@ -35,11 +38,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             o.bot = !!channel.bots[o.player];
         });
         
-        node.game.choices = {};
-        node.game.tables = {};
-
         node.on.pconnect(function(player) {
             console.log('>>>>>>>>>>>>CONNECTED: ', player.id);
+        });
+
+        node.game.stepDone = {};
+        
+        node.on.data('done', function(msg) {
+            node.game.stepDone[msg.from] = true;
+        });
+
+
+        node.on('STEPPING', function() {
+            node.game.stepDone = {};
         });
         
         node.on.pdisconnect(function(player) {
@@ -94,12 +105,30 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 // TODO: Problem. Node.done is a SET DATA message. Later (async)
                 // the UPDATE_PLAYER msg is sent. If the disconnection happens
                 // in between stageLevel is still 50.
+
                 
-                // DONE. Check 
-                if (node.game.choices[player.id]) {
+                // DONE. Check
+                
+                // General.
+                if (node.game.stepDone[player.id]) {
                     options.gotoStepOptions.beDone = true;
                     options.gotoStepOptions.plot.autoSet = null;
                 }
+
+                
+                // If step = 1 and Red
+                // if (node.game.choices[player.id]) {
+
+                // If step = 1 and Blue?
+
+
+                // If step = 2 and Blue
+                // get partner, check blue choice.
+
+                // If step 2 and Red?
+
+
+                // If step = 3 ?
 
                 channel.connectBot(options);
                 
@@ -169,6 +198,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     else {
                         node.err('Invalid Red choice. ID of sender: ' + id);
                     }
+                }
+                else {
+                    
                 }
             });
         }
@@ -277,6 +309,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 dump: true,  // default false
                 print: true  // default false                
             });
+
+            // Would be nice something like:
+            // node.on.data('email').toFile('email');
             
             node.on.data('email', function(msg) {
                 var id, code;
