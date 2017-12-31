@@ -39,7 +39,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.tables = {};
 
         node.on.pconnect(function(player) {
-            console.log('>>>>>>>>>>>>CONNECTED: ', player);
+            console.log('>>>>>>>>>>>>CONNECTED: ', player.id);
         });
         
         node.on.pdisconnect(function(player) {
@@ -91,10 +91,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     console.log(options.gotoStepOptions);
                 }
 
-                //player = channel.registry.getClient(player.id);
-
-                console.log('DDDDDDDDDDDD', player);
-
                 // TODO: Problem. Node.done is a SET DATA message. Later (async)
                 // the UPDATE_PLAYER msg is sent. If the disconnection happens
                 // in between stageLevel is still 50.
@@ -103,8 +99,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 if (node.game.choices[player.id]) {
                     options.gotoStepOptions.beDone = true;
                     options.gotoStepOptions.plot.autoSet = null;
-                    debugger
-                    console.log('SET DONE!');
                 }
 
                 channel.connectBot(options);
@@ -153,11 +147,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 otherId = node.game.matcher.getMatchFor(id);
                 // Add info to data, so that it is saved in database.
                 msg.data.partner = otherId;
-
-                console.log('RRRRRRRRRRRREEDDD DONE:');
-                console.log(role, msg.data);
-                console.log('-----------------------');
-                
+ 
                 if (role === 'RED') {
                     playerObj = node.game.pl.get(id);
                     redChoice = msg.data.redChoice;
@@ -188,9 +178,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             console.log('LOGIC>>>>>>>>>>>>>BLUE-CHOICE-STAGE');
 
-            console.log(node.game.pl.db[0].stageLevel);
-            console.log(node.game.pl.db[1].stageLevel);
-
             node.on.data('done', function(msg) {
                 var id, otherId;
                 var blueChoice;
@@ -201,9 +188,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 debugger
                 id = msg.from;
                 role = node.game.matcher.getRoleFor(id);
-
-                console.log('blue-choice-done', role, msg);
-                            
+            
                 if (role === 'BLUE') {
                     otherId = node.game.matcher.getMatchFor(id);
                     choices = node.game.choices;
@@ -229,9 +214,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     else {
                         node.err('Invalid Blue choice. ID of sender: ' + id);
                     }
-                }
-                else {
-                    console.log('OOOOOOOOOOOOTHER RRRRROLE: ', role);
                 }
             });
         }
@@ -359,11 +341,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         blueChoice = choices.blueChoice;
 
         if (choices.redChoice === 'GO') {
-            console.log('CHOICES');
-            console.log(choices);
-            console.log('PAYOFFS.GO');
-            console.log(payoffs.GO);
-            console.log(choices);
+//             console.log('CHOICES');
+//             console.log(choices);
+//             console.log('PAYOFFS.GO');
+//             console.log(payoffs.GO);
+//             console.log(choices);
             bluePayoff = payoffs.GO[table][blueChoice].BLUE;
             redPayoff = payoffs.GO[table][blueChoice].RED;
         }
@@ -429,7 +411,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             db = new ngc.NDDB();
             db.loadSync(filePath);
             lastLine = db.last();
-            console.log(lastLine);
+            // console.log(lastLine);
             decisions = lastLine;
             setDecisionsProbabilities(decisions.StopGo,
                                       decisions.Stop,

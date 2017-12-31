@@ -75,7 +75,6 @@ module.exports = function(treatmentName, settings, stager,
 
                     console.log('RED BOT:', node.player.id, ', partner: ',
                                 this.partner, ', decision: ', decision);
-                    debugger
                     this.node.done({ redChoice: decision });
                 }
             },
