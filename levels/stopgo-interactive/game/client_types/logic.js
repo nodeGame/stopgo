@@ -20,6 +20,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     // Must implement the stages here.
 
+    // Adjust according to the value in waiting room.
+    stager.setDefaultProperty('minPlayers', 2);
+
     stager.setOnInit(function() {
 
         // Initialize the client.
@@ -35,6 +38,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.choices = {};
         node.game.tables = {};
 
+        node.on.pconnect(function(player) {
+            console.log('>>>>>>>>>>>>CONNECTED: ', player);
+        });
+        
         node.on.pdisconnect(function(player) {
             var role, options, gameStage;
             
@@ -57,8 +64,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                             chanceOfRight: 0.5
                         }
                     },
-                    // BUG: error when RED disconnects
-                    // TODO: if replaceId is set should options from old data.
                     replaceId: player.id,
                     gotoStep: node.player.stage,
                     ready: function(bot) {
@@ -73,15 +78,33 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
                 };
 
-
+                options.gotoStepOptions = {};
+                
                 // Add role and partner if in the game stage.
                 if (gameStage.stage === 2 && gameStage.step !== 3) {
-                    options.gotoStepOptions = {
+                    options.gotoStepOptions= {
                         plot: { 
                             partner: node.game.matcher.getMatchFor(player.id),
                             role: node.game.matcher.getRoleFor(player.id)
                         }
                     };
+                    console.log(options.gotoStepOptions);
+                }
+
+                //player = channel.registry.getClient(player.id);
+
+                console.log('DDDDDDDDDDDD', player);
+
+                // TODO: Problem. Node.done is a SET DATA message. Later (async)
+                // the UPDATE_PLAYER msg is sent. If the disconnection happens
+                // in between stageLevel is still 50.
+                
+                // DONE. Check 
+                if (node.game.choices[player.id]) {
+                    options.gotoStepOptions.beDone = true;
+                    options.gotoStepOptions.plot.autoSet = null;
+                    debugger
+                    console.log('SET DONE!');
                 }
 
                 channel.connectBot(options);
@@ -107,6 +130,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var match;
             var roles;
             var payoffTable;
+            
+            console.log('LOGIC>>>>>>>>>>>>>RED-CHOICE-STAGE');
 
             allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
 
@@ -128,7 +153,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 otherId = node.game.matcher.getMatchFor(id);
                 // Add info to data, so that it is saved in database.
                 msg.data.partner = otherId;
- 
+
+                console.log('RRRRRRRRRRRREEDDD DONE:');
+                console.log(role, msg.data);
+                console.log('-----------------------');
+                
                 if (role === 'RED') {
                     playerObj = node.game.pl.get(id);
                     redChoice = msg.data.redChoice;
@@ -157,6 +186,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('blue-choice', {
         cb: function() {
+            console.log('LOGIC>>>>>>>>>>>>>BLUE-CHOICE-STAGE');
+
+            console.log(node.game.pl.db[0].stageLevel);
+            console.log(node.game.pl.db[1].stageLevel);
+
             node.on.data('done', function(msg) {
                 var id, otherId;
                 var blueChoice;
@@ -164,9 +198,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var role;
                 var choices;
 
+                debugger
                 id = msg.from;
                 role = node.game.matcher.getRoleFor(id);
 
+                console.log('blue-choice-done', role, msg);
+                            
                 if (role === 'BLUE') {
                     otherId = node.game.matcher.getMatchFor(id);
                     choices = node.game.choices;
@@ -193,6 +230,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         node.err('Invalid Blue choice. ID of sender: ' + id);
                     }
                 }
+                else {
+                    console.log('OOOOOOOOOOOOTHER RRRRROLE: ', role);
+                }
             });
         }
     });
@@ -206,14 +246,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var i;
             var client;
 
+            console.log('LOGIC>>>>>>>>>>>>>RESULTS-STAGE');
+
             allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
 
             for (i = 0; i < allMatchesInRound.length; i++) {
 
                 roles = allMatchesInRound[i];
-
-                console.log('ROLES');
-                console.log(roles);
 
                 payoffs = calculatePayoffs(node.game.choices[roles.RED],
                                            node.game.tables[roles.RED]);
@@ -324,6 +363,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             console.log(choices);
             console.log('PAYOFFS.GO');
             console.log(payoffs.GO);
+            console.log(choices);
             bluePayoff = payoffs.GO[table][blueChoice].BLUE;
             redPayoff = payoffs.GO[table][blueChoice].RED;
         }
@@ -377,7 +417,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         });
     }
 
-    // should be moved out of logic init so only called once
+    // should be moved out of logic init so only led once
     function readBotData(fileName) {
         var filePath;
         var db;

@@ -48,6 +48,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                     rndButtonId = Math.floor(Math.random()*2) ?
                                         'stop':'go';
                                     W.getElementById(rndButtonId).click();
+                                    // Disconnect Test.
+                                    node.socket.disconnect();
                                 }, 2000);
                             }
                         }
@@ -59,6 +61,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                     rndButtonId = Math.floor(Math.random()*2) ?
                                         'left':'right';
                                     W.getElementById(rndButtonId).click();
+                                    // Disconnect Test.
+                                    node.socket.disconnect();
                                 }, 2000);
                             }
                         }
