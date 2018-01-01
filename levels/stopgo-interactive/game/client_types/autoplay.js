@@ -49,7 +49,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                         'stop':'go';
                                     W.getElementById(rndButtonId).click();
                                     // Disconnect Test.
-                                    node.socket.disconnect();
+                                    // node.socket.disconnect();
                                 }, 2000);
                             }
                         }

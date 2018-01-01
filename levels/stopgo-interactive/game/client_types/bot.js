@@ -75,7 +75,7 @@ module.exports = function(treatmentName, settings, stager,
 
                     console.log('RED BOT:', node.player.id, ', partner: ',
                                 this.partner, ', decision: ', decision);
-                    this.node.done({ redChoice: decision });
+                    this.node.timer.randomDone(4000, { redChoice: decision });
                 }
             },
             BLUE: {
@@ -84,7 +84,7 @@ module.exports = function(treatmentName, settings, stager,
                     that = this;
                     this.node.once.data('RED-CHOICE', function(msg) {
                         that.node.game.redChoice = msg.data;
-                        that.node.done();
+                        that.node.timer.randomDone(2000);
                     });
                 }
             }
@@ -101,7 +101,7 @@ module.exports = function(treatmentName, settings, stager,
                     that = this;
                     this.node.once.data('BLUE-CHOICE', function(msg) {
                         that.node.game.blueChoice = msg.data;
-                        that.node.done();
+                        that.node.timer.randomDone(2000);
                     });
                 },
                 // Blues times up first, and will send data.
@@ -128,7 +128,7 @@ module.exports = function(treatmentName, settings, stager,
                     decision = Math.random() > chanceOfRight ? 'LEFT' : 'RIGHT';
                     console.log('BLUE BOT:', node.player.id, ', partner: ',
                                 this.partner, ', decision: ', decision);
-                    this.node.done({ blueChoice: decision });
+                    this.node.timer.randomDone(4000, { blueChoice: decision });
                 }
             }
         }

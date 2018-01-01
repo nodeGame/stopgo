@@ -42,16 +42,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             console.log('>>>>>>>>>>>>CONNECTED: ', player.id);
         });
 
+        ////////////////////////////////
+        // Test. Make sure we know when a client is done.
         node.game.stepDone = {};
-        
         node.on.data('done', function(msg) {
             node.game.stepDone[msg.from] = true;
+            channel.registry.updateClient(msg.from, { stageLevel: 100 });
         });
-
-
-        node.on('STEPPING', function() {
+        node.on.step(function() {
             node.game.stepDone = {};
         });
+        ////////////////////////////////
         
         node.on.pdisconnect(function(player) {
             var role, options, gameStage;
@@ -90,7 +91,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 };
 
                 options.gotoStepOptions = {};
-                
+
                 // Add role and partner if in the game stage.
                 if (gameStage.stage === 2 && gameStage.step !== 3) {
                     options.gotoStepOptions= {
@@ -101,35 +102,20 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     };
                     console.log(options.gotoStepOptions);
                 }
-
-                // TODO: Problem. Node.done is a SET DATA message. Later (async)
-                // the UPDATE_PLAYER msg is sent. If the disconnection happens
-                // in between stageLevel is still 50.
-
                 
-                // DONE. Check
-                
-                // General.
                 if (node.game.stepDone[player.id]) {
+                    if (!options.gotoStepOptions) {
+                        options.gotoStepOptions = { plot: {} }
+                    };
                     options.gotoStepOptions.beDone = true;
                     options.gotoStepOptions.plot.autoSet = null;
                 }
 
-                
-                // If step = 1 and Red
-                // if (node.game.choices[player.id]) {
-
-                // If step = 1 and Blue?
-
-
-                // If step = 2 and Blue
-                // get partner, check blue choice.
-
-                // If step 2 and Red?
-
-
-                // If step = 3 ?
-
+                // In theory the 'replaceId' option should take care of 
+                // everything. In practice, it can be the stageLevel is
+                // not yet updated even after a DONE message has been sent.
+                // Moreover, we do not know if a role/partner set earlier
+                // is still valid. We need to rework the method.
                 channel.connectBot(options);
                 
             }
@@ -139,6 +125,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('red-choice', {
         matcher: {
+            validity: 'stage',
             roles: [ 'RED', 'BLUE' ],
             fixedRoles: true,
             canMatchSameRole: false,
@@ -176,7 +163,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 otherId = node.game.matcher.getMatchFor(id);
                 // Add info to data, so that it is saved in database.
                 msg.data.partner = otherId;
- 
+                
                 if (role === 'RED') {
                     playerObj = node.game.pl.get(id);
                     redChoice = msg.data.redChoice;
@@ -217,10 +204,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var role;
                 var choices;
 
-                debugger
                 id = msg.from;
                 role = node.game.matcher.getRoleFor(id);
-            
+                
                 if (role === 'BLUE') {
                     otherId = node.game.matcher.getMatchFor(id);
                     choices = node.game.choices;
@@ -303,7 +289,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         cb: function() {
-      
+            
             gameRoom.computeBonus({
                 say: true,   // default false
                 dump: true,  // default false
@@ -376,13 +362,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         blueChoice = choices.blueChoice;
 
         if (choices.redChoice === 'GO') {
-//             console.log('CHOICES');
-//             console.log(choices);
-//             console.log('PAYOFFS.GO');
-//             console.log(payoffs.GO);
-//             console.log(choices);
-            bluePayoff = payoffs.GO[table][blueChoice].BLUE;
-            redPayoff = payoffs.GO[table][blueChoice].RED;
+            //             console.log('CHOICES');
+            //             console.log(choices);
+            //             console.log('PAYOFFS.GO');
+            //             console.log(payoffs.GO);
+            //             console.log(choices);
+            try {
+                bluePayoff = payoffs.GO[table][blueChoice].BLUE;
+                redPayoff = payoffs.GO[table][blueChoice].RED;
+            }
+            catch(e) {
+                debugger;
+            }
         }
         else {
             bluePayoff = payoffs.STOP.BLUE;
