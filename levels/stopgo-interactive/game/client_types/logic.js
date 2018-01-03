@@ -21,7 +21,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // Must implement the stages here.
 
     // Adjust according to the value in waiting room.
-    stager.setDefaultProperty('minPlayers', 2);
+    stager.setDefaultProperty('minPlayers', 10);
 
     stager.setOnInit(function() {
 
@@ -38,10 +38,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             o.bot = !!channel.bots[o.player];
         });
         
-        node.on.pconnect(function(player) {
-            console.log('>>>>>>>>>>>>CONNECTED: ', player.id);
-        });
-
         ////////////////////////////////
         // Test. Make sure we know when a client is done.
         node.game.stepDone = {};
@@ -291,6 +287,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             
             gameRoom.computeBonus({
+                // header: [ 'id', 'type', 'exit', 'total' ],
+                // headerKeys: [ 'id', 'clientType', 'ExitCode', 'win' ],
                 say: true,   // default false
                 dump: true,  // default false
                 print: true  // default false                
