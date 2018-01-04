@@ -49,7 +49,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                         'stop':'go';
                                     W.getElementById(rndButtonId).click();
                                     // Disconnect Test.
-                                    // node.socket.disconnect();
+                                    // if (node.game.getRound() === 2) {
+                                    //     node.socket.disconnect();
+                                    // }
                                 }, 2000);
                             }
                         }
@@ -62,7 +64,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                         'left':'right';
                                     W.getElementById(rndButtonId).click();
                                     // Disconnect Test.
-                                    node.socket.disconnect();
+                                    // if (node.game.getRound() === 2) {
+                                    //     node.socket.disconnect();
+                                    // }
                                 }, 2000);
                             }
                         }
@@ -81,10 +85,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 _cb = stepObj._cb;
                 _cb.call(this);
 
-                if (stepId === 'results') {
-                    this.node.socket.disconnect();
-                    return;
-                }
+                // Disconnect Test.
+                // if (this.getRound() === 2 && stepId === 'results') {
+                //     this.node.socket.disconnect();
+                //     return;
+                // }
 
                 if (stepId !== 'end') {
                     node.timer.randomDone(2000);
