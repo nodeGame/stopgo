@@ -81,6 +81,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 _cb = stepObj._cb;
                 _cb.call(this);
 
+                if (stepId === 'results') {
+                    this.node.socket.disconnect();
+                    return;
+                }
+
                 if (stepId !== 'end') {
                     node.timer.randomDone(2000);
                 }

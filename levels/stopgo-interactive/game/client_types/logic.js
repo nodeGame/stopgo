@@ -86,23 +86,22 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
                 };
 
-                options.gotoStepOptions = {};
+                options.gotoStepOptions = { plot: {} };
 
                 // Add role and partner if in the game stage.
-                if (gameStage.stage === 2 && gameStage.step !== 3) {
-                    options.gotoStepOptions= {
-                        plot: { 
-                            partner: node.game.matcher.getMatchFor(player.id),
-                            role: node.game.matcher.getRoleFor(player.id)
-                        }
-                    };
+                if (gameStage.stage === 2) {
+                    if (gameStage.step !== 3) {
+                        options.gotoStepOptions = {
+                            plot: { 
+                                partner: node.game.matcher.getMatchFor(player.id),
+                                role: node.game.matcher.getRoleFor(player.id)
+                            }
+                        };
+                    }
                     console.log(options.gotoStepOptions);
                 }
                 
                 if (node.game.stepDone[player.id]) {
-                    if (!options.gotoStepOptions) {
-                        options.gotoStepOptions = { plot: {} }
-                    };
                     options.gotoStepOptions.beDone = true;
                     options.gotoStepOptions.plot.autoSet = null;
                 }
