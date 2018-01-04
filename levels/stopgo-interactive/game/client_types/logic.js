@@ -52,7 +52,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         
         node.on.pdisconnect(function(player) {
             var role, options, gameStage;
-            player.allowReconnect = false;
+
+            channel.registry.updateClient(player.id, {
+                allowReconnect: false
+            });
 
             gameStage = node.player.stage;
             // Do nothing in the EndScreen stage.
