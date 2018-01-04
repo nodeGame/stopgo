@@ -52,13 +52,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         
         node.on.pdisconnect(function(player) {
             var role, options, gameStage;
-            
+            player.allowReconnect = false;
+
             gameStage = node.player.stage;
             // Do nothing in the EndScreen stage.
             if (gameStage.stage > 2) return;
 
             if (channel.registry.isRemote(player)) {
-                player.allowReconnect = false; // check if registry maybe
 
                 options = {
                     room: gameRoom,

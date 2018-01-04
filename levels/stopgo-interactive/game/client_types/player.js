@@ -17,10 +17,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.setOnInit(function() {
         // Initialize the client.
-        // Setup page: header + frame.
+        // Setup page: header + frame + infopanel.
         var header = W.generateHeader();
-        W.setHeaderPosition('top');
-
         var frame = W.generateFrame();
         var infoPanel = W.generateInfoPanel();
 

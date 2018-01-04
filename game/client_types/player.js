@@ -1,11 +1,7 @@
 /**
  * # Player type implementation of the game stages (tutorial)
- * Copyright(c) 2016
+ * Copyright(c) 2018
  * MIT Licensed
- *
- * Each client type must extend / implement the stages defined in `game.stages`.
- * Upon connection each client is assigned a client type and it is automatically
- * setup with it.
  *
  * http://www.nodegame.org
  * ---
@@ -24,10 +20,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.setOnInit(function() {
         // Initialize the client.
+
         // Setup page: header + frame.
         var header = W.generateHeader();
         var frame = W.generateFrame();
-        W.setHeaderPosition('top');
+
         var payoffs;
         var payoffTableA, payoffTableB;
         var redRowA, redRowB;
@@ -48,8 +45,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             showCurrency: false
         });
         this.doneButton = node.widgets.append('DoneButton', header);
-
-        // node.player.stage.round
 
         // Add payoff tables
         node.game.totalPayoff = 0;
@@ -84,7 +79,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
 
-        this.tutorialRole = '';
         this.tutorialPay = 0;
         this.tutorialWorldState = '';
 
@@ -92,8 +86,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         'not the actual game.';
 
         this.selecttutorialRole = function(role) {
-            node.game.tutorialRole = role;
-            // node.game.setRole(role, true);
             node.game.plot.setStepProperty(node.game.getNextStep(),
                                            'role', role);
             node.done({tutorialRole: role});
@@ -234,7 +226,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('blue-choice-tutorial', {
-        role: true,
+        role: function() { return this.role },
         roles: {
             BLUE: {
                 donebutton: false,
@@ -289,6 +281,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('results-tutorial', {
+        role: true,
         frame: 'results.htm',
         cb: function() {
             var payoffs;
@@ -297,32 +290,29 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var playerChoice;
             var playerColorClass, otherPlayerColorClass;
             var payoffsGo;
-            var tutorialRole;
 
             payoffs = node.game.settings.payoffs;
-            otherPlayerRole = node.game.tutorialRole === 'RED' ? 'BLUE' : 'RED';
+            otherPlayerRole = this.role === 'RED' ? 'BLUE' : 'RED';
 
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
 
             payoffsGo = payoffs.GO[this.tutorialWorldState];
-            tutorialRole = this.tutorialRole;
             if (this.tutorialChoices.RED === 'GO') {
-                payment = payoffsGo[this.tutorialChoices.BLUE][tutorialRole];
+                payment = payoffsGo[this.tutorialChoices.BLUE][this.role];
             }
             else {
-                payment = payoffs.STOP[this.tutorialRole];
+                payment = payoffs.STOP[this.role];
             }
 
             node.game.tutorialPay += payment;
             node.game.runningTotalPayoff.update(payment);
 
-            playerChoice = this.tutorialChoices[node.game.tutorialRole]
-                           .toUpperCase();
-            playerColorClass = node.game.tutorialRole.toLowerCase();
+            playerChoice = this.tutorialChoices[this.role].toUpperCase();
+            playerColorClass = this.role.toLowerCase();
             otherPlayerColorClass = otherPlayerRole.toLowerCase();
 
-            W.setInnerHTML('player', node.game.tutorialRole);
+            W.setInnerHTML('player', this.role);
             W.setInnerHTML('player-choice', playerChoice);
             W.addClass(W.getElementById('player'), playerColorClass);
 
@@ -339,10 +329,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             // Sets the role again.
             node.game.plot.updateProperty(node.game.getNextStep(),
-                                          'role', node.game.tutorialRole);
+                                          'role', this.role);
 
             W.getElementById('payoff-table')
-            .appendChild(this.payoffTables[this.tutorialWorldState]);
+                .appendChild(this.payoffTables[this.tutorialWorldState]);
 
             if (this.tutorialChoices['RED'] === 'GO') {
                 W.show('go-choice');
@@ -350,7 +340,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             else {
                 W.show('stop-choice');
             }
-
         }
     });
 
