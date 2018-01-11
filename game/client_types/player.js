@@ -121,6 +121,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
+    stager.extendStep('mood', {
+        widget: {
+            name: 'MoodGauge',
+            options: {
+                title: false,
+                panel: false
+            }
+        }
+    });
+    
     stager.extendStep('choose-tutorial', {
         donebutton: false,
         frame: 'choose-tutorial.htm',

@@ -12,6 +12,7 @@
 module.exports = function(stager, settings) {
 
     stager
+        .next('mood')
         .next('instructions')
         .next('choose-tutorial')
         .repeat('tutorial', settings.tutorial.length) //

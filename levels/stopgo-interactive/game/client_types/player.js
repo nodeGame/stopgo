@@ -151,7 +151,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('red-choice', {
         donebutton: false,
-        frame: 'stopgostep.htm', // change this name
+        frame: 'stopgostep.htm',
         // role: function() { return this.role; },
         // partner: function() { return this.partner; },
         init: function() {
@@ -366,6 +366,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.extendStep('end', {
         init: function() {
             W.infoPanel.destroy();
+            W.restoreOnleave();
         },
         donebutton: false,
         frame: 'end.htm',
