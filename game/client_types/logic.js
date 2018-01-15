@@ -11,6 +11,7 @@
 
 var ngc = require('nodegame-client');
 var stepRules = ngc.stepRules;
+var fs = require('fs');
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
@@ -33,7 +34,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             dumpDbInterval = 30000;
 
             codesFile = gameRoom.dataDir + 'codes.csv'
-
+            
             cacheToSave = [];
             saveWhoConnected = function(p) {
 
@@ -48,7 +49,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         var txt;
                         txt = cacheToSave.join("\n") + "\n";
                         cacheToSave = [];
-                        fci               timeOutSave = null;
+                        timeOutSave = null;
                         fs.appendFile(codesFile, txt, function(err) {
                             if (err) {
                                 console.log(txt);
