@@ -206,8 +206,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     });
                 }
             },
-            BLUE: {
-                timer: null,
+            BLUE: {                
                 cb: function() {
                     var dots;
 
@@ -234,7 +233,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         },
         roles: {
             RED: {
-                timer: null,
                 cb: function() {
                     var dots;
                     W.show('awaiting-blue-decision');
