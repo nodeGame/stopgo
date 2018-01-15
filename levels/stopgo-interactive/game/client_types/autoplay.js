@@ -50,7 +50,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                     W.getElementById(rndButtonId).click();
                                     // Disconnect Test.
                                     // if (node.game.getRound() === 2) {
-                                    //     node.socket.disconnect();
+                                    // node.socket.disconnect();
                                     // }
                                 }, 2000);
                             }
@@ -65,7 +65,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                     W.getElementById(rndButtonId).click();
                                     // Disconnect Test.
                                     // if (node.game.getRound() === 2) {
-                                    //     node.socket.disconnect();
+                                    // node.socket.disconnect();
                                     // }
                                 }, 2000);
                             }

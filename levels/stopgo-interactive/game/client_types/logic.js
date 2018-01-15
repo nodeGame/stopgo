@@ -21,7 +21,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // Must implement the stages here.
 
     // Adjust according to the value in waiting room.
-    stager.setDefaultProperty('minPlayers', 10);
+    stager.setDefaultProperty('minPlayers', channel.waitingRoom.GROUP_SIZE);
 
     stager.setOnInit(function() {
 
@@ -53,9 +53,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.on.pdisconnect(function(player) {
             var role, options, gameStage;
 
-            channel.registry.updateClient(player.id, {
-                allowReconnect: false
-            });
+            player.allowReconnect = false;
+            
+            // channel.registry.updateClient(player.id, {
+            //     allowReconnect: false
+            // });
 
             gameStage = node.player.stage;
             // Do nothing in the EndScreen stage.
