@@ -22,7 +22,48 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     stager.setDefaultStepRule(stepRules.SOLO);
 
     stager.setOnInit(function() {
+        
+        // Saves time, id and worker id of connected clients (with timeout).
+        (function() {
+            var saveWhoConnected;
+            var cacheToSave, timeOutSave;
+            var codesFile;        
+            var dumpDbInterval;
 
+            dumpDbInterval = 30000;
+
+            codesFile = gameRoom.dataDir + 'codes.csv'
+
+            cacheToSave = [];
+            saveWhoConnected = function(p) {
+
+                cacheToSave.push(
+                    Date.now() + "," + p.id + "," +
+                        (p.WorkerId || 'NA') + "," +
+                        (p.userAgent ? '"' + p.userAgent + '"' : 'NA')
+                );
+
+                if (!timeOutSave) {
+                    timeOutSave = setTimeout(function() {
+                        var txt;
+                        txt = cacheToSave.join("\n") + "\n";
+                        cacheToSave = [];
+                        fci               timeOutSave = null;
+                        fs.appendFile(codesFile, txt, function(err) {
+                            if (err) {
+                                console.log(txt);
+                                console.log(err);
+                            }
+                        });
+                    }, dumpDbInterval);
+                }
+            }
+            if (node.game.pl.size()) node.game.pl.each(saveWhoConnected);
+            node.on.pconnect(saveWhoConnected);
+        })();
+        //////////////////////////////////
+
+        
         node.on.data('tutorial-over', function(msg) {
             var db;
 

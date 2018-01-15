@@ -291,8 +291,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             
             gameRoom.computeBonus({
-                header: [ 'id', 'type', 'exit', 'bonus' ],
-                headerKeys: [ 'id', 'clientType', 'ExitCode', 'win' ],
+                header: [ 'id', 'type', 'workerid', 'hitid',
+                          'assignmentid', 'exit', 'bonus' ],
+                headerKeys: [ 'id', 'clientType', 'WorkerId',
+                              'HITId', 'AssignmentId', 'ExitCode', 'win' ],
                 say: true,   // default false
                 dump: true,  // default false
                 print: true  // default false                
