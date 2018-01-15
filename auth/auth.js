@@ -13,10 +13,16 @@ module.exports = function(auth) {
     // of incoming connections.
 
     // The Auth API defines 3 callbacks:
+    
+    // The auth object contains a number of callbacks that specify
+    // how the channel handles authorization / identification
+    // of incoming connections.
+
+    // The Auth API defines 3 callbacks:
 
     // auth.authorization('player', authPlayers);
     // auth.clientIdGenerator('player', idGen);
-    // auth.clientObjDecorator('player', decorateClientObj);
+    auth.clientObjDecorator('player', decorateClientObj);
 
     // All of them accept a variable number of parameters.
     // The first one specifies whether they apply only to
@@ -86,7 +92,41 @@ module.exports = function(auth) {
     //
     // In this example the type of browser is added.
     //
-    function decorateClientObj(clientObj, info) {
-        if (info.headers) clientObj.userAgent = info.headers['user-agent'];
+    function decorateClientObj(clientObject, info) {
+        var amtData;
+        if (info.handshake.headers) {
+            clientObject.userAgent = info.handshake.headers['user-agent'];
+        }
+        if (!clientObject.connectTime) clientObject.connectTime = Date.now();
+
+        if (info.query) {
+            amtData = info.query.id;
+            if (!info.query.id) {
+                console.log('no amt data!', clientObject.id);
+                return;
+            }
+            amtData = atob(info.query.id);
+            if ('object' === typeof amtData) {
+                clientObject.WorkerId = amtData.id;
+                clientObject.AssignmentId = amtData.a;
+                clientObject.HITId = amtData.h;
+            }
+            else {
+                clientObject.amtData = info.query.id;
+            }
+        }
+    }
+
+    // Decrypt base64 encoded strings.
+    function atob(str) {
+        str = new Buffer(str, 'base64').toString('binary');
+        try {
+            str = JSON.parse(str);
+        }
+        catch(e) {
+            console.log(e);
+            str = false;
+        }
+        return str;
     }
 };

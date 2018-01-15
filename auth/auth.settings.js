@@ -13,7 +13,7 @@ module.exports = {
      *
      * If TRUE, authorization files will be imported and checked
      */
-    enabled: true, // [true, false] Default: TRUE.
+    enabled: false, // [true, false] Default: TRUE.
 
     /**
      * ## mode
@@ -34,7 +34,7 @@ module.exports = {
      *               as parameters.
      *
      */
-    mode: 'dummy',
+    mode: 'auto',
 
     /**
      * ## nCodes
@@ -156,14 +156,5 @@ module.exports = {
     // # Reserved words for future requirements settings.
 
     // page: 'login.htm'
-
-    /**
-     * ## getcode
-     *
-     * function that returns true or a string with the error. ??
-     *
-     * @xperimental
-     */
-    getcode: true,
 
 };
