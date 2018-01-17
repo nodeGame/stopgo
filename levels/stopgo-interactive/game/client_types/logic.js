@@ -1,6 +1,6 @@
 /**
  * # Logic type implementation of the game stages
- * Copyright(c) 2017 Stefano Balietti <ste@nodegame.org>
+ * Copyright(c) 2018 Stefano Balietti <ste@nodegame.org>
  * MIT Licensed
  *
  * http://www.nodegame.org
@@ -23,6 +23,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     // Adjust according to the value in waiting room.
     stager.setDefaultProperty('minPlayers', channel.waitingRoom.GROUP_SIZE);
 
+    // Push slow/failed players.
+    stager.setDefaultProperty('pushPlayers', true);
+
     stager.setOnInit(function() {
 
         // Initialize the client.
@@ -43,7 +46,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.game.stepDone = {};
         node.on.data('done', function(msg) {
             node.game.stepDone[msg.from] = true;
-            channel.registry.updateClient(msg.from, { stageLevel: 100 });
+            // This fucks up things!
+            // channel.registry.updateClient(msg.from, { stageLevel: 100 });
         });
         node.on.step(function() {
             node.game.stepDone = {};
@@ -55,10 +59,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             player.allowReconnect = false;
             
-            // channel.registry.updateClient(player.id, {
-            //     allowReconnect: false
-            // });
-
             gameStage = node.player.stage;
             // Do nothing in the EndScreen stage.
             if (gameStage.stage > 2) return;
@@ -157,12 +157,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 var playerObj;
                 var role;
                 var redChoice;
-
+                
                 id = msg.from;
                 role = node.game.matcher.getRoleFor(id);
                 otherId = node.game.matcher.getMatchFor(id);
                 // Add info to data, so that it is saved in database.
                 msg.data.partner = otherId;
+
+                // console.log('RedStep----------done ',
+                // role, id, otherId, msg.data.redChoice);
                 
                 if (role === 'RED') {
                     playerObj = node.game.pl.get(id);
@@ -186,9 +189,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         node.err('Invalid Red choice. ID of sender: ' + id);
                     }
                 }
-                else {
-                    
-                }
             });
         }
     });
@@ -206,6 +206,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 id = msg.from;
                 role = node.game.matcher.getRoleFor(id);
+    
+                // console.log('BlueStep----------done ', role, id,
+                // otherId, msg.data.blueChoice);
                 
                 if (role === 'BLUE') {
                     otherId = node.game.matcher.getMatchFor(id);

@@ -184,7 +184,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                         W.show('red');
                         this.addTables('red');
-
+                        
                         W.setInnerHTML('world-state', node.game.worldState);
                         W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
                                        ' ' +
@@ -209,8 +209,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             BLUE: {                
                 cb: function() {
                     var dots;
-
                     W.show('blue');
+
                     dots = W.addLoadingDots(
                         W.getElementById('awaiting-red-decision'));
 
@@ -219,7 +219,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         dots.stop();
                         node.done();
                     });
-                }
+                },
+                // We just wait, when the partner times up,
+                // we get a msg from server.
+                timeup: null
             }
         }
     });
@@ -236,8 +239,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 cb: function() {
                     var dots;
                     W.show('awaiting-blue-decision');
+                    
                     dots = W.addLoadingDots(
                         W.getElementById('awaiting-blue-decision'));
+                    
                     W.hide('stop-go-buttons');
                     W.hide('make-your-choice');
 
@@ -249,7 +254,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         dots.stop();
                         node.done();
                     });
-                }
+                },
+                // We just wait, when the partner times up,
+                // we get a msg from server.
+                timeup: null
             },
             BLUE: {
                 timeup: function() {
@@ -341,7 +349,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.setInnerHTML('world-state', worldState);
 
                 W.getElementById('payoff-table')
-                .appendChild(node.game.payoffTables[worldState]);
+                    .appendChild(node.game.payoffTables[worldState]);
 
                 if (choices['RED'] === 'GO') {
                     W.show('go-choice');
