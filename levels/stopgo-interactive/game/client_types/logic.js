@@ -168,6 +168,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 // role, id, otherId, msg.data.redChoice);
                 
                 if (role === 'RED') {
+                    // Add data, so that it is saved in database.
+                    msg.data.world = node.game.tables[msg.from];
+                    
                     playerObj = node.game.pl.get(id);
                     redChoice = msg.data.redChoice;
                     node.game.choices[id] = { redChoice: redChoice };
@@ -411,7 +414,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 "room", "treatment",
                 "time", "timeup", "timestamp", "player", "bot", 
                 "stage.stage", "stage.step","stage.round",
-                "redChoice", "blueChoice", "bonus", "partner"
+                "redChoice", "blueChoice", "bonus", "partner", "world"
             ]
         });
 
