@@ -96,6 +96,15 @@ settings = {
             STOP: 3
         },
 
+        A266_PI05: {
+            fullName: "A=2.66 and PI=0.5",
+            description: "none",
+            STOP: 3,
+            TWO: 6,
+            A: 8,
+            PI: 0.5
+        },
+        
         A2_PI05: {
             fullName: "A=2 and PI=0.5",
             description: "none",
