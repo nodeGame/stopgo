@@ -1,7 +1,9 @@
 {
     "name": "stopgo",
     "version": "0.0.1",
-    "description": "This is a nodeGame game",
+    "url": "https://github.com/nodeGame/stopgo",
+    "abstract": "https://link.springer.com/article/10.1007/BF01803953",
+    "description": "Incomplete Information Centipede-like game",
     "author": "brenste <myemail>",
     "license": "MIT/X11",
     "homepage": "http://nodegame.org"
