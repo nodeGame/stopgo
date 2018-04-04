@@ -3,6 +3,7 @@
     "version": "0.0.1",
     "url": "https://github.com/nodeGame/stopgo",
     "abstract": "https://link.springer.com/article/10.1007/BF01803953",
+    "icon": "traffic",
     "description": "Incomplete Information Centipede-like game",
     "author": "brenste <myemail>",
     "license": "MIT/X11",
