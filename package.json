@@ -4,11 +4,21 @@
     "description": "Two-player incomplete-information game for nodeGame",
     "author": "Stefano Balietti <futur.dorko@gmail.com>",
     "card": {
-        "url": "https://github.com/nodeGame/stopgo",
+        "url": "https:/o/github.com/nodeGame/stopgo",
         "publication": "https://link.springer.com/article/10.1007/BF01803953",
         "icon": "traffic",
         "description": "Incomplete Information Two-Player game."
     },
+    "keywords": [
+        "game theory",
+        "nodegame",
+        "behavioral",
+        "game",
+        "incomplete information"
+    ],
     "license": "MIT/X11",
-    "homepage": "http://nodegame.org"
+    "homepage": "http://nodegame.org",
+    "engines": {
+        "nodegame": ">= 4.0.0"
+    }
 }
