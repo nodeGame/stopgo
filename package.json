@@ -1,8 +1,8 @@
 {
     "name": "stopgo",
-    "version": "0.0.1",
-    "description": "This is a nodeGame game",
-    "author": "brenste <myemail>",
+    "version": "1.0.0",
+    "description": "Two-player incomplete-information game for nodeGame",
+    "author": "Stefano Balietti <futur.dorko@gmail.com>",
     "license": "MIT/X11",
     "homepage": "http://nodegame.org"
 }
