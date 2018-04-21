@@ -8,7 +8,7 @@
  * http://www.nodegame.org
  */
 
- var ngc =  require('nodegame-client');
+ var ngc = require('nodegame-client');
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
@@ -18,7 +18,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     var game, stager;
 
     game = gameRoom.getClientType('player');
-    game.env.auto = true;
     game.nodename = 'autoplay';
 
     stager = ngc.getStager(game.plot);
@@ -89,6 +88,5 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     game.plot = stager.getState();
-
     return game;
 };

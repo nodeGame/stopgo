@@ -33,7 +33,7 @@ module.exports = {
      *
      * The size of each group dispatched by the waiting room
      */
-    GROUP_SIZE: 2,
+    GROUP_SIZE: 10,
 
     /**
      * ## POOL_SIZE (number) Optional
@@ -44,7 +44,7 @@ module.exports = {
      *
      * Default: GROUP_SIZE
      */
-    POOL_SIZE: 2,
+    POOL_SIZE: 10,
 
     /**
      * ## N_GAMES (number) Optional
@@ -65,7 +65,7 @@ module.exports = {
      *
      * After the max waiting time expired clients are disconnected
      */
-    // MAX_WAIT_TIME: 90000,
+    // MAX_WAIT_TIME: 9000,
 
     /**
      * ## START_DATE (string|object) Optional
@@ -199,7 +199,7 @@ module.exports = {
      *
      * @see WaitingRoom.dispatch
      */
-    PING_BEFORE_DISPATCH: false,
+    PING_BEFORE_DISPATCH: true,
 
     /**
      * ## logicPath (string) Optional
@@ -235,6 +235,13 @@ module.exports = {
         }
 
         // if (node.game.pl.size() <)
-    }
+    },
 
+
+    /**
+     * ## ALLOW_PLAY_WITH_BOTS (boolean) Optional
+     *
+     * Displays button to connect bots to the server and begin game
+     */
+    ALLOW_PLAY_WITH_BOTS: true
 };

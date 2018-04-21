@@ -17,7 +17,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     var game, stager;
 
     game = gameRoom.getClientType('player');
-    game.env.auto = true;
     game.nodename = 'autoplay';
 
     stager = ngc.getStager(game.plot);
@@ -49,6 +48,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                     rndButtonId = Math.floor(Math.random()*2) ?
                                         'stop':'go';
                                     W.getElementById(rndButtonId).click();
+                                    // Disconnect Test.
+                                    // if (node.game.getRound() === 2) {
+                                    // node.socket.disconnect();
+                                    // }
                                 }, 2000);
                             }
                         }
@@ -60,6 +63,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                     rndButtonId = Math.floor(Math.random()*2) ?
                                         'left':'right';
                                     W.getElementById(rndButtonId).click();
+                                    // Disconnect Test.
+                                    // if (node.game.getRound() === 2) {
+                                    // node.socket.disconnect();
+                                    // }
                                 }, 2000);
                             }
                         }
@@ -77,6 +84,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                 _cb = stepObj._cb;
                 _cb.call(this);
+
+                // Disconnect Test.
+                // if (this.getRound() === 2 && stepId === 'results') {
+                //     this.node.socket.disconnect();
+                //     return;
+                // }
 
                 if (stepId !== 'end') {
                     node.timer.randomDone(2000);

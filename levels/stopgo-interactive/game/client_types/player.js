@@ -13,14 +13,7 @@
 
 'use strict';
 
-var ngc = require('nodegame-client');
-var stepRules = ngc.stepRules;
-var constants = ngc.constants;
-var publishLevels = constants.publishLevels;
-
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
-
-    var game;
 
     stager.setOnInit(function() {
 
@@ -37,29 +30,37 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         var payoffStopRed, payoffStopBlue;
 
         header = W.generateHeader();
-
         frame = W.generateFrame();
-
         infoPanel = W.generateInfoPanel(undefined, {
             onStep: 'close'
         });
 
         // Add widgets.
-        this.visualRound = node.widgets.append('VisualRound', header);
+        this.visualRound = node.widgets.append('VisualRound', header, {
+            title: false
+        });
         this.visualTimer = node.widgets.append('VisualTimer', header);
-        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header,
-                                                      { currency: 'USD' });
-        this.doneButton = node.widgets.append('DoneButton', header,
-                                              { text: 'Done' });
+
+        this.runningTotalPayoff = node.widgets.append('MoneyTalks', header, {
+            title: 'Points',
+            currency: 'Points',
+            precision: 0,
+            showCurrency: false
+        });
+
+        // History Div.
+        this.historyButton = infoPanel.createToggleButton('History');
+        this.historyButton.disabled = true;
 
         this.historyDiv = document.createElement('div');
         this.historyDiv.innerHTML = '<h3>Game history</h3>';
         W.addClass(this.historyDiv, 'history');
-
-        this.historyButton = infoPanel.createToggleButton('History');
         infoPanel.infoPanelDiv.appendChild(this.historyDiv);
 
         header.appendChild(this.historyButton);
+        // End History Div.
+
+        this.doneButton = node.widgets.append('DoneButton', header);
 
         // Add payoff tables
         node.game.totalPayoff = 0;
@@ -103,6 +104,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             'World State', 'Red Payoff', 'Blue Payoff'
         ]);
 
+        
+        this.pA = (node.game.settings.PI * 100) + '%';
+        this.pB = (node.game.settings.PIB * 100) + '%';
+
+        this.addTables = function(color) {
+            color = color ? ('-' + color) : '';
+            W.getElementById('payoff-matrix-a' + color)
+                .appendChild(node.game.payoffTables.A);
+            W.getElementById('payoff-matrix-b' + color)
+                .appendChild(node.game.payoffTables.B);
+
+            W.setInnerHTML('probability-A-table' + color, '(' + this.pA + ')');
+            // JS fails horribly with floating precision.
+            W.setInnerHTML('probability-B-table' + color, '(' + this.pB + ')');
+        }
         // Additional debug information while developing the game.
         // this.debugInfo = node.widgets.append('DebugInfo', header)
     });
@@ -123,6 +139,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 ctx: node.game.visualTimer.gameTimer,
                 name: 'extraTimer'
             });
+            W.setInnerHTML('probability-A', this.pA);
         },
         exit: function() {
             if (this.visualTimer) {
@@ -131,13 +148,23 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
     });
 
+    stager.extendStage('game', {
+        init: function() {
+            node.on.step(function() {
+                 W.infoPanel.close();
+            });
+        }
+    });
+
     stager.extendStep('red-choice', {
         donebutton: false,
-        frame: 'stopgostep.htm', // change this name
+        frame: 'stopgostep.htm',
         // role: function() { return this.role; },
         // partner: function() { return this.partner; },
         init: function() {
             node.game.redChoice = null;
+            node.game.playerRole = this.role;
+            if (this.getRound() > 1) this.historyButton.disabled = false;
         },
         roles: {
             RED: {
@@ -145,9 +172,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     var buttonId;
                     buttonId = Math.floor(Math.random() * 2) ? 'stop':'go';
                     W.getElementById(buttonId).click();
-                },
-                init: function() {
-                    node.game.playerRole = 'RED';
                 },
                 done: function(decision) {
                     if (!decision) return false;
@@ -166,8 +190,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                       .payoffTables[node.game.worldState];
 
                         W.show('red');
-                        W.getElementById('payoff-table')
-                        .appendChild(payoffTable);
+                        this.addTables('red');
+                        
                         W.setInnerHTML('world-state', node.game.worldState);
                         W.setInnerHTML('payoff-stop', node.game.payoffStopRed +
                                        ' ' +
@@ -186,95 +210,26 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         buttonGo.onclick = function() {
                             node.done({ redChoice: 'GO' });
                         };
-
-                        // Keep this comments for the moment!
-
-                        // ISSUE.
-                        //
-                        // Loading the frame for the step is async.
-                        // Then the step cb (this function) is executed.
-                        //
-                        // The TABLE message might arrive BEFORE or AFTER
-                        // the frame has finished loading.
-                        //
-                        // CASE A:
-                        // If it arrives BEFORE, it is actually unbuffered
-                        // and emitted right before emitting PLAYING.
-                        //
-                        // When playing is emitted VisualTimer reads the options
-                        // from the step and tries to configure itself.
-                        //
-                        // With the version of VisualTimer in the last git pull,
-                        // if there are no options, VisualTimer sets itself to 0
-                        // (regardless of the state of the timer), so it was
-                        // killing the timer started in the TABLE cb (here).
-                        // Now this is fixed, and if a timer is running is not
-                        // stopped.
-                        //
-                        // CASE B:
-                        // If it arrives AFTER the frame is loaded,
-                        // PLAYING has already been emitted. In this
-                        // case the code would have worked fine. BUT the
-                        // measurament of the time spent on the step is not
-                        // precise. Time passed starts from PLAYING until DONE,
-                        // however here PLAYING is called before the full
-                        // interface is loaded (after TABLE is emitted).
-
-                        // Alternative solution for timer issue.
-                        // Instead of adding a timer property to step.
-
-                        return;
-                        // Setup the timer.
-
-                        startTimer = function() {
-                            node.game.visualTimer.init({
-                                milliseconds: node.game.settings['red-choice'],
-                                timeup: function() {
-                                    var redChoice;
-
-                                    redChoice = Math.floor(Math.random() * 2) ?
-                                    'STOP':'GO';
-
-                                    node.game.redChoice = redChoice;
-
-                                    node.done({redChoice: redChoice});
-                                }
-                            });
-                            node.game.visualTimer.start();
-                        };
-
-                        if (node.game.getStageLevel() ===
-                            node.constants.stageLevels.PLAYING) {
-                            startTimer();
-                        }
-                        else {
-                            node.once('PLAYING', function() {
-                                startTimer();
-                            });
-                        }
                     });
                 }
             },
-            BLUE: {
-                timer: null,
-                init: function() {
-                    node.game.playerRole = 'BLUE';
-                },
+            BLUE: {                
                 cb: function() {
-                    var span;
-
+                    var dots;
                     W.show('blue');
-                    W.addLoadingDots(W.getElementById('awaiting-red-decision'),
-                                     5);
-                    // Make the observer display visible.
+
+                    dots = W.addLoadingDots(
+                        W.getElementById('awaiting-red-decision'));
 
                     node.on.data('RED-CHOICE', function(msg) {
                         node.game.redChoice = msg.data;
-                        // setTimeout(function() {
-                            node.done();
-                        // }, 5000);
+                        dots.stop();
+                        node.done();
                     });
-                }
+                },
+                // We just wait, when the partner times up,
+                // we get a msg from server.
+                timeup: null
             }
         }
     });
@@ -288,11 +243,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         },
         roles: {
             RED: {
-                timer: null,
                 cb: function() {
+                    var dots;
                     W.show('awaiting-blue-decision');
-                    W.addLoadingDots(W.getElementById('awaiting-blue-decision'),
-                                     5);
+                    
+                    dots = W.addLoadingDots(
+                        W.getElementById('awaiting-blue-decision'));
+                    
                     W.hide('stop-go-buttons');
                     W.hide('make-your-choice');
 
@@ -301,9 +258,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                     node.on.data('BLUE-CHOICE', function(msg) {
                         node.game.blueChoice = msg.data;
+                        dots.stop();
                         node.done();
                     });
-                }
+                },
+                // We just wait, when the partner times up,
+                // we get a msg from server.
+                timeup: null
             },
             BLUE: {
                 timeup: function() {
@@ -333,10 +294,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     buttonRight = W.getElementById('right');
                     buttonRight.disabled = false;
 
-                    W.getElementById('payoff-matrix-a')
-                    .appendChild(node.game.payoffTables.A);
-                    W.getElementById('payoff-matrix-b')
-                    .appendChild(node.game.payoffTables.B);
+                    
+                    this.addTables('blue');
 
                     W.setInnerHTML('payoff-stop-blue', this.payoffStopBlue +
                     ' ' + node.game.runningTotalPayoff.currency);
@@ -397,7 +356,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 W.setInnerHTML('world-state', worldState);
 
                 W.getElementById('payoff-table')
-                .appendChild(node.game.payoffTables[worldState]);
+                    .appendChild(node.game.payoffTables[worldState]);
 
                 if (choices['RED'] === 'GO') {
                     W.show('go-choice');
@@ -418,19 +377,27 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('end', {
+        init: function() {
+            W.infoPanel.destroy();
+            W.restoreOnleave();
+        },
         donebutton: false,
         frame: 'end.htm',
         widget: {
             name: 'EndScreen',
             root: "body",
             options: {
+                panel: false,
                 title: false,
-                showEmailForm: true
+                showEmailForm: true,
+                email: {
+                    texts: {
+                        label: 'Enter your email (optional):',
+                        errString: 'Please enter a valid email and retry'
+                    }
+                }
             }
         }
     });
 
-    game = setup;
-    game.plot = stager.getState();
-    return game;
 };

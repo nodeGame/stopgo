@@ -34,7 +34,7 @@ module.exports = {
      *               as parameters.
      *
      */
-    mode: 'dummy',
+    mode: 'local',
 
     /**
      * ## nCodes
@@ -156,14 +156,5 @@ module.exports = {
     // # Reserved words for future requirements settings.
 
     // page: 'login.htm'
-
-    /**
-     * ## getcode
-     *
-     * function that returns true or a string with the error. ??
-     *
-     * @xperimental
-     */
-    getcode: true,
 
 };
