@@ -107,7 +107,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         this.pA = (node.game.settings.PI * 100) + '%';
         this.pB = (node.game.settings.PIB * 100) + '%';
-        
+
         this.addTables = function(color) {
             color = color ? ('-' + color) : '';
             W.getElementById('payoff-matrix-a' + color)
@@ -130,7 +130,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             }
         }
     });
-    
+
     stager.extendStep('choose-tutorial', {
         donebutton: false,
         frame: 'choose-tutorial.htm',
@@ -183,7 +183,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     W.show('tutorial-instructions');
 
                     W.show('red');
-                    
+
                     this.addTables('red');
 
                     W.setInnerHTML('world-state', node.game.tutorialWorldState);
@@ -270,7 +270,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
 
                     this.addTables('blue');
-                    
+
                     W.setInnerHTML('payoff-stop-blue', this.payoffStopBlue +
                                    ' ' + node.game.runningTotalPayoff.currency);
 
@@ -287,11 +287,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     'would be disabled).');
                 }
             }
+        },
+        exit: function() {
+            // Copy the role.
+            this.tutorialRole = this.role;
         }
     });
 
     stager.extendStep('results-tutorial', {
-        role: true,
         frame: 'results.htm',
         cb: function() {
             var payoffs;
@@ -300,29 +303,31 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             var playerChoice;
             var playerColorClass, otherPlayerColorClass;
             var payoffsGo;
+            var role;
 
+            role = this.tutorialRole;
             payoffs = node.game.settings.payoffs;
-            otherPlayerRole = this.role === 'RED' ? 'BLUE' : 'RED';
+            otherPlayerRole = role === 'RED' ? 'BLUE' : 'RED';
 
             W.setInnerHTML('info', node.game.infoText);
             W.show('info');
 
             payoffsGo = payoffs.GO[this.tutorialWorldState];
             if (this.tutorialChoices.RED === 'GO') {
-                payment = payoffsGo[this.tutorialChoices.BLUE][this.role];
+                payment = payoffsGo[this.tutorialChoices.BLUE][role];
             }
             else {
-                payment = payoffs.STOP[this.role];
+                payment = payoffs.STOP[role];
             }
 
             node.game.tutorialPay += payment;
             node.game.runningTotalPayoff.update(payment);
 
-            playerChoice = this.tutorialChoices[this.role].toUpperCase();
-            playerColorClass = this.role.toLowerCase();
+            playerChoice = this.tutorialChoices[role].toUpperCase();
+            playerColorClass = role.toLowerCase();
             otherPlayerColorClass = otherPlayerRole.toLowerCase();
 
-            W.setInnerHTML('player', this.role);
+            W.setInnerHTML('player', role);
             W.setInnerHTML('player-choice', playerChoice);
             W.addClass(W.getElementById('player'), playerColorClass);
 
@@ -333,13 +338,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.setInnerHTML('other-player-choice',
                            this.tutorialChoices[otherPlayerRole]);
 
-            payment += ' ' + node.game.runningTotalPayoff.currency;            
+            payment += ' ' + node.game.runningTotalPayoff.currency;
             W.setInnerHTML('payoff', payment);
             W.setInnerHTML('world-state', node.game.tutorialWorldState);
 
             // Sets the role again.
             node.game.plot.updateProperty(node.game.getNextStep(),
-                                          'role', this.role);
+                                          'role', role);
 
             W.getElementById('payoff-table')
                 .appendChild(this.payoffTables[this.tutorialWorldState]);
@@ -366,7 +371,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.setInnerHTML('tutorial-instructions', 'Click <strong>"Done"' +
                            '</strong> to be moved into the waiting room.');
             W.show('tutorial-instructions');
-         
+
             payoff = node.game.tutorialPay + ' ';
             payoff += node.game.runningTotalPayoff.currency;
             W.setInnerHTML('total', payoff);
@@ -382,7 +387,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
             var payoffTables, s, str, mult;
             s = node.game.settings;
-            
+
             payoffTables = this.payoffTables;
 
             W.setInnerHTML('probability-A', this.pA);
@@ -392,7 +397,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             W.setInnerHTML('probability-A-table', '(' + this.pA + ')');
             // JS fails horribly with floating precision.
             W.setInnerHTML('probability-B-table',  '(' + this.pB + ')');
-            
+
             if (s.PI === 0.5) {
                 str = 'A and B are equally likely';
             }
@@ -413,7 +418,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 }
             }
             W.setInnerHTML('probability-explained', str);
-            
+
             W.setInnerHTML('payoff-stop', node.game.payoffStopRed + ' ' +
                            node.game.runningTotalPayoff.currency);
             W.setInnerHTML('exchange_rate', s.EXCHANGE_RATE);
