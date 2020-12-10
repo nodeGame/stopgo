@@ -13,24 +13,25 @@ const ngc =  require('nodegame-client');
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     let channel = gameRoom.channel;
-
     let game = gameRoom.getClientType('player');
     game.nodename = 'autoplay';
 
     stager = ngc.getStager(game.plot);
 
     stager.extendAllSteps(function(o) {
+        var role;
         if (o.roles) {
             o._roles = {};
-            for (let role in o.roles) {
+            for (role in o.roles) {
                 if (o.roles.hasOwnProperty(role)) {
                     // Copy only cb property.
                     o._roles[role] = o.roles[role].cb;
                     // Make a new one.
                     o.roles[role].cb = function() {
-                        let stepObj = this.getCurrentStepObj();
-                        let stepId = stepObj.id
-                        let _cb = stepObj._roles[this.role];
+                        var stepObj, stepId, _cb, rndButtonId
+                        stepObj = this.getCurrentStepObj();
+                        stepId = stepObj.id
+                        _cb = stepObj._roles[this.role];
                         _cb.call(this);
 
                         if (stepId === 'red-choice') {
@@ -38,7 +39,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
                                 // Wait a bit, the button is still hidden.
                                 node.timer.setTimeout(function() {
-                                    let rndButtonId = Math.random() > 0.5 ?
+                                    rndButtonId = Math.random() > 0.5 ?
                                         'stop':'go';
                                     W.getElementById(rndButtonId).click();
                                     // Disconnect Test.
@@ -71,9 +72,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         else {
             o._cb = o.cb;
             o.cb = function() {
-                let stepObj = this.getCurrentStepObj();
-                let stepId = stepObj.id
-                let _cb = stepObj._cb;
+                var stepObj, stepId, _cb;
+                stepObj = this.getCurrentStepObj();
+                stepId = stepObj.id
+                _cb = stepObj._cb;
                 _cb.call(this);
 
                 // Disconnect Test.

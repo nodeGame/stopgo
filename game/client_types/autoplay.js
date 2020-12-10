@@ -30,10 +30,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     o._roles[role] = o.roles[role].cb;
                     // Make a new one.
                     o.roles[role].cb = function() {
-
-                        let stepObj = this.getCurrentStepObj();
-                        let stepId = stepObj.id
-                        let _cb = stepObj._roles[this.role];
+                        var stepObj, stepId, _cb, id;
+                        stepObj = this.getCurrentStepObj();
+                        stepId = stepObj.id
+                        _cb = stepObj._roles[this.role];
                         _cb.call(this);
 
                         if ((stepId === 'red-choice-tutorial' &&
@@ -42,7 +42,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                              node.game.role === 'BLUE')) {
 
                             // Id of the button to press.
-                            let id = node.game.tutorialChoices[node.game.role];
+                            id = node.game.tutorialChoices[node.game.role];
                             id = id.toLowerCase();
 
                             // Wait a bit, the button is still hidden.
@@ -61,15 +61,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         else {
             o._cb = o.cb;
             o.cb = function() {
-
-                let stepObj = this.getCurrentStepObj();
-                let stepId = stepObj.id
-
-                let _cb = stepObj._cb;
+                var stepObj, stepId, _cb, tmp;
+                stepObj = this.getCurrentStepObj();
+                stepId = stepObj.id
+                _cb = stepObj._cb;
                 _cb.call(this);
 
                 if (stepId === 'choose-tutorial') {
-                    let tmp = Math.random() > 0.5 ? 'RED' : 'BLUE';
+                    tmp = Math.random() > 0.5 ? 'RED' : 'BLUE';
                     node.game.selecttutorialRole(tmp);
                 }
                 else {
