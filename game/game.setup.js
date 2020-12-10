@@ -13,8 +13,8 @@
  */
 module.exports = function(settings, stages) {
 
-    var setup = {};
-    
+    let setup = {};
+
     //auto: true = automatic run, auto: false = user input
     setup.env = {
         auto: false
@@ -35,7 +35,7 @@ module.exports = function(settings, stages) {
     //    description: 'another descr'
     // };
 
-    
+
 
     return setup;
 };
