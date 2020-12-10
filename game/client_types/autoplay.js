@@ -8,16 +8,14 @@
  * http://www.nodegame.org
  */
 
- var ngc = require('nodegame-client');
+const ngc = require('nodegame-client');
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
-    var channel = gameRoom.channel;
-    var node = gameRoom.node;
+    let channel = gameRoom.channel;
+    let node = gameRoom.node;
 
-    var game, stager;
-
-    game = gameRoom.getClientType('player');
+    let game = gameRoom.getClientType('player');
     game.nodename = 'autoplay';
 
     stager = ngc.getStager(game.plot);
@@ -32,13 +30,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     o._roles[role] = o.roles[role].cb;
                     // Make a new one.
                     o.roles[role].cb = function() {
-                        var _cb, stepObj, stepId;
-                        var id;
 
-                        stepObj = this.getCurrentStepObj();
-                        stepId = stepObj.id
-
-                        _cb = stepObj._roles[this.role];
+                        let stepObj = this.getCurrentStepObj();
+                        let stepId = stepObj.id
+                        let _cb = stepObj._roles[this.role];
                         _cb.call(this);
 
                         if ((stepId === 'red-choice-tutorial' &&
@@ -47,17 +42,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                              node.game.role === 'BLUE')) {
 
                             // Id of the button to press.
-                            id = node.game.tutorialChoices[node.game.role];
+                            let id = node.game.tutorialChoices[node.game.role];
                             id = id.toLowerCase();
 
                             // Wait a bit, the button is still hidden.
-                            setTimeout(function() {
+                            node.timer.setTimeout(function() {
                                 W.getElementById(id).click();
                             }, 2000);
 
                         }
                         else {
-                            node.timer.randomDone(2000);
+                            node.timer.random(2000).done();
                         }
                     }
                 }
@@ -66,21 +61,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         else {
             o._cb = o.cb;
             o.cb = function() {
-                var _cb, stepObj, stepId;
-                var tmp;
 
-                stepObj = this.getCurrentStepObj();
-                stepId = stepObj.id
+                let stepObj = this.getCurrentStepObj();
+                let stepId = stepObj.id
 
-                _cb = stepObj._cb;
+                let _cb = stepObj._cb;
                 _cb.call(this);
 
                 if (stepId === 'choose-tutorial') {
-                    tmp = Math.random() > 0.5 ? 'RED' : 'BLUE';
+                    let tmp = Math.random() > 0.5 ? 'RED' : 'BLUE';
                     node.game.selecttutorialRole(tmp);
                 }
                 else {
-                    node.timer.randomDone(2000);
+                    node.timer.random(2000).done();
                 }
             };
         }

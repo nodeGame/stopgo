@@ -9,38 +9,37 @@
 
 "use strict";
 
-var ngc = require('nodegame-client');
+const ngc = require('nodegame-client');
 
 module.exports = function(treatmentName, settings, stager,
                           setup, gameRoom, node) {
 
-    var channel = gameRoom.channel;
-    var logic = gameRoom.node;
+    let channel = gameRoom.channel;
+    let logic = gameRoom.node;
 
     // var stager = ngc.getStager();
 
     stager.setDefaultCallback(function() {
         console.log('Stage:' , this.getCurrentGameStage());
-        this.node.timer.randomDone();
+        node.timer.random.done();
     });
-    
+
     stager.setOnInit(function() {
-        var payoffs;
-        var payoffTableA, payoffTableB;
-        var redRowA, redRowB;
-        var blueRowA, blueRowB;
-        var tableClasses;
-
-        var payoffStopRed, payoffStopBlue;
-
+        // var payoffTableA, payoffTableB;
+        // var redRowA, redRowB;
+        // var blueRowA, blueRowB;
+        // var tableClasses;
+        //
+        // var payoffStopRed, payoffStopBlue;
         // Add payoff tables.
+        // let payoffs = node.game.settings.payoffs;
+        //
+        // payoffStopRed = payoffs.STOP.RED;
+        // payoffStopBlue = payoffs.STOP.BLUE;
+        //
+        // tableClasses = 'table table-bordered';
+
         node.game.totalPayoff = 0;
-        payoffs = node.game.settings.payoffs;
-
-        payoffStopRed = payoffs.STOP.RED;
-        payoffStopBlue = payoffs.STOP.BLUE;
-
-        tableClasses = 'table table-bordered';
 
         this.payoffTables = {};
 
@@ -55,36 +54,34 @@ module.exports = function(treatmentName, settings, stager,
         roles: {
             RED: {
                 cb: function() {
-                    var decision;
-                    var chanceOfStop;
-                    var isDynamic;
-                    var minDecisions;
 
-                    minDecisions = this.settings.botChance.minDecisions;
-                    isDynamic = (this.settings.botType === 'dynamic');
+                    let minDecisions = this.settings.botChance.minDecisions;
+                    let isDynamic = (this.settings.botType === 'dynamic');
 
-                    if (isDynamic && channel.numStopGoDecisions >= minDecisions) {
-                        chanceOfStop = 
+                    let chanceOfStop;
+                    if (isDynamic &&
+                        channel.numStopGoDecisions >= minDecisions) {
+
+                        chanceOfStop =
                             channel.numChooseStop / channel.numStopGoDecisions;
                     }
                     else {
                         chanceOfStop = this.settings.botChance.stop;
                     }
 
-                    decision = (Math.random() <= chanceOfStop) ? 'STOP' : 'GO';
+                    let decision = (Math.random() <= chanceOfStop) ?
+                                   'STOP' : 'GO';
 
                     console.log('RED BOT:', node.player.id, ', partner: ',
                                 this.partner, ', decision: ', decision);
-                    this.node.timer.randomDone(4000, { redChoice: decision });
+                    node.timer.random(4000).done({ redChoice: decision });
                 }
             },
             BLUE: {
                 cb: function() {
-                    var decision, that;
-                    that = this;
-                    this.node.once.data('RED-CHOICE', function(msg) {
-                        that.node.game.redChoice = msg.data;
-                        that.node.timer.randomDone(2000);
+                    node.once.data('RED-CHOICE', function(msg) {
+                        node.game.redChoice = msg.data;
+                        node.timer.random(2000).done();
                     });
                 }
             }
@@ -97,11 +94,9 @@ module.exports = function(treatmentName, settings, stager,
         roles: {
             RED: {
                 cb: function() {
-                    var that;
-                    that = this;
-                    this.node.once.data('BLUE-CHOICE', function(msg) {
-                        that.node.game.blueChoice = msg.data;
-                        that.node.timer.randomDone(2000);
+                    node.once.data('BLUE-CHOICE', function(msg) {
+                        node.game.blueChoice = msg.data;
+                        node.timer.random(2000).done();
                     });
                 },
                 // Blues times up first, and will send data.
@@ -109,15 +104,13 @@ module.exports = function(treatmentName, settings, stager,
             },
             BLUE: {
                 cb: function() {
-                    var decision;
-                    var isDynamic;
-                    var chanceOfRight;
-                    var minDecisions;
+                    let isDynamic = (this.settings.botType === 'dynamic');
+                    let minDecisions = this.settings.botChance.minDecisions;
 
-                    isDynamic = (this.settings.botType === 'dynamic');
-                    minDecisions = this.settings.botChance.minDecisions;
+                    let chanceOfRight;
+                    if (isDynamic &&
+                        channel.numRightLeftDecisions >= minDecisions) {
 
-                    if (isDynamic && channel.numRightLeftDecisions >= minDecisions) {
                         chanceOfRight =
                             channel.numChooseRight / channel.numRightLeftDecisions;
                     }
@@ -125,10 +118,11 @@ module.exports = function(treatmentName, settings, stager,
                         chanceOfRight = this.settings.botChance.right;
                     }
 
-                    decision = Math.random() > chanceOfRight ? 'LEFT' : 'RIGHT';
+                    let decision = Math.random() > chanceOfRight ?
+                                  'LEFT' : 'RIGHT';
                     console.log('BLUE BOT:', node.player.id, ', partner: ',
                                 this.partner, ', decision: ', decision);
-                    this.node.timer.randomDone(4000, { blueChoice: decision });
+                    node.timer.random(4000).done({ blueChoice: decision });
                 }
             }
         }

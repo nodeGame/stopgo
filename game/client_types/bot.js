@@ -9,20 +9,21 @@
 
 "use strict";
 
-var ngc = require('nodegame-client');
-var stepRules = ngc.stepRules;
+const ngc = require('nodegame-client');
+const stepRules = ngc.stepRules;
 
-module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
+module.exports = function(treatmentName, settings, stager,
+                          setup, gameRoom, node) {
 
-    var channel = gameRoom.channel;
-    var logic = gameRoom.node;
+    let channel = gameRoom.channel;
+    let logic = gameRoom.node;
 
     stager.setDefaultStepRule(stepRules.SOLO);
 
-    
+
     stager.setDefaultCallback(function() {
         console.log('Stage: ' , this.getCurrentGameStage());
-        this.node.timer.randomDone();
+        node.timer.random.done();
     });
 
     stager.extendStep('red-choice-tutorial', {
@@ -30,12 +31,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         roles: {
             RED: {
                 cb: function() {
-                    this.node.timer.randomDone();
+                    node.timer.random.done();
                 }
             },
             BLUE: {
                 cb: function() {
-                    this.node.timer.randomDone();
+                    node.timer.random.done();
                 }
             }
         }
@@ -46,12 +47,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         roles: {
             RED: {
                 cb: function() {
-                    this.node.timer.randomDone();
+                    node.timer.random.done();
                 }
             },
             BLUE: {
                 cb: function() {
-                    this.node.timer.randomDone();
+                    node.timer.random.done();
                 }
             }
         }

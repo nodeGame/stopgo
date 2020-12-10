@@ -9,14 +9,15 @@
 
 "use strict";
 
-var fs = require('fs');
-var path = require('path');
-var ngc = require('nodegame-client');
+const fs = require('fs');
+const path = require('path');
+const ngc = require('nodegame-client');
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
-    var node = gameRoom.node;
-    var channel = gameRoom.channel;
+    let node = gameRoom.node;
+    let memory = node.game.memory;
+    let channel = gameRoom.channel;
 
     // Must implement the stages here.
 
@@ -33,14 +34,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         node.game.choices = {};
         node.game.tables = {};
-        
+
         // Add session name to data in DB.
         this.memory.on('insert', function(o) {
             o.room = node.nodename;
             o.treatment = treatmentName;
             o.bot = !!channel.bots[o.player];
         });
-        
+
         ////////////////////////////////
         // Test. Make sure we know when a client is done.
         node.game.stepDone = {};
@@ -53,19 +54,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.game.stepDone = {};
         });
         ////////////////////////////////
-        
-        node.on.pdisconnect(function(player) {
-            var role, options, gameStage;
 
+        node.on.pdisconnect(function(player) {
+            // Can no longer reconnect.
             player.allowReconnect = false;
-            
-            gameStage = node.player.stage;
+
+            let gameStage = node.player.stage;
             // Do nothing in the EndScreen stage.
             if (gameStage.stage > 2) return;
 
             if (channel.registry.isRemote(player)) {
 
-                options = {
+                let options = {
                     room: gameRoom,
                     // id: player.id, Otherwise it gets the wrong clinetType
                     clientType: 'bot',
@@ -87,7 +87,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                         if (node.game.choices[player.id]) {
                             node.game.choices[bot.player.id] =
                                 node.game.choices[player.id];
-                        }   
+                        }
                     }
                 };
 
@@ -97,7 +97,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 if (gameStage.stage === 2) {
                     if (gameStage.step !== 3) {
                         options.gotoStepOptions = {
-                            plot: { 
+                            plot: {
                                 partner: node.game.matcher.getMatchFor(player.id),
                                 role: node.game.matcher.getRoleFor(player.id)
                             }
@@ -105,19 +105,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                     }
                     console.log(options.gotoStepOptions);
                 }
-                
+
                 if (node.game.stepDone[player.id]) {
                     options.gotoStepOptions.beDone = true;
                     options.gotoStepOptions.plot.autoSet = null;
                 }
 
-                // In theory the 'replaceId' option should take care of 
+                // In theory the 'replaceId' option should take care of
                 // everything. In practice, it can be the stageLevel is
                 // not yet updated even after a DONE message has been sent.
                 // Moreover, we do not know if a role/partner set earlier
                 // is still valid. We need to rework the method.
                 channel.connectBot(options);
-                
+
             }
 
         });
@@ -135,41 +135,31 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             // sayPartner: false
         },
         cb: function() {
-            var allMatchesInRound;
-            var i;
-            var match;
-            var roles;
-            var payoffTable;
-            
             console.log('LOGIC>>>>>>>>>>>>>RED-CHOICE-STAGE');
 
-            allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
+            let allMatchesInRound =
+                node.game.matcher.getMatches('ARRAY_ROLES_ID');
 
-            for (i = 0; i < allMatchesInRound.length; i++) {
-                roles = allMatchesInRound[i];
-                payoffTable = getRandomTable();
+            for (let i = 0; i < allMatchesInRound.length; i++) {
+                let roles = allMatchesInRound[i];
+                let payoffTable = getRandomTable();
                 node.game.tables[roles.RED] = payoffTable;
                 node.say('TABLE', roles.RED, payoffTable);
             }
 
             node.on.data('done', function(msg) {
-                var id, otherId;
-                var playerObj;
-                var role;
-                var redChoice;
-                
-                id = msg.from;
-                role = node.game.matcher.getRoleFor(id);
-                otherId = node.game.matcher.getMatchFor(id);
+                let id = msg.from;
+                let role = node.game.matcher.getRoleFor(id);
+                let otherId = node.game.matcher.getMatchFor(id);
                 // Add info to data, so that it is saved in database.
                 msg.data.partner = otherId;
 
                 // console.log('RedStep----------done ',
                 // role, id, otherId, msg.data.redChoice);
-                
+
                 if (role === 'RED') {
-                    playerObj = node.game.pl.get(id);
-                    redChoice = msg.data.redChoice;
+                    let playerObj = node.game.pl.get(id);
+                    let redChoice = msg.data.redChoice;
                     node.game.choices[id] = { redChoice: redChoice };
 
                     if (playerObj.clientType !== 'bot') {
@@ -198,25 +188,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             console.log('LOGIC>>>>>>>>>>>>>BLUE-CHOICE-STAGE');
 
             node.on.data('done', function(msg) {
-                var id, otherId;
-                var blueChoice;
-                var playerObj;
-                var role;
-                var choices;
+                let id = msg.from;
+                let role = node.game.matcher.getRoleFor(id);
 
-                id = msg.from;
-                role = node.game.matcher.getRoleFor(id);
-    
                 // console.log('BlueStep----------done ', role, id,
                 // otherId, msg.data.blueChoice);
-                
+
                 if (role === 'BLUE') {
-                    otherId = node.game.matcher.getMatchFor(id);
-                    choices = node.game.choices;
-                    blueChoice = msg.data.blueChoice;
+                    let otherId = node.game.matcher.getMatchFor(id);
+                    let choices = node.game.choices;
+                    let blueChoice = msg.data.blueChoice;
                     choices[otherId].blueChoice = blueChoice;
 
-                    playerObj = node.game.pl.get(id);
+                    let playerObj = node.game.pl.get(id);
 
                     if (playerObj.clientType !== 'bot') {
                         if (choices[otherId].blueChoice === 'RIGHT') {
@@ -242,26 +226,20 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('results', {
         cb: function() {
-            var payoffs, results;
-            var allMatchesInRound;
-            var match;
-            var roles;
-            var i;
-            var client;
-
             console.log('LOGIC>>>>>>>>>>>>>RESULTS-STAGE');
 
-            allMatchesInRound = node.game.matcher.getMatches('ARRAY_ROLES_ID');
+            let allMatchesInRound =
+                node.game.matcher.getMatches('ARRAY_ROLES_ID');
 
-            for (i = 0; i < allMatchesInRound.length; i++) {
+            for (let i = 0; i < allMatchesInRound.length; i++) {
 
-                roles = allMatchesInRound[i];
+                let roles = allMatchesInRound[i];
 
-                payoffs = calculatePayoffs(node.game.choices[roles.RED],
+                let payoffs = calculatePayoffs(node.game.choices[roles.RED],
                                            node.game.tables[roles.RED]);
 
                 // Respondent payoff.
-                client = channel.registry.getClient(roles.RED);
+                let client = channel.registry.getClient(roles.RED);
                 client.win = client.win ?
                     client.win + payoffs.RED : payoffs.RED;
 
@@ -273,7 +251,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 addData(roles.RED, payoffs.RED);
                 addData(roles.BLUE, payoffs.BLUE);
 
-                results = {
+                let results = {
                     payoffs: payoffs,
 
                     choices: {
@@ -292,25 +270,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('end', {
         cb: function() {
-            
+
             gameRoom.computeBonus({
-                header: [ 'id', 'type', 'workerid', 'hitid',
-                          'assignmentid', 'exit', 'bonus' ],
-                headerKeys: [ 'id', 'clientType', 'WorkerId',
-                              'HITId', 'AssignmentId', 'ExitCode', 'win' ],
-                say: true,   // default false
-                dump: true,  // default false
-                print: true  // default false                
+                amt: true
             });
 
             // Would be nice something like:
             // node.on.data('email').toFile('email');
-            
-            node.on.data('email', function(msg) {
-                var id, code;
-                id = msg.from;
 
-                code = channel.registry.getClient(id);
+            node.on.data('email', function(msg) {
+                let id = msg.from;
+                let code = channel.registry.getClient(id);
                 if (!code) {
                     console.log('ERROR: no code in endgame:', id);
                     return;
@@ -321,10 +291,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             });
 
             node.on.data('feedback', function(msg) {
-                var id, code;
-                id = msg.from;
-
-                code = channel.registry.getClient(id);
+                let id = msg.from;
+                let code = channel.registry.getClient(id);
                 if (!code) {
                     console.log('ERROR: no code in endgame:', id);
                     return;
@@ -340,12 +308,11 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     function appendToCSVFile(email, code, fileName) {
-        var row;
-
-        row  = '"' + (code.id || code.AccessCode || 'NA') + '", "' +
+        let row  = '"' + (code.id || code.AccessCode || 'NA') + '", "' +
             (code.workerId || 'NA') + '", "' + email + '"\n';
 
-        fs.appendFile(gameRoom.dataDir + fileName + '.csv', row, function(err) {
+        let filename = path.join(gameRoom.dataDir, (fileName + '.csv'));
+        fs.appendFile(filename, row, function(err) {
             if (err) {
                 console.log(err);
                 console.log(row);
@@ -354,19 +321,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     }
 
     function addData(playerId, data) {
-        if (node.game.memory.player[playerId]){
-            var item = node.game.memory.player[playerId].last();
+        if (memory.player[playerId]){
+            let item = memory.player[playerId].last();
             item.bonus = data;
         }
     }
 
     // returns payoffs as a object
     function calculatePayoffs(choices, table) {
-        var payoffs, bluePayoff, redPayoff;
-        var blueChoice;
 
-        payoffs = settings.payoffs;
-        blueChoice = choices.blueChoice;
+        let payoffs = settings.payoffs;
+        let blueChoice = choices.blueChoice;
+        let bluePayoff, redPayoff;
 
         if (choices.redChoice === 'GO') {
             //             console.log('CHOICES');
@@ -394,35 +360,34 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     }
 
     function getRandomTable() {
-        var payoffTable;
-        if (Math.random() < node.game.settings.PI) payoffTable = 'A';
-        else payoffTable = 'B';        
-        return payoffTable;
-        // console.log('THE STATE OF THE WORLD IS: ' + node.game.payoffTable);
+        return (Math.random() < node.game.settings.PI) ? 'A' : 'B';
     }
 
     function saveAll() {
-        var gameDir, line, avgDecisionFilePath;
-        gameDir = channel.getGameDir();
-        node.game.memory.save('db.json');
-        node.game.memory.save('db.csv', {
+        memory.save('db.json');
+        memory.save('db.csv', {
             bool2num: true,
             headers: [
                 "room", "treatment",
-                "time", "timeup", "timestamp", "player", "bot", 
+                "time", "timeup", "timestamp", "player", "bot",
                 "stage.stage", "stage.step","stage.round",
                 "redChoice", "blueChoice", "bonus", "partner"
             ]
         });
 
-        avgDecisionFilePath = path.resolve(gameDir, 'data', 'avgDecisions.csv');
+        let gameDir = channel.getGameDir();
+        let avgDecisionFilePath = path.resolve(gameDir,
+                                               'data', 'avgDecisions.csv');
 
         if (!fs.existsSync(avgDecisionFilePath)) {
             fs.appendFile(avgDecisionFilePath,
-                          'Node,StopGo,Stop,RightLeft,Right\n');
+                          'Node,StopGo,Stop,RightLeft,Right\n', function(err) {
+
+                if (err) console.log(err);
+            });
         }
 
-        line = node.nodename + ',' + channel.numStopGoDecisions +
+        let line = node.nodename + ',' + channel.numStopGoDecisions +
             ',' + channel.numChooseStop +
             ',' + channel.numRightLeftDecisions +
             ',' + channel.numChooseRight + '\n';
@@ -434,18 +399,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     // should be moved out of logic init so only led once
     function readBotData(fileName) {
-        var filePath;
-        var db;
-        var lastLine;
-        var decisions;
-
-        filePath = path.resolve(channel.getGameDir(), 'data', fileName);
+        let filePath = path.resolve(channel.getGameDir(), 'data', fileName);
         if (fs.existsSync(filePath)) {
-            db = new ngc.NDDB();
+            let db = new ngc.NDDB();
             db.loadSync(filePath);
-            lastLine = db.last();
+            let lastLine = db.last();
             // console.log(lastLine);
-            decisions = lastLine;
+            let decisions = lastLine;
             setDecisionsProbabilities(decisions.StopGo,
                                       decisions.Stop,
                                       decisions.RightLeft,

@@ -9,34 +9,34 @@
 
 "use strict";
 
-var ngc = require('nodegame-client');
-var stepRules = ngc.stepRules;
-var fs = require('fs');
+const ngc = require('nodegame-client');
+const stepRules = ngc.stepRules;
+const fs = require('fs');
+const path = require('path');
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
-    var node = gameRoom.node;
-    var channel = gameRoom.channel;
+    let node = gameRoom.node;
+    let channel = gameRoom.channel;
 
     // Must implement the stages here.
 
     stager.setDefaultStepRule(stepRules.SOLO);
 
     stager.setOnInit(function() {
-        
+
         // Saves time, id and worker id of connected clients (with timeout).
         (function() {
-            var saveWhoConnected;
-            var cacheToSave, timeOutSave;
-            var codesFile;        
-            var dumpDbInterval;
 
-            dumpDbInterval = 30000;
+            let dumpDbInterval = 30000;
 
-            codesFile = gameRoom.dataDir + 'codes.csv'
-            
-            cacheToSave = [];
-            saveWhoConnected = function(p) {
+            let codesFile = path.join(gameRoom.dataDir, 'codes.csv');
+
+            let cacheToSave = [];
+
+            let timeOutSave;
+
+            let saveWhoConnected = function(p) {
 
                 cacheToSave.push(
                     Date.now() + "," + p.id + "," +
@@ -45,9 +45,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 );
 
                 if (!timeOutSave) {
+                    // Keep JS setTimeout here instead of node.timer.setTimeout,
+                    // no problem if it always runs.
                     timeOutSave = setTimeout(function() {
-                        var txt;
-                        txt = cacheToSave.join("\n") + "\n";
+                        let txt = cacheToSave.join("\n") + "\n";
                         cacheToSave = [];
                         timeOutSave = null;
                         fs.appendFile(codesFile, txt, function(err) {
@@ -64,21 +65,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         })();
         //////////////////////////////////
 
-        
-        node.on.data('tutorial-over', function(msg) {
-            var db;
 
+        node.on.data('tutorial-over', function(msg) {
             // Move client to part2.
             // (async so that it finishes all current step operations).
-            setTimeout(function() {
+            node.timer.setTimeout(function() {
                 // console.log('moving to stopgo interactive: ', msg.from);
-		channel.moveClientToGameLevel(msg.from, 'stopgo-interactive',
+                channel.moveClientToGameLevel(msg.from, 'stopgo-interactive',
                                               gameRoom.name);
             }, 10);
 
             // Save client's data.
             if (node.game.memory.player[msg.from]) {
-                db = node.game.memory.player[msg.from];
+                let db = node.game.memory.player[msg.from];
                 // node.game.memory.save('aa.json');
                 db.save('data_tutorial.json', { flag: 'a' });
             }
@@ -87,8 +86,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.setDefaultProperty('reconnect', function(player, obj) {
-        var stage;
-        stage = player.disconnectedStage;
+        let stage = player.disconnectedStage;
         if (stage.stage === 3) {
             // Go to the beginning...
             obj.targetStep = '2.1.1';
@@ -97,7 +95,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         // TODO: attempt to recover exact step. Too messy.
  //       var tutorialRole, world;
- //     
+ //
  //        // Tutorial Stage.
  //        if (stage.stage === 3) {
  //            tutorialRole = node.game.memory.player[player.id];
@@ -107,7 +105,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
  //            }
  //            // Something is wrong, client will be disposed.
  //            if (!tutorialRole) return false;
- // 
+ //
  //            // Results.
  //            if (stage.step === 3) {
  //                // Save info for the callback.
@@ -125,7 +123,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
  //                world = node.game.memory.player[player.id].selexec('world');
  //                    if (world) world.first();
  //                    if (world) world = world.world;
- // 
+ //
  //                    // Something is wrong, client will be disposed.
  //                    if (!world) return false;
  //                }
