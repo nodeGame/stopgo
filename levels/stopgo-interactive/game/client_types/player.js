@@ -31,8 +31,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         header = W.generateHeader();
         frame = W.generateFrame();
-        infoPanel = W.generateInfoPanel(undefined, {
-            onStep: 'close'
+        infoPanel = W.generateInfoPanel({
+            onStep: 'close',
+            toggleBtn: false
         });
 
         // Add widgets.
